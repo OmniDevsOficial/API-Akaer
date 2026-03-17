@@ -7,15 +7,13 @@
 ## API - Plataforma do Conteúdo Técnico de Normas Aeronáuticas  
 
 <p align="center">
-| <a href ="#-descrição-do-desafio"> Objetivo </a>  |
-  <a href ="#-backlog-do-produto"> Backlog do Produto </a>  |
-  <a href ="#-registros-das-sprints"> Sprint 1 </a>  |
-  <a href ="#-tecnologias-utilizadas"> Tecnologias </a> |
-  <a href ="#-estrutura-do-projeto"> Estrutura do Projeto </a> |
-  <a href ="#definition-of-ready-dor"> DoR </a>  | 
-  <a href ="#definition-of-done-dod"> DoD </a>  | 
-  <a href ="#sprint"> Cronograma de Sprints </a>  | 
-  <a href ="#-conheça-a-equipe-talentosa-por-trás-do-projeto"> Equipe </a> |
+| <a href="#objetivo"> Objetivo </a> |
+  <a href="#backlog-do-produto"> Backlog do Produto </a> |
+  <a href="#sprint-1"> Sprint 1 </a> |
+  <a href="#tecnologias-utilizadas"> Tecnologias </a> |
+  <a href="#definition-of-ready-dor"> DoR </a> | 
+  <a href="#sprint"> Cronograma de Sprints </a> | 
+  <a href="#equipe"> Equipe </a> |
 </p>
 
 ## 📌 Status do Projeto
@@ -24,12 +22,12 @@
 | 🚧 Projeto            | 🔛 Em andamento  |
 | 📂 Documentação       | 🔛 Em andamento  |
 
-## Objetivo
+## Objetivo <a id="objetivo"></a>
 O desafio consiste em desenvolver uma plataforma web estruturada para centralizar, organizar e correlacionar requisitos normativos. O sistema visa transformar o processo atual, que é manual e descentralizado, em uma fonte de dados organizada que reduza o tempo de busca e o risco de inconsistências no uso de versões obsoletas, apoiando a equipe de administradores e visualizadores.
 
 ---
 
-## 📋 Backlog do Produto 
+## 📋 Backlog do Produto <a id="backlog-do-produto"></a>
 
 | Rank | Prioridade | User Story | Estimativa | Sprint |
 | :---------: | :---------: | :---------: | :---------: | :---------: |
@@ -50,7 +48,7 @@ O desafio consiste em desenvolver uma plataforma web estruturada para centraliza
 | 🎗  15 | Média | Como Administrador, quero remover usuários do sistema, para bloquear o acesso de pessoas desatualizadas aos documentos da empresa. | 4 | 3 |
 | 🎗  16 | Baixa | Como Administrador, quero ver o registro de edição das normas, para saber o autor da edição. | 5 | 3 |
 
-## Sprint 1
+## Sprint 1 <a id="sprint-1"></a>
 
 | Rank | Prioridade | User Story | Estimativa | Sprint |
 | :---------: | :---------: | :---------: | :---------: | :---------: |
@@ -60,44 +58,35 @@ O desafio consiste em desenvolver uma plataforma web estruturada para centraliza
 | 🎗  4 | Alta | Como Visualizador, quero pesquisar normas por palavras-chave, nome ou número, para localizar um documento específico de forma direta. | 10 | 1 |
 | 🎗  5 | Alta | Como Visualizador, quero filtrar as normas por órgão emissor, categoria e etapa do projeto, para encontrar rapidamente os documentos exatos da certificação necessária. | 10 | 1 |
 
-## Tecnologias Utilizadas
+## Tecnologias Utilizadas <a id="tecnologias-utilizadas"></a>
 
 <h1 align="center">
-<a href="https://developer.mozilla.org/en-US/docs/Web/HTML"><img src="https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white"/></a>
+  <a href="https://developer.mozilla.org/en-US/docs/Web/HTML"><img src="https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white"/></a>
   <a href="https://developer.mozilla.org/en-US/docs/Web/CSS"><img src="https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white"/></a>
   <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript"><img src="https://img.shields.io/badge/javascript-%23F7DF1E.svg?style=for-the-badge&logo=javascript&logoColor=black"/></a>
   <a href="https://www.mysql.com/"><img src="https://img.shields.io/badge/mysql-%2300f.svg?style=for-the-badge&logo=mysql&logoColor=white"/></a>
-  <img src="https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white"/><br>
+  <a href="https://github.com/"><img src="https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white"/></a>
 </h1>
 
-### Definition of Ready (DoR)
+### Definition of Ready (DoR) <a id="definition-of-ready-dor"></a>
 
-| DoR (Critérios) |
-| ------------------------------------------------------------------------- |
-| [cite_start]A História de Usuário está clara e foi entendida por todos [cite: 41, 42] |
-| [cite_start]Os critérios de aceitação (Dado/Quando/Então) estão definidos [cite: 53, 161] |
-| [cite_start]O esboço visual (telas/wireframes) e a navegação estão prontos [cite: 59, 68] |
-| [cite_start]O esforço técnico foi estimado (pontuado) pela equipe [cite: 55] |
-| [cite_start]Não há pendências ou bloqueios para iniciar o desenvolvimento [cite: 56] |
-
-### Definition of Done (DoD)
-
-| DoD (Critérios) |
-| ------------------------------------------------------------------------- |
-| [cite_start]Atende aos Critérios de Aceitação (Testes Funcionais e Regras de Negócio) [cite: 215, 224] |
-| [cite_start]Code Review realizado focando em padrões e boa lógica [cite: 216, 224] |
-| [cite_start]Bloqueios de download e permissões de acesso verificados [cite: 209] |
-| [cite_start]Código fonte, executável e vídeo demonstrativo disponíveis [cite: 217, 226] |
+| DoR |
+| :--- |
+| A História de Usuário está clara e foi entendida por todos |
+| Os critérios de aceitação (Dado/Quando/Então) estão definidos |
+| O esboço visual (telas/wireframes) e a navegação estão prontas |
+| O esforço técnico foi estimado (pontuado) pela equipe |
+| Não há pendências ou bloqueios para iniciar o desenvolvimento |
 
 ## 📅 Cronograma de Sprints <a id="sprint"></a>
 
-| Sprint          |     Período     | Documentação                                     | Status |
-| --------------- | :-----------: | ------------------------------------------------ | ----- |
-|  **SPRINT 1** | 16/03 - 05/04 | Sprint 1|🔛 Em andamento |
-|  **SPRINT 2** | 13/04 - 03/05 | Sprint 2| Não iniciado|
-|  **SPRINT 3** | 11/05 - 31/05 | Sprint 3| Não iniciado|
+| Sprint | Período | Documentação | Status |
+| :--- | :---: | :--- | :--- |
+| **SPRINT 1** | 16/03 - 05/04 | Sprint 1 | 🔛 Em andamento |
+| **SPRINT 2** | 13/04 - 03/05 | Sprint 2 | Não iniciado |
+| **SPRINT 3** | 11/05 - 31/05 | Sprint 3 | Não iniciado |
 
-## 🎓 Conheça a equipe talentosa por trás do projeto
+## 🎓 Conheça a equipe talentosa por trás do projeto <a id="-conheça-a-equipe-talentosa-por-trás-do-projeto"></a>
 | Foto | Nome | Função | Github | Linkedin |
 | :---------: | :---------: | :---------------------: | :-----------------: | :-------: |
 | <img src="https://avatars.githubusercontent.com/u/103455871?v=4" width=50px alt="Foto do Yoseph"> | *Yoseph Levi* | Product Owner | <a href="https://github.com/YosephLima"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="not_found/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
