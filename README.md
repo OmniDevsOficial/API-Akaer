@@ -9,10 +9,10 @@
 <p align="center">
 | <a href="#objetivo"> Objetivo </a> |
   <a href="#backlog-do-produto"> Backlog do Produto </a> |
-  <a href="#sprint-1"> Sprint 1 </a> |
   <a href="#tecnologias-utilizadas"> Tecnologias </a> |
-  <a href="#definition-of-ready-dor"> DoR </a> | 
+  <a href="#definition-of-ready"> DoR </a> | 
   <a href="#sprint"> Cronograma de Sprints </a> | 
+  <a href="#Como-executar-o-projeto">Como Executar o Projeto</a> |
   <a href="#equipe"> Equipe </a> |
 </p>
 
@@ -48,15 +48,6 @@ O desafio consiste em desenvolver uma plataforma web estruturada para centraliza
 | 🎗  15 | Média | Como Administrador, quero remover usuários do sistema, para bloquear o acesso de pessoas desatualizadas aos documentos da empresa. | 4 | 3 |
 | 🎗  16 | Baixa | Como Administrador, quero ver o registro de edição das normas, para saber o autor da edição. | 5 | 3 |
 
-## Sprint 1 <a id="sprint-1"></a>
-
-| Rank | Prioridade | User Story | Estimativa | Sprint |
-| :---------: | :---------: | :---------: | :---------: | :---------: |
-| 🎗  1 | Alta | Como Administrador, quero cadastrar normas no sistema, para disponibilizar essa documentação aos visualizadores. | 8 | 1 |
-| 🎗  2 | Alta | Como Visualizador, quero acessar a plataforma no cargo de leitor, para consultar o acervo sem o risco de alterar os dados. | 7 | 1 |
-| 🎗  3 | Alta | Como Administrador, quero realizar login seguro na plataforma, para acessar o ambiente de gestão do sistema. | 6 | 1 |
-| 🎗  4 | Alta | Como Visualizador, quero pesquisar normas por palavras-chave, nome ou número, para localizar um documento específico de forma direta. | 10 | 1 |
-| 🎗  5 | Alta | Como Visualizador, quero filtrar as normas por órgão emissor, categoria e etapa do projeto, para encontrar rapidamente os documentos exatos da certificação necessária. | 10 | 1 |
 
 ## Tecnologias Utilizadas <a id="tecnologias-utilizadas"></a>
 
@@ -68,7 +59,8 @@ O desafio consiste em desenvolver uma plataforma web estruturada para centraliza
   <a href="https://github.com/"><img src="https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white"/></a>
 </h1>
 
-### Definition of Ready (DoR) <a id="definition-of-ready-dor"></a>
+
+### Definition of Ready (DoR) <a id="definition-of-ready"></a>
 
 | DoR |
 | :--- |
@@ -78,21 +70,32 @@ O desafio consiste em desenvolver uma plataforma web estruturada para centraliza
 | O esforço técnico foi estimado (pontuado) pela equipe |
 | Não há pendências ou bloqueios para iniciar o desenvolvimento |
 
+
 ## 📅 Cronograma de Sprints <a id="sprint"></a>
 
-| Sprint | Período | Documentação | Status |
-| :--- | :---: | :--- | :--- |
-| **SPRINT 1** | 16/03 - 05/04 | Sprint 1 | 🔛 Em andamento |
-| **SPRINT 2** | 13/04 - 03/05 | Sprint 2 | Não iniciado |
-| **SPRINT 3** | 11/05 - 31/05 | Sprint 3 | Não iniciado |
+| Sprint | Período | Documentação | Status | Vídeo |
+| :--- | :---: | :--- | :--- | :--- |
+| **SPRINT 1** | 16/03 - 05/04 | [Sprint 1 docs](docs/sprint1.md) | 🔛 Em andamento | [🎥 Assistir](#) |
+| **SPRINT 2** | 13/04 - 03/05 | Sprint 2 docs| 💤 Não iniciado | |
+| **SPRINT 3** | 11/05 - 31/05 | Sprint 3 docs| 💤 Não iniciado | |
 
-## 🎓 Conheça a equipe talentosa por trás do projeto <a id="-conheça-a-equipe-talentosa-por-trás-do-projeto"></a>
+
+## 📜 Como Executar o Projeto <a id="Como-executar-o-projeto"></a>
+
+### Pré-requisitos
+
+- **Node.js** (Versão LTS recomendada)
+- **MySQL Server**
+- **Git**
+
+
+## 🎓 Conheça a equipe talentosa por trás do projeto <a id="equipe"></a>
 | Foto | Nome | Função | GitHub | LinkedIn |
 | :---: | :--- | :--- | :---: | :---: |
 | <img src="https://avatars.githubusercontent.com/u/189993239?v=4" width=50px alt="Foto do Marcio"> | **Marcio Gustavo** | Product Owner | <a href="https://github.com/Marcio-gustavoI"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://www.linkedin.com/in/marciogustavo"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
 | <img src="https://avatars.githubusercontent.com/u/168497458?v=4" width=50px alt="Foto do Henrique"> | **Henrique Moreira** | Scrum Master | <a href="https://github.com/DeveloperCorsair"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://www.linkedin.com/in/henriquemm/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
-| <img src="https://avatars.githubusercontent.com/u/168978076?v=4" width=50px alt="Foto da Gabriela"> | **Gabriela Santos** | Desenvolvedora | <a href="https://github.com/GabSantt"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="#"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
-| <img src="https://avatars.githubusercontent.com/u/225857087?v=4" width=50px alt="Foto da Kathelyn"> | **Kathelyn Zanin** | Desenvolvedora | <a href="https://github.com/KathelynZanin"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="#"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
-| <img src="https://avatars.githubusercontent.com/u/179191752?v=4" width=50px alt="Foto do Victor"> | **Victor Chagas** | Desenvolvedor | <a href="https://github.com/victorchagas-93"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="#"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
-| <img src="https://avatars.githubusercontent.com/u/103455871?v=4" width=50px alt="Foto do Yoseph"> | **Yoseph Levi** | Desenvolvedor | <a href="https://github.com/YosephLima"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="#"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
-| <img src="https://avatars.githubusercontent.com/u/225857936?v=4" width=50px alt="Foto do Luis"> | **Luis Guilherme** | Desenvolvedor | <a href="https://github.com/Mactravish552"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="#"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
+| <img src="https://avatars.githubusercontent.com/u/168978076?v=4" width=50px alt="Foto da Gabriela"> | **Gabriela Santos** | Desenvolvedora | <a href="https://github.com/GabSantt"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://www.linkedin.com/in/gabriela-santos-b762a9399/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
+| <img src="https://avatars.githubusercontent.com/u/225857087?v=4" width=50px alt="Foto da Kathelyn"> | **Kathelyn Zanin** | Desenvolvedora | <a href="https://github.com/KathelynZanin"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://www.linkedin.com/in/kathelynzanin/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
+| <img src="https://avatars.githubusercontent.com/u/179191752?v=4" width=50px alt="Foto do Victor"> | **Victor Chagas** | Desenvolvedor | <a href="https://github.com/victorchagas-93"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://www.linkedin.com/in/victorchagas93/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
+| <img src="https://avatars.githubusercontent.com/u/103455871?v=4" width=50px alt="Foto do Yoseph"> | **Yoseph Levi** | Desenvolvedor | <a href="https://github.com/YosephLima"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://www.linkedin.com/in/yoseph-levi-rodrigues-de-lima-7020b324a/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
+| <img src="https://avatars.githubusercontent.com/u/225857936?v=4" width=50px alt="Foto do Luis"> | **Luis Guilherme** | Desenvolvedor | <a href="https://github.com/Mactravish552"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://www.linkedin.com/in/guilhermedecampospinto/?locale=en_US"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
