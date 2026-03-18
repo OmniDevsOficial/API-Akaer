@@ -1,13 +1,10 @@
 <h1 align="center"> OmniDevs </h1>
 
-
 <div align="center">
     <img src="img/OmniDevs.jpeg" width="170x" height="170x" style="border-radius:50%;">
 </div>
 
-
 ## API - Plataforma do Conteúdo Técnico de Normas Aeronáuticas  
-
 
 <p align="center">
 | <a href="#objetivo"> Objetivo </a> |
@@ -15,17 +12,15 @@
   <a href="#tecnologias-utilizadas"> Tecnologias </a> |
   <a href="#definition-of-ready"> DoR </a> | 
   <a href="#sprint"> Cronograma de Sprints </a> | 
-  <a href="#como-executar-o-projeto">Como Executar o Projeto</a> |
+  <a href="#Como-executar-o-projeto">Como Executar o Projeto</a> |
   <a href="#equipe"> Equipe </a> |
 </p>
-
 
 ## 📌 Status do Projeto
 | Item                  | Situação |
 |-----------------------|---------------|
 | 🚧 Projeto            | 🔛 Em andamento  |
 | 📂 Documentação       | 🔛 Em andamento  |
-
 
 ## Objetivo <a id="objetivo"></a>
 O desafio consiste em desenvolver uma plataforma web estruturada para centralizar, organizar e correlacionar requisitos normativos. O sistema visa transformar o processo atual, que é manual e descentralizado, em uma fonte de dados organizada que reduza o tempo de busca e o risco de inconsistências no uso de versões obsoletas, apoiando a equipe de administradores e visualizadores.
@@ -84,21 +79,8 @@ O desafio consiste em desenvolver uma plataforma web estruturada para centraliza
 | **SPRINT 2** | 13/04 - 03/05 | Sprint 2 docs| 💤 Não iniciado | |
 | **SPRINT 3** | 11/05 - 31/05 | Sprint 3 docs| 💤 Não iniciado | |
 
-<<<<<<< Updated upstream
-## 🎓 Conheça a equipe talentosa por trás do projeto <a id="-conheça-a-equipe-talentosa-por-trás-do-projeto"></a>
-| Foto | Nome | Função | Github | Linkedin |
-| :---------: | :---------: | :---------------------: | :-----------------: | :-------: |
-| <img src="https://avatars.githubusercontent.com/u/103455871?v=4" width=50px alt="Foto do Yoseph"> | *Yoseph Levi* | Product Owner | <a href="https://github.com/YosephLima"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="not_found/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
-| <img src="https://avatars.githubusercontent.com/u/225857936?v=4" width=50px alt="Foto do Luis"/> | *Luis Guilherme* | Scrum Master | <a href="https://github.com/Mactravish552"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="not_found"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
-| <img src="https://avatars.githubusercontent.com/u/168978076?v=4" width=50px alt="Foto da Gabriela"> | *Gabriela Santos* | Desenvolvedor | <a href="https://github.com/GabSantt"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="not_found"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> | 
-| <img src="https://avatars.githubusercontent.com/u/168497458?v=4" width=50px alt="Foto do Henrique"/> | *Henrique Moreira* | Desenvolvedor | <a href="https://github.com/DeveloperCorsair"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://www.linkedin.com/in/henriquemm/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
-| <img src="https://avatars.githubusercontent.com/u/225857087?v=4" width=50px alt="Foto da Kathelyn"/> | *Kathelyn Zanin* | Desenvolvedor | <a href="https://github.com/KathelynZanin"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="not_found"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
-| <img src="https://avatars.githubusercontent.com/u/189993239?v=4" width=50px alt="Foto do Marcio"> | *Marcio Gustavo* | Desenvolvedor | <a href="https://github.com/Marcio-gustavoI"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://www.linkedin.com/in/marciogustavo"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> | 
-| <img src="https://avatars.githubusercontent.com/u/225857870?v=4" width=50px alt="Foto do Matheus"> | *Matheus Bueno* | Desenvolvedor | <a href="https://github.com/Matheusxfc"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="not_found"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
-| <img src="https://avatars.githubusercontent.com/u/179191752?v=4" width=50px alt="Foto do Victor"> | *Victor Chagas* | Desenvolvedor | <a href="https://github.com/victorchagas-93"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="not_found"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
-=======
 
-## 📜 Como Executar o Projeto <a id="como-executar-o-projeto"></a>
+## 📜 Como Executar o Projeto <a id="Como-executar-o-projeto"></a>
 
 ### Pré-requisitos
 
@@ -117,4 +99,3 @@ O desafio consiste em desenvolver uma plataforma web estruturada para centraliza
 | <img src="https://avatars.githubusercontent.com/u/179191752?v=4" width=50px alt="Foto do Victor"> | **Victor Chagas** | Desenvolvedor | <a href="https://github.com/victorchagas-93"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://www.linkedin.com/in/victorchagas93/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
 | <img src="https://avatars.githubusercontent.com/u/103455871?v=4" width=50px alt="Foto do Yoseph"> | **Yoseph Levi** | Desenvolvedor | <a href="https://github.com/YosephLima"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://www.linkedin.com/in/yoseph-levi-rodrigues-de-lima-7020b324a/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
 | <img src="https://avatars.githubusercontent.com/u/225857936?v=4" width=50px alt="Foto do Luis"> | **Luis Guilherme** | Desenvolvedor | <a href="https://github.com/Mactravish552"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://www.linkedin.com/in/guilhermedecampospinto/?locale=en_US"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
->>>>>>> Stashed changes
