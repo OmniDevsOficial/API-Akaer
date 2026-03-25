@@ -1,0 +1,198 @@
+
+:root {
+  --primary-color: #A11F3C; 
+  --text-dark: #333333;
+  --text-light: #777777;
+  --bg-input: #F9F9F9;
+  --border-input: #E0E0E0;
+  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+}
+
+.loginContainer {
+  display: flex;
+  min-height: 100vh; 
+  width: 100%;
+  font-family: var(--font-family);
+  overflow: hidden; 
+}
+
+/*Imagem */
+.leftColumn {
+  flex: 1.2; 
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  border-right: 1px solid var(--primary-color); 
+  width: 300px;
+  height: auto;
+}
+
+
+
+/* Formulário */
+.rightColumn {
+  flex: 1; 
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+  background-color: #FFFFFF;
+  padding: 40px;
+}
+
+.loginForm {
+  width: 100%;
+  max-width: 480px; /* Limita a largura do formulário para legibilidade */
+}
+
+
+.accessLabel {
+  color: var(--primary-color);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+
+.title {
+  color: var(--text-dark);
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+
+/* Subtítulo */
+.subtitle {
+  color: var(--text-light);
+  font-size: 15px;
+  margin: 0 0 32px 0;
+}
+
+/* Grupos de Input */
+.inputGroup {
+  margin-bottom: 20px;
+}
+
+.label {
+  display: block;
+  color: var(--text-dark);
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.inputField {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border-input);
+  background-color: var(--bg-input);
+  border-radius: 2px; 
+  font-size: 15px;
+  transition: border-color 0.2s;
+}
+
+.inputField:focus {
+  outline: none;
+  border-color: var(--primary-color); 
+}
+
+.inputField::placeholder {
+  color: #CCCCCC;
+}
+
+/* Esqueci a Senha */
+.formFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  font-size: 13px;
+}
+
+.rememberWrapper {
+  display: flex;
+  align-items: center;
+}
+
+.checkbox {
+  margin-right: 8px;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+}
+
+.rememberLabel {
+  color: var(--text-light);
+  cursor: pointer;
+}
+
+.forgotPassword {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.forgotPassword:hover {
+  text-decoration: underline;
+}
+
+/* Botão ENTRAR */
+.submitButton {
+  width: 100%;
+  padding: 14px;
+  background-color: #2D2D2D; 
+  color: #FFFFFF;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  transition: background-color 0.2s;
+  margin-bottom: 40px;
+}
+
+.submitButton:hover {
+  background-color: #1A1A1A;
+}
+
+/* Texto Inferior */
+.infoTextWrapper {
+  margin-top: auto; 
+  padding-top: 20px;
+  max-width: 400px;
+}
+
+.infoTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 12px;
+  position: relative;
+  display: inline-block;
+}
+
+/* Detalhe da Linha Vermelha Abaixo do Título de Info */
+.infoTitle::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 30px;
+  height: 2px;
+  background-color: var(--primary-color);
+}
+
+.infoTitleHighlight {
+  font-style: italic;
+  color: var(--text-light);
+}
+
+.infoBody {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-light);
+  margin: 0;
+}
