@@ -1,38 +1,61 @@
 import React, { useState } from 'react';
-import styles from './Login.module.css'; 
-
+import styles from './Login.module.css';
 import backgroundImage from '../../assets/background.jpg';
+import { useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 
 const LoginPage: React.FC = () => {
- 
+
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [rememberMe, setRememberMe] = useState<boolean>(false);
+  const navigate = useNavigate();
 
-  
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault(); 
-    console.log('Tentativa de login com:', { email, password, rememberMe });
-    
+  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    try {
+      const response = await api.post('/api/auth/login', {
+        email,
+        password,
+      });
+
+      const { token } = response.data;
+
+      if (!token) {
+        throw new Error('Token não retornado pela API.');
+      }
+
+      if (rememberMe) {
+        localStorage.setItem('token', token);
+      } else {
+        sessionStorage.setItem('token', token);
+      }
+
+      navigate('/home');
+    } catch (error: any) {
+      const message = error?.response?.data?.error ?? 'Falha ao fazer login.';
+      console.error('Erro no login:', message);
+      alert(message);
+    }
   };
 
   return (
     <div className={styles.loginContainer}>
-      { /* Imagem e Logo */ }
-      <div 
-        className={styles.leftColumn} 
+      { /* Imagem e Logo */}
+      <div
+        className={styles.leftColumn}
         style={{ backgroundImage: `url(${backgroundImage})` }}
       >
       </div>
 
       {/* Formulário de Login */}
       <div className={styles.rightColumn}>
-        <form onSubmit={handleSubmit} className={styles.loginForm}>
-          
+        <form onSubmit={handleLogin} className={styles.loginForm}>
+
           <div className={styles.accessLabel}>— ACESSO À PLATAFORMA</div>
-          
+
           <h1 className={styles.title}>Bem-vindo de volta</h1>
-          
+
           <p className={styles.subtitle}>
             Insira suas credenciais para continuar
           </p>
@@ -81,7 +104,7 @@ const LoginPage: React.FC = () => {
                 Lembrar de mim
               </label>
             </div>
-            
+
             <a href="/esqueci-senha" className={styles.forgotPassword}>
               Esqueci Senha
             </a>
@@ -91,7 +114,7 @@ const LoginPage: React.FC = () => {
           <button type="submit" className={styles.submitButton}>
             ENTRAR
           </button>
-          
+
           {/* Texto Inferior */}
           <div className={styles.infoTextWrapper}>
             <div className={styles.infoTitle}>
