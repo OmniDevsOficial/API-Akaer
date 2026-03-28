@@ -1,5 +1,5 @@
 import prisma from "../prisma/client";
-import { comparePassword } from "../utils/hash";
+import { comparePassword, hashPassword } from "../utils/hash";
 import jwt from "jsonwebtoken";
 import { validatePassword } from "../utils/validatePassword";
 
@@ -19,4 +19,18 @@ export const loginService = async (email: string, password: string) => {
   );
 
   return { token };
+};
+
+export const registerService = async (email: string, password: string, role: string) => {
+  validatePassword(password);
+  const existingUser = await prisma.user.findUnique({ where: { email } });
+  if (existingUser) throw new Error("Usuário já existe");
+
+  const hashedPassword = await hashPassword(password);
+
+  const user = await prisma.user.create({
+    data: { email, password: hashedPassword, role }
+  });
+
+  return { id: user.id, email: user.email, role: user.role };
 };
