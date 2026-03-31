@@ -1,9 +1,12 @@
 export default function Sidebar() {
     return (
-        <div className="flex flex-1">
+        <div className="flex">
             <aside className="w-64 bg-white border-r border-font-border p-6">
-                <span className="text-[#B5B0AB] tracking-widest">PRINCIPAIS</span>
-                <div className="text-white bg-[#73203A] rounded-lg shadow-xl my-2 p-2">Normas</div>
+                <span className="text-[#B5B0AB] tracking-wide">PRINCIPAIS</span>
+                <button className="flex items-center my-2 gap-2 px-4 py-2 bg-[#73203A] text-white text-left rounded-md w-full shadow-xl font-semibold">
+                    <span>📋</span>
+                    <span>Normas</span>
+                </button>
             </aside>
         </div>
     )
