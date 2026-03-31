@@ -5,7 +5,15 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev src/server.ts",
-    "setup": "npm install && npx prisma generate && npx prisma db push"
+    "setup": "npm install && npx prisma generate && npx prisma db push",
+    "postinstall": "prisma generate",
+    "db:update-schema":"prisma migrate dev",
+    "db:setup": "prisma migrate dev && npx prisma db seed",
+    "db:export": "ts-node prisma/utils/export.ts",
+    "db:import": "prisma migrate reset --force"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/utils/seed.ts"
   },
   "keywords": [],
   "author": "",
