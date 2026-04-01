@@ -1,6 +1,6 @@
 export default function Home() {
     return (
-        <header className="h-18 bg-white border-b border-font-border flex items-center justify-between px-8">
+        <header className="h-16 bg-white border-b border-font-border flex items-center justify-between px-8">
             {/* Logo e título */}
             <div className="flex gap-6 items-center">
                 {/* 
