@@ -43,7 +43,7 @@ export default function Home() {
                                 className='font-semibold text-white text-sm bg-dark-title border border-font-border rounded-md py-3 px-6 cursor-pointer'>
                                 + Novo Cadastro
                             </button>
-
+                             
                                <AddStandardModal open={modalAberto} onOpenChange={() => setModalAberto(false)} />
                         </div>
 
