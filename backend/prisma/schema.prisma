@@ -3,15 +3,26 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 model User {
   id       Int    @id @default(autoincrement())
-  email    String @unique @db.VarChar(225)
-  role     String @db.VarChar(20)
-  password String @db.Text
+  email    String @unique
+  role     String 
+  password String 
 
   @@map("users")
+}
+
+model Norma {
+  id        Int      @id @default(autoincrement())
+  titulo    String
+  numero    String
+  orgao     String
+  categoria String
+  arquivo   String   // caminho do PDF
+  status    String   @default("ATIVA")
+  createdAt DateTime @default(now())
 }
