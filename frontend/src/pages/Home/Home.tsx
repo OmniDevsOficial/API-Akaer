@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import Header from '../../components/header';
 import Sidebar from '../../components/sidebar';
 import Barra_pesquisa from '../../components/barra_pes';
-import Footer from '../../components/footer';
+import TabelaNormas from '../../components/tabela';
+// import modalCadastro from '' é de onde vai vir o modal
 
 export default function Home() {
 
@@ -13,10 +15,15 @@ export default function Home() {
         localStorage.removeItem("token");
         navigate('/');
     };
+    // Funções do modal para abri-lo
+    const [modalAberto, setModalAberto] = useState(false);
 
     return (
         <>
             <div className="min-h-screen bg-[#fbfbfb] flex flex-col font-dm">
+                {/* Mais tarde vou colocar essa função dentro do perfil */}
+                <button onClick={() => handleLogout()}>Logout</button>
+                
                 <Header />
 
                 {/* O container que divide a parte de baixo em duas colunas */}
@@ -31,22 +38,23 @@ export default function Home() {
                         <div className='flex justify-between items-center'>
                             <h1 className="text-3xl font-dm font-semibold text-dark-title">Normas Aeronáuticas</h1>
 
-                            <button className='font-semibold text-white text-sm bg-dark-title border border-font-border rounded-md py-3 px-6 cursor-pointer'>
+                            <button onClick={() => setModalAberto(true)}
+                                className='font-semibold text-white text-sm bg-dark-title border border-font-border rounded-md py-3 px-6 cursor-pointer'>
                                 + Novo Cadastro
                             </button>
+
+                            {/*Fecha o modal ao clicar no "X" ou botão de cancelar
+                               {modalAberto && <modalCadastro onFechar={() => setModalAberto(false)} />} 
+                            */}
                         </div>
 
                         {/* Barra de pesquisa, filtro e ordenar */}
                         <Barra_pesquisa />
 
                         {/* Tabela de normas */}
-                        <div className="border-2 border-[0.5px] border-font-border rounded-lg p-10 text-center text-gray-medium">
-
-                            A nossa tabela gigante vai entrar bem aqui!
-                        </div>
+                        <TabelaNormas />
                     </main>
                 </div>
-                {/* <Footer /> */}
             </div>
         </>
     )

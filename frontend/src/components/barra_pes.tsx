@@ -6,7 +6,7 @@ export default function Barra_pesquisa() {
         <div className="flex items-center gap-4 my-6">
             {/* Barra de Pesquisa */}
             <div className="flex flex-1 items-center border border-font-border rounded-lg py-1.5 px-4">
-                <input type="text" className='focus:outline-none focus:ring-0' placeholder="Buscar Normas, códigos ou palavra-chave..."
+                <input type="text" className='focus:outline-none focus:ring-0 w-full' placeholder="Buscar Normas, códigos ou palavra-chave..."
                     value={busca} onChange={(evento) => setBusca(evento.target.value)} /> {/* Quando pesquisar atualiza a memória */}
             </div>
 
