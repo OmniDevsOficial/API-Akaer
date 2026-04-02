@@ -1,19 +1,23 @@
 import prisma from "../prisma/client";
 
 export const createNormaService = async (data: any, filePath: string) => {
-  const { titulo, numero, orgao, categoria } = data;
+  const { codigo, titulo, orgao_emissor, categoria, etapa_projeto, revisao, status, data_publicacao } = data;
 
-  if (!titulo || !numero || !orgao || !categoria) {
-    throw new Error("Campos obrigatórios não preenchidos");
+  if (!codigo || !titulo || !orgao_emissor || !categoria || !data_publicacao) {
+    throw new Error("Campos obrigatórios não preenchidos: codigo, titulo, orgao_emissor, categoria, data_publicacao");
   }
 
   const norma = await prisma.norma.create({
     data: {
+      codigo,
       titulo,
-      numero,
-      orgao,
+      orgao_emissor,
       categoria,
-      arquivo: filePath
+      etapa_projeto: etapa_projeto || null,
+      revisao: revisao || null,
+      status: status || "Ativa",
+      data_publicacao: new Date(data_publicacao),
+      arquivo: filePath,
     }
   });
 
