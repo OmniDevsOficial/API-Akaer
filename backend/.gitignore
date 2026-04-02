@@ -5,7 +5,12 @@ prisma/imports/*
 prisma/exports/*
 !prisma/exports/.gitkeep
 
+/src/generated/prisma
+
 # Outros
 node_modules
 .env
 dist
+dev.db
+/uploads
+
