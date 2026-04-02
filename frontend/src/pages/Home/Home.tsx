@@ -4,6 +4,7 @@ import Header from '../../components/header';
 import Sidebar from '../../components/sidebar';
 import Barra_pesquisa from '../../components/barra_pes';
 import TabelaNormas from '../../components/tabela';
+import AddStandardModal from '@/components/add-standard-modal';
 // import modalCadastro from '' é de onde vai vir o modal
 
 export default function Home() {
@@ -43,9 +44,7 @@ export default function Home() {
                                 + Novo Cadastro
                             </button>
 
-                            {/*Fecha o modal ao clicar no "X" ou botão de cancelar
-                               {modalAberto && <modalCadastro onFechar={() => setModalAberto(false)} />} 
-                            */}
+                               <AddStandardModal open={modalAberto} onOpenChange={() => setModalAberto(false)} />
                         </div>
 
                         {/* Barra de pesquisa, filtro e ordenar */}
