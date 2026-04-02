@@ -22,9 +22,7 @@ export default function Home() {
     return (
         <>
             <div className="min-h-screen bg-[#fbfbfb] flex flex-col font-dm">
-                {/* Mais tarde vou colocar essa função dentro do perfil */}
-                <button onClick={() => handleLogout()}>Logout</button>
-                
+
                 <Header />
 
                 {/* O container que divide a parte de baixo em duas colunas */}
@@ -43,8 +41,8 @@ export default function Home() {
                                 className='font-semibold text-white text-sm bg-dark-title border border-font-border rounded-md py-3 px-6 cursor-pointer'>
                                 + Novo Cadastro
                             </button>
-                             
-                               <AddStandardModal open={modalAberto} onOpenChange={() => setModalAberto(false)} />
+
+                            <AddStandardModal open={modalAberto} onOpenChange={() => setModalAberto(false)} />
                         </div>
 
                         {/* Barra de pesquisa, filtro e ordenar */}
@@ -54,6 +52,9 @@ export default function Home() {
                         <TabelaNormas />
                     </main>
                 </div>
+
+                {/* Mais tarde vou colocar essa função dentro do perfil */}
+                <button onClick={() => handleLogout()}>Logout</button>
             </div>
         </>
     )

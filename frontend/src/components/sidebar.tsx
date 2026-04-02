@@ -1,6 +1,9 @@
+// Importa a lib de icons do react
+import { IoReorderFour } from "react-icons/io5";
+
 export default function Sidebar() {
     const itemSidebar = [
-        { id: 1, nome: 'Normas', icone: '📋', ativo: true },
+        { id: 1, nome: 'Normas', icone: <IoReorderFour  className="text-lg"/>, ativo: true },
         /* {id: 2, nome: 'calendário', icone: '📋', ativo: false } */
     ];
 

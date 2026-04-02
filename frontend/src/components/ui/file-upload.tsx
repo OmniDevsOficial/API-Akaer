@@ -104,7 +104,7 @@ export function FileUpload({ onFileSelected }: FileUploadProps) {
             {selectedFile && (
                 <div className="min-h-6 mt-4 text-sm text-start">
                     {selectedFile && !errorMessage ? (
-                        <div className="flex items-center justify-between gap-2 text-gray-700">
+                        <div className="flex items-center justify-between gap-2 text-red-akaer">
                             <span className="truncate">
                                 {selectedFile.name} ({formatSize.format(selectedFile.size / (1024 * 1024))} MB)
                             </span>

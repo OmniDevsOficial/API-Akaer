@@ -52,7 +52,7 @@ export default function Home() {
                     <img className='w-5' src="./src/assets/icons/notificacao.png" alt="" />
                 </div>
 
-                <div className="flex gap-2 border border-font-border rounded-lg cursor-pointer py-1 px-2">
+                <div className="flex items-center gap-2 border border-font-border rounded-lg cursor-pointer py-1 px-2">
                     <span className={`w-8 h-8 ${usuario.corFundo} text-white text-sm font-medium flex items-center justify-center rounded`}>
                         {usuario.iniciais}
                     </span>

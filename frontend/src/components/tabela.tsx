@@ -1,3 +1,6 @@
+import { TfiPencilAlt, TfiWorld } from "react-icons/tfi";
+
+
 interface Norma {
     id: number;
     codigo: string;
@@ -41,7 +44,7 @@ const normasAPI: Norma[] = [
         orgao: 'FAA',
         categoria: 'Certificação',
         status: 'Obsoleto',
-        corStatus: 'bg-gray-500',
+        corStatus: 'bg-gray-400',
         visibilidade: 'Público',
     },
     {
@@ -104,14 +107,19 @@ export default function TabelaNormas() {
 
                             {/* Botões de ação */}
                             <td className="px-6 py-4">
-                                <div className="flex items-center gap-2">
-                                    <button className="p-1 hover:text-red-akaer transition-colors">⬇</button>
-                                    <button className="p-1 hover:text-red-akaer transition-colors">✏</button>
+                                <div className="flex items-center gap-1 text-gray-700 hover:text-red-akaer transition-colors cursor-pointer">
+                                    <TfiPencilAlt className="p-1  text-2xl" />
+                                    <span className="text-sm">Editar</span>
                                 </div>
                             </td>
 
                             {/* Visibilidade */}
-                            <td className="px-6 py-4 text-sm text-gray-700">🌐 {norma.visibilidade}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700">
+                                <div className="flex items-center gap-1">
+                                    <TfiWorld />
+                                    <span>{norma.visibilidade}</span>
+                                </div>
+                            </td>
 
                         </tr>
                     ))}
