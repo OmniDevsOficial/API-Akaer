@@ -6,7 +6,7 @@ interface FileUploadProps {
     onFileSelected: (file: File | null) => void;
 }
 
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024;
 
 export function FileUpload({ onFileSelected }: FileUploadProps) {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -37,10 +37,10 @@ export function FileUpload({ onFileSelected }: FileUploadProps) {
 
         let message = 'Nao foi possivel selecionar o arquivo.';
         if (firstError?.code === 'file-invalid-type') {
-            message = 'Formato invalido. Envie apenas PDF, DOC ou DOCX.';
+            message = 'Formato invalido. Envie apenas PDF.';
         }
         if (firstError?.code === 'file-too-large') {
-            message = 'Arquivo muito grande. O limite e 10MB.';
+            message = 'Arquivo muito grande. O limite e 20MB.';
         }
         if (firstError?.code === 'too-many-files') {
             message = 'Selecione apenas 1 arquivo.';
@@ -65,8 +65,6 @@ export function FileUpload({ onFileSelected }: FileUploadProps) {
         maxSize: MAX_FILE_SIZE_BYTES,
         accept: {
             'application/pdf': ['.pdf'],
-            'application/msword': ['.doc'],
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
         },
     });
 
@@ -95,7 +93,7 @@ export function FileUpload({ onFileSelected }: FileUploadProps) {
                             <p className="text-sm font-medium text-foreground mb-1 text-center">
                                 <span className="font-semibold text-red-akaer">Clique para fazer upload</span> ou arraste e solte
                             </p>
-                            <p className="text-xs text-muted-foreground text-center">PDF, DOC ou DOCX (maximo de 10MB)</p>
+                            <p className="text-xs text-muted-foreground text-center">PDF, DOC ou DOCX (maximo de 20MB)</p>
                         </>
                     )}
                 </div>
