@@ -42,6 +42,7 @@ export default function Home() {
                                 + Novo Cadastro
                             </button>
 
+                            {/* Modal de Cadastro de Normas */}
                             <AddStandardModal open={modalAberto} onOpenChange={() => setModalAberto(false)} />
                         </div>
 
