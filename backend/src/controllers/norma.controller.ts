@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
+import { createNormaService, updateNormaService } from "../services/norma.service";
 import fs from "fs";
-import { createNormaService } from "../services/norma.service";
 
 export const createNorma = async (req: Request, res: Response) => {
   try {
@@ -22,5 +22,25 @@ export const createNorma = async (req: Request, res: Response) => {
     }
 
     return res.status(isDuplicateCodigo ? 409 : 400).json({ error: message });
+  }
+};
+
+export const updateNorma = async (req: Request, res: Response) => {
+  try {
+    const codigoParam = req.params.codigo;
+
+    if (typeof codigoParam !== "string") {
+      return res.status(400).json({ error: "Código da norma inválido" });
+    }
+
+    const norma = await updateNormaService(codigoParam, req.body);
+
+    return res.status(200).json(norma);
+  } catch (error: any) {
+    if (error.message === "Norma não encontrada") {
+      return res.status(404).json({ error: error.message });
+    }
+
+    return res.status(400).json({ error: error.message });
   }
 };
