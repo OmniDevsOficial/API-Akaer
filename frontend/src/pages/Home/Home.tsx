@@ -12,7 +12,7 @@ export default function Home() {
 
     const navigate = useNavigate();
     const role = getUserRole();
-    const isAdmin = role === 'admin';
+    const isAdmin = role?.toLocaleLowerCase() === 'admin';
 
     // Usar para sair da plataforma, vai ser colocado no dropdown do perfil
     const handleLogout = async () => {
