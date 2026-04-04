@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createNormaService, updateNormaService } from "../services/norma.service";
+import { createNormaService, searchNormasService, updateNormaService } from "../services/norma.service";
 import fs from "fs";
 
 export const createNorma = async (req: Request, res: Response) => {
@@ -41,6 +41,26 @@ export const updateNorma = async (req: Request, res: Response) => {
       return res.status(404).json({ error: error.message });
     }
 
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+export const searchNormas = async (req: Request, res: Response) => {
+  try {
+    const texto = req.query.texto;
+    const pageQuery = req.query.page;
+
+    if (typeof texto !== "string") {
+      return res.status(400).json({ error: "Parâmetro 'texto' é obrigatório" });
+    }
+
+    const paginaRecebida = typeof pageQuery === "string" ? Number(pageQuery) : 1;
+    const pagina = Number.isInteger(paginaRecebida) && paginaRecebida > 0 ? paginaRecebida : 1;
+
+    const normas = await searchNormasService(texto, pagina);
+
+    return res.status(200).json(normas);
+  } catch (error: any) {
     return res.status(400).json({ error: error.message });
   }
 };
