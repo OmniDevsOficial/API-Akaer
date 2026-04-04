@@ -1,4 +1,5 @@
 import { TfiPencilAlt, TfiWorld } from "react-icons/tfi";
+import { getUserRole } from '../utils/auth';
 
 
 interface Norma {
@@ -61,6 +62,10 @@ const normasAPI: Norma[] = [
 ];
 
 export default function TabelaNormas() {
+
+    const role = getUserRole();
+    const isAdmin = role === 'admin';
+
     return (
         <div className="border border-font-border rounded-lg overflow-hidden">
             <table className="w-full">
@@ -73,14 +78,21 @@ export default function TabelaNormas() {
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">ÓRGÃO</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">CATEGORIA</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">STATUS</th>
-                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">AÇÕES</th>
+
+                        {isAdmin && (
+                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">
+                          AÇÕES
+                        </th>
+                        )}
+
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">VISIB.</th>
+
                     </tr>
                 </thead>
 
                 {/* Linhas das normas */}
-                <tbody>
-                    {normasAPI.map(norma => (
+                    <tbody>
+                        {normasAPI.map(norma => (
                         <tr key={norma.id} className="border-b border-font-border last:border-none hover:bg-gray-50 transition-colors">
 
                             {/* Código — vermelho no design */}
@@ -106,13 +118,15 @@ export default function TabelaNormas() {
                             </td>
 
                             {/* Botões de ação */}
+                            {isAdmin && (
                             <td className="px-6 py-4">
                                 <div className="flex items-center gap-1 text-gray-700 hover:text-red-akaer transition-colors cursor-pointer">
                                     <TfiPencilAlt className="p-1  text-2xl" />
                                     <span className="text-sm">Editar</span>
                                 </div>
                             </td>
-
+                            )}
+                            
                             {/* Visibilidade */}
                             <td className="px-6 py-4 text-sm text-gray-700">
                                 <div className="flex items-center gap-1">

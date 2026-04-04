@@ -5,11 +5,14 @@ import Sidebar from '../../components/sidebar';
 import Barra_pesquisa from '../../components/barra_pes';
 import TabelaNormas from '../../components/tabela';
 import AddStandardModal from '@/components/add-standard-modal';
+import { getUserRole } from '../../utils/auth';
 // import modalCadastro from '' é de onde vai vir o modal
 
 export default function Home() {
 
     const navigate = useNavigate();
+    const role = getUserRole();
+    const isAdmin = role === 'admin';
 
     // Usar para sair da plataforma, vai ser colocado no dropdown do perfil
     const handleLogout = async () => {
@@ -36,11 +39,13 @@ export default function Home() {
                         {/* Botão de cadastro de norma */}
                         <div className='flex justify-between items-center'>
                             <h1 className="text-3xl font-dm font-semibold text-dark-title">Normas Aeronáuticas</h1>
-
+                          
+                          {isAdmin && (
                             <button onClick={() => setModalAberto(true)}
                                 className='font-semibold text-white text-sm bg-dark-title border border-font-border rounded-md py-3 px-6 cursor-pointer'>
                                 + Novo Cadastro
                             </button>
+                          )}
 
                             {/* Modal de Cadastro de Normas */}
                             <AddStandardModal open={modalAberto} onOpenChange={() => setModalAberto(false)} />
