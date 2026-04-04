@@ -19,14 +19,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password, role } = req.body;
+    const { nome, email, password, role } = req.body;
 
-    if (!email || !password || !role) {
-      res.status(400).json({ error: "Email, senha e role são obrigatórios." });
+    if (!nome || !email || !password || !role) {
+      res.status(400).json({ error: "Nome, email, senha e role são obrigatórios." });
       return;
     }
 
-    const result = await registerService(email, password, role);
+    const result = await registerService(email, password, role, nome);
     res.status(201).json(result);
   } catch (error: any) {
     res.status(400).json({ error: error.message });
