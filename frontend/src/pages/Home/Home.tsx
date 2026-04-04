@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import Header from '../../components/header';
 import Sidebar from '../../components/sidebar';
@@ -10,15 +9,9 @@ import { getUserRole } from '../../utils/auth';
 
 export default function Home() {
 
-    const navigate = useNavigate();
     const role = getUserRole();
     const isAdmin = role?.toLocaleLowerCase() === 'admin';
 
-    // Usar para sair da plataforma, vai ser colocado no dropdown do perfil
-    const handleLogout = async () => {
-        localStorage.removeItem("token");
-        navigate('/');
-    };
     // Funções do modal para abri-lo
     const [modalAberto, setModalAberto] = useState(false);
 
@@ -58,9 +51,6 @@ export default function Home() {
                         <TabelaNormas />
                     </main>
                 </div>
-
-                {/* Mais tarde vou colocar essa função dentro do perfil */}
-                <button onClick={() => handleLogout()}>Logout</button>
             </div>
         </>
     )

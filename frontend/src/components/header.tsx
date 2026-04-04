@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 
 interface UsuarioAPI {
     nome: string;
@@ -9,6 +10,7 @@ interface UsuarioAPI {
 
 export default function Home() {
     const [usuario, setUsuario] = useState<UsuarioAPI | null>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         // Futuramente: conectar ao back-end
@@ -38,6 +40,12 @@ export default function Home() {
         );
     }
 
+    // Usar para sair da plataforma, vai ser colocado no dropdown do perfil
+    const handleLogout = async () => {
+        localStorage.removeItem("token");
+        navigate('/');
+    };
+
     return (
         <header className="h-16 bg-white border-b border-font-border flex items-center justify-between px-8">
 
@@ -52,7 +60,7 @@ export default function Home() {
                     <img className='w-5' src="./src/assets/icons/notificacao.png" alt="" />
                 </div>
 
-                <div className="flex items-center gap-2 border border-font-border rounded-lg cursor-pointer py-1 px-2">
+                <div onClick={handleLogout} className="flex items-center gap-2 border border-font-border rounded-lg cursor-pointer py-1 px-2">
                     <span className={`w-8 h-8 ${usuario.corFundo} text-white text-sm font-medium flex items-center justify-center rounded`}>
                         {usuario.iniciais}
                     </span>
