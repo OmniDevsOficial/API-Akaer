@@ -21,13 +21,21 @@ async function main() {
   if (!backupFileName) {
     console.log('Nenhum arquivo de backup (.json) encontrado na pasta imports. Inserindo apenas os dados vitais...');
     
-    const hashedPassword = await hashPassword('admin123');
+    const hashedPassword1 = await hashPassword('admin123');
+    const hashedPassword2 = await hashPassword('viewer123');
 
     await prisma.user.upsert({
-      where: { email: 'admin1@gmail.com' },
-      update: {},
-      create: { nome: 'Administrador', email: 'admin1@gmail.com', password: hashedPassword, role: 'ADMIN' },
-    });
+        where: { email: 'admin1@gmail.com' },
+        update: {},
+        create: { nome: 'Administrador', email: 'admin1@gmail.com', password: hashedPassword1, role: 'ADMIN' },
+      },
+    );
+    await prisma.user.upsert({
+        where: { email: 'viewer1@gmail.com' },
+        update: {},
+        create: { nome: 'Visualizador', email: 'viewer1@gmail.com', password: hashedPassword2, role: 'VISUALIZADOR' },
+      },
+    );
     return;
   }
 
