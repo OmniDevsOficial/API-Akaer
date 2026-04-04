@@ -59,3 +59,47 @@ export const updateNormaService = async (codigo: string, data: any) => {
 
   return updatedNorma;
 };
+
+export const searchNormasService = async (texto: string, pagina: number) => {
+  const LIMITE_POR_PAGINA = 8;
+  const termo = texto.trim();
+
+  if (!termo) {
+    throw new Error("Texto de busca é obrigatório");
+  }
+
+  const whereClause = {
+    OR: [
+      { codigo: { contains: termo } },
+      { titulo: { contains: termo } },
+      { orgao_emissor: { contains: termo } },
+      { categoria: { contains: termo } },
+    ],
+  };
+
+  const skip = (pagina - 1) * LIMITE_POR_PAGINA;
+
+  const [total, normas] = await Promise.all([
+    prisma.norma.count({ where: whereClause }),
+    prisma.norma.findMany({
+      where: whereClause,
+      orderBy: { titulo: "asc" },
+      skip,
+      take: LIMITE_POR_PAGINA,
+    }),
+  ]);
+
+  const totalPaginas = Math.max(1, Math.ceil(total / LIMITE_POR_PAGINA));
+
+  return {
+    itens: normas,
+    paginacao: {
+      pagina,
+      limite: LIMITE_POR_PAGINA,
+      total,
+      totalPaginas,
+      temPaginaAnterior: pagina > 1,
+      temProximaPagina: pagina < totalPaginas,
+    },
+  };
+};
