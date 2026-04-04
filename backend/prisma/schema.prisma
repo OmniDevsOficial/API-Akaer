@@ -7,11 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  ADMIN
+  VISUALIZADOR
+}
+
 model User {
-  id       Int    @id @default(autoincrement())
-  email    String @unique @db.VarChar(225)
-  role     String @db.VarChar(20)
-  password String @db.Text
+  id         Int      @id @default(autoincrement())
+  nome       String   @db.VarChar(100)
+  email      String   @unique @db.VarChar(225)
+  password   String   @db.VarChar(255)
+  role       Role     @default(VISUALIZADOR)
+  ativo      Boolean  @default(true)
+  criado_em  DateTime @default(now())
 
   @@map("users")
 }
@@ -32,5 +40,5 @@ model Norma {
 
 enum norma_status {
   Ativa
-  Obsoleta  
+  Obsoleta
 }
