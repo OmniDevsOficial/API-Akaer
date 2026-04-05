@@ -66,13 +66,17 @@
 <a href="https://youtu.be/VLJHqNIcwLM"><img src="https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white"/></a> 
 
 
-### 🌿 Estratégia de Branches <a id="Estrategia-de-Branches"></a>
+### 🌿 Padrão de Branches <a id="Estrategia-de-Branches"></a>
 
 | Prefixo | Uso | Exemplo |
 | :--- | :--- | :--- |
 | `feature/` | Nova funcionalidade | `feature/login-page` |
-| `feat/` | Nova funcionalidade (abreviado) | `feat/banco-de-dados` |
 | `docs/` | Documentação | `docs/documentacao-projeto` |
+| `fix/` | Correção de um bug | `fix/erro-login` |
+| `style/` | Mudança de formatação, sem afetar o código | `style/ajuste-cores` |
+| `refactor/` | Refatoração do código, sem alterar funcionalidade | `refactor/auth-service` |
+| `test/` | Adiciona ou modifica testes | `test/login-unitario` |
+| `chore/` | Atualizações menores que não impactam diretamente a funcionalidade | `chore/atualizar-dependencias` |
 
 
 ## 🎓 Conheça a equipe talentosa por trás do projeto <a id="equipe"></a>
