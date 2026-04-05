@@ -11,6 +11,7 @@
   <a href="#backlog-do-produto"> Backlog do Produto </a> |
   <a href="#tecnologias-utilizadas"> Tecnologias </a> |
   <a href="#definition-of-ready"> DoR </a> | 
+  <a href="#definition-of-done"> DoD </a> | 
   <a href="#sprint"> Cronograma de Sprints </a> | 
   <a href="#como-executar-o-projeto">Como Executar o Projeto</a> |
   <a href="#equipe"> Equipe </a> |
@@ -79,7 +80,7 @@ O desafio consiste em desenvolver uma plataforma web estruturada para centraliza
 
 <br>
 
-### Definition of Ready (DoR) <a id="definition-of-ready"></a>
+### 📋Definition of Ready (DoR) <a id="definition-of-ready"></a>
 
 | DoR |
 | :--- |
@@ -89,6 +90,14 @@ O desafio consiste em desenvolver uma plataforma web estruturada para centraliza
 | O esforço técnico foi estimado (pontuado) pela equipe |
 | Não há pendências ou bloqueios para iniciar o desenvolvimento |
 
+
+### 📋Definition of Done (DoD) <a id="definition-of-done"></a>
+
+| DoD |
+| :--- |
+| Funcionalidade Versionada Corretamente |
+| Passou por Testes de Usabilidade |
+| Documentação Atualizada |
 
 ## 📅 Cronograma de Sprints <a id="sprint"></a>
 
