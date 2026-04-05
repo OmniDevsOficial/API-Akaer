@@ -14,6 +14,12 @@ export default function Home() {
 
     // Funções do modal para abri-lo
     const [modalAberto, setModalAberto] = useState(false);
+    const [recarregarTabela, setRecarregarTabela] = useState(0);
+    const [buscaNorma, setBuscaNorma] = useState('');
+
+    const handleCadastroSucesso = () => {
+        setRecarregarTabela((anterior) => anterior + 1);
+    };
 
     return (
         <>
@@ -41,14 +47,18 @@ export default function Home() {
                           )}
 
                             {/* Modal de Cadastro de Normas */}
-                            <AddStandardModal open={modalAberto} onOpenChange={() => setModalAberto(false)} />
+                            <AddStandardModal
+                                open={modalAberto}
+                                onOpenChange={setModalAberto}
+                                onSuccess={handleCadastroSucesso}
+                            />
                         </div>
 
                         {/* Barra de pesquisa, filtro e ordenar */}
-                        <Barra_pesquisa />
+                        <Barra_pesquisa busca={buscaNorma} onBuscaChange={setBuscaNorma} />
 
                         {/* Tabela de normas */}
-                        <TabelaNormas />
+                        <TabelaNormas refreshTrigger={recarregarTabela} searchText={buscaNorma} />
                     </main>
                 </div>
             </div>
