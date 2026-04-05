@@ -8,9 +8,10 @@ import api from '@/services/api';
 interface StandardModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    onSuccess: () => void;
 }
 
-function AddStandardModal({ open, onOpenChange }: StandardModalProps) {
+function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps) {
     const [titulo, setTitulo] = useState('');
     const [orgaoEmissor, setOrgaoEmissor] = useState('');
     const [status, setStatus] = useState('Ativa');
@@ -44,9 +45,10 @@ function AddStandardModal({ open, onOpenChange }: StandardModalProps) {
         });
 
         try {
-            const response = await api.post('/normas', formData);
+            const response = await api.post('/normas/create', formData);
             console.log('Norma Cadastrada com Sucesso:', response.data);
             setCadastroConcluido(true);
+            onSuccess();
             return response.data;
         } catch (error: any) {
             const mensagemErro = 'Erro ao cadastrar norma: ' +  (error.response?.data?.error || error.message);

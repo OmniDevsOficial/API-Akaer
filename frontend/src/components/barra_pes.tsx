@@ -1,17 +1,19 @@
-import { useState } from "react";
 import { IoMdSearch } from "react-icons/io";
 import { BiSortAlt2 } from "react-icons/bi";
 
+interface BarraPesquisaProps {
+    busca: string;
+    onBuscaChange: (value: string) => void;
+}
 
-export default function Barra_pesquisa() {
-    const [busca, setBusca] = useState('')
+export default function Barra_pesquisa({ busca, onBuscaChange }: BarraPesquisaProps) {
     return (
         <div className="flex items-center gap-4 my-6">
             {/* Barra de Pesquisa */}
             <div className="flex flex-1 gap-4 items-center border border-font-border rounded-lg py-1.5 px-4">
                 <IoMdSearch className='text-lg text-gray-medium'/>
                 <input type="text" className='focus:outline-none focus:ring-0 w-full' placeholder="Buscar Normas, códigos ou palavra-chave..."
-                    value={busca} onChange={(evento) => setBusca(evento.target.value)} /> {/* Quando pesquisar atualiza a memória */}
+                    value={busca} onChange={(evento) => onBuscaChange(evento.target.value)} />
             </div>
 
             {/* Botão de filtros */}
