@@ -8,9 +8,11 @@
 
 <p align="center">|
   <a href="#sprint-1"> Sprint 1 </a> |
-  <a href="#definition-of-ready-dor"> DoR </a> | 
+  <a href="#definition-of-ready"> DoR </a> | 
+  <a href="#definition-of-done"> DoD </a> | 
   <a href="#documentos"> Documentos </a> |
   <a href="#Link-do-Video"> Link do vídeo </a> |
+  <a href="#padrão-de-branches"> Link do vídeo </a> |
   <a href="#equipe"> Equipe </a> |
 </p>
 
@@ -33,7 +35,7 @@
 | 🎗  5 | Alta | Como Visualizador, quero filtrar as normas por órgão emissor, categoria e etapa do projeto, para encontrar rapidamente os documentos exatos da certificação necessária. | 10 | 1 |
 
 
-### Definition of Ready (DoR) <a id="definition-of-ready-dor"></a>
+### 📋Definition of Ready (DoR) <a id="definition-of-ready"></a>
 
 | DoR |
 | :--- |
@@ -44,15 +46,33 @@
 | Não há pendências ou bloqueios para iniciar o desenvolvimento |
 
 
+### 📋Definition of Done (DoD) <a id="definition-of-done"></a>
+
+| DoD |
+| :--- |
+| Funcionalidade Versionada Corretamente |
+| Passou por Testes de Usabilidade |
+| Documentação Atualizada |
+
 ## 📂 Documentos e anexos <a id="documentos"></a>
 
 - [Cenarios de User Stories](../documentacao/cenarios_OmniDevs.pdf)
 - [DoR (Definition of Ready)](../documentacao/DoR_OmniDevs.pdf)
+- [DoD (Definition of Done)](../documentacao/DoD_OmniDevs.pdf)
 
 
 ## 🎥 Link do Vídeo <a id="Link-do-Video"></a>
 
 <a href="https://youtu.be/VLJHqNIcwLM"><img src="https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white"/></a> 
+
+
+### 🌿 Padrão de Branches <a id="padrão-de-branches"></a>
+
+| Prefixo | Uso | Exemplo |
+| :--- | :--- | :--- |
+| `feature/` | Nova funcionalidade | `feature/login-page` |
+| `feat/` | Nova funcionalidade (abreviado) | `feat/banco-de-dados` |
+| `docs/` | Documentação | `docs/documentacao-projeto` |
 
 
 ## 🎓 Conheça a equipe talentosa por trás do projeto <a id="equipe"></a>
