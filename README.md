@@ -12,7 +12,7 @@
   <a href="#tecnologias-utilizadas"> Tecnologias </a> |
   <a href="#definition-of-ready"> DoR </a> | 
   <a href="#sprint"> Cronograma de Sprints </a> | 
-  <a href="#Como-executar-o-projeto">Como Executar o Projeto</a> |
+  <a href="#como-executar-o-projeto">Como Executar o Projeto</a> |
   <a href="#equipe"> Equipe </a> |
 </p>
 
@@ -48,7 +48,7 @@ O desafio consiste em desenvolver uma plataforma web estruturada para centraliza
 | 🎗  15 | Média | Como Administrador, quero remover usuários do sistema, para bloquear o acesso de pessoas desatualizadas aos documentos da empresa. | 4 | 3 |
 | 🎗  16 | Baixa | Como Administrador, quero ver o registro de edição das normas, para saber o autor da edição. | 5 | 3 |
 
-<br>
+---
 
 ## 💻Tecnologias Utilizadas <a id="tecnologias-utilizadas"></a>
 
@@ -99,7 +99,7 @@ O desafio consiste em desenvolver uma plataforma web estruturada para centraliza
 | **SPRINT 3** | 11/05 - 31/05 | Sprint 3 docs| 💤 Não iniciado | |
 
 
-## 📜 Como Executar o Projeto <a id="Como-executar-o-projeto"></a>
+## 📜 Como Executar o Projeto <a id="como-executar-o-projeto"></a>
 
 ### Pré-requisitos
 
@@ -107,6 +107,58 @@ O desafio consiste em desenvolver uma plataforma web estruturada para centraliza
 - **MySQL Server**
 - **Git**
 
+### 1. Clone o Projeto
+```
+# Em seu terminal usando Gti Bash
+# Baixe o código do projeto que está no GitHub para sua máquina local.
+git clone https://github.com/OmniDevsOficial/API-Akaer.git
+
+# Entre na pasta raiz do projeto que foi clonada.
+cd API-Akaer/
+```
+
+### 2. Configurando o Back-End
+```
+# Entre na pasta backend.
+cd backend/
+
+# Instale todas as dependências do projeto.
+npm i
+
+# Rode o projeto em sua máquina em modo desenvolvedor.
+npm run dev
+```
+
+### 3. Configurando o Banco de Dados
+```
+# Crie um banco MySQL na sua máquina (ou use um serviço na nuvem).
+
+# Depois, crie um arquivo .env na raiz do projeto com base no exemplo:
+
+DATABASE_URL="mysql://USER:PASSWORD@localhost:3306/NOME_DO_BANCO"
+
+# Após isso, abra outro terminal e certifique-se de estar dentro na pasta backend com o comando abaixo.
+ls
+
+# Rode o prisma studio para criar as tabelas do banco de dados.
+npx prisma migrate dev
+```
+
+### 4. Configurando o Front-End
+```
+# Volte para a pasta raiz ./API-Akaer/ e entre na pasta frontend.
+cd..
+cd frontend/
+
+# Instale todas as dependências do projeto.
+npm i
+
+# Rode o projeto em sua máquina em modo desenvolvedor.
+npm run dev
+
+# Copie e cole a URL em seu navegador para acessar o projeto em localhost.
+http://localhost:5173/
+```
 
 ## 🎓 Conheça a equipe talentosa por trás do projeto <a id="equipe"></a>
 | Foto | Nome | Função | GitHub | LinkedIn |
