@@ -12,7 +12,7 @@
   <a href="#definition-of-done"> DoD </a> | 
   <a href="#documentos"> Documentos </a> |
   <a href="#Link-do-Video"> Link do vídeo </a> |
-  <a href="#padrão-de-branches"> Link do vídeo </a> |
+  <a href="#Estrategia-de-Branches"> Estratégia de Branches </a> |
   <a href="#equipe"> Equipe </a> |
 </p>
 
@@ -66,7 +66,7 @@
 <a href="https://youtu.be/VLJHqNIcwLM"><img src="https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white"/></a> 
 
 
-### 🌿 Padrão de Branches <a id="padrão-de-branches"></a>
+### 🌿 Estratégia de Branches <a id="Estrategia-de-Branches"></a>
 
 | Prefixo | Uso | Exemplo |
 | :--- | :--- | :--- |
