@@ -47,12 +47,9 @@ export const updateNorma = async (req: Request, res: Response) => {
 
 export const searchNormas = async (req: Request, res: Response) => {
   try {
-    const texto = req.query.texto;
+    const textoQuery = req.query.texto;
     const pageQuery = req.query.page;
-
-    if (typeof texto !== "string") {
-      return res.status(400).json({ error: "Parâmetro 'texto' é obrigatório" });
-    }
+    const texto = typeof textoQuery === "string" ? textoQuery : "";
 
     const paginaRecebida = typeof pageQuery === "string" ? Number(pageQuery) : 1;
     const pagina = Number.isInteger(paginaRecebida) && paginaRecebida > 0 ? paginaRecebida : 1;

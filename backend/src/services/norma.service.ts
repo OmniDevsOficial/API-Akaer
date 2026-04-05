@@ -64,18 +64,16 @@ export const searchNormasService = async (texto: string, pagina: number) => {
   const LIMITE_POR_PAGINA = 8;
   const termo = texto.trim();
 
-  if (!termo) {
-    throw new Error("Texto de busca é obrigatório");
-  }
-
-  const whereClause = {
-    OR: [
-      { codigo: { contains: termo } },
-      { titulo: { contains: termo } },
-      { orgao_emissor: { contains: termo } },
-      { categoria: { contains: termo } },
-    ],
-  };
+  const whereClause = termo
+    ? {
+        OR: [
+          { codigo: { contains: termo } },
+          { titulo: { contains: termo } },
+          { orgao_emissor: { contains: termo } },
+          { categoria: { contains: termo } },
+        ],
+      }
+    : {};
 
   const skip = (pagina - 1) * LIMITE_POR_PAGINA;
 
