@@ -6,8 +6,8 @@ import { roleMiddleware } from "../middlewares/roleMiddleware";
 
 const router = Router();
 
-router.get("/leitura", authMiddleware, searchNormas);
-router.post("/", authMiddleware, roleMiddleware(["admin"]), upload.single("file"), createNorma);
-router.put("/:codigo", authMiddleware, roleMiddleware(["admin"]), updateNorma);
+router.get("/listar", authMiddleware, searchNormas);
+router.post("/create", authMiddleware, roleMiddleware(["ADMIN"]), upload.single("file"), createNorma);
+router.put("/:codigo", authMiddleware, roleMiddleware(["ADMIN"]), updateNorma);
 
 export default router;
