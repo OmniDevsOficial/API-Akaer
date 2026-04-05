@@ -94,7 +94,7 @@ O desafio consiste em desenvolver uma plataforma web estruturada para centraliza
 
 | Sprint | Período | Documentação | Status | Vídeo |
 | :--- | :---: | :--- | :--- | :--- |
-| **SPRINT 1** | 16/03 - 05/04 | [Sprint 1 docs](docs/sprint1.md) | 🔛 Em andamento | [🎥 Assistir](#) |
+| **SPRINT 1** | 16/03 - 05/04 | [Sprint 1 docs](docs/sprint1.md) | 🔛 Em andamento | [🎥 Assistir](https://youtu.be/VLJHqNIcwLM) |
 | **SPRINT 2** | 13/04 - 03/05 | Sprint 2 docs| 💤 Não iniciado | |
 | **SPRINT 3** | 11/05 - 31/05 | Sprint 3 docs| 💤 Não iniciado | |
 
