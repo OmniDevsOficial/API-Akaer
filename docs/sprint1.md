@@ -52,7 +52,7 @@
 
 ## 🎥 Link do Vídeo <a id="Link-do-Video"></a>
 
-<a href="#"><img src="https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white"/></a> 
+<a href="https://youtu.be/VLJHqNIcwLM"><img src="https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white"/></a> 
 
 
 ## 🎓 Conheça a equipe talentosa por trás do projeto <a id="equipe"></a>
