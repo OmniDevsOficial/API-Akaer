@@ -139,7 +139,7 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
                                         <label className='text-lg text-gray-600 mb-0 leading-none'>TÍTULO <span className='text-red-akaer'>*</span></label>
                                         <input
                                             className="bg-gray-100/80 border rounded h-10 px-2"
-                                            placeholder="Certificação de Gestão"
+                                            placeholder="Ex: Certificação de Gestão"
                                             value={titulo}
                                             onChange={(e) => setTitulo(e.target.value)}
                                             required
@@ -178,7 +178,7 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
                                         <label className='text-lg text-gray-600 mb-0 leading-none'>ETAPA DO PROJETO</label>
                                         <input
                                             className="bg-gray-100/80 border rounded h-10 px-2"
-                                            placeholder="Montagem"
+                                            placeholder="Ex: Montagem"
                                             value={etapaProjeto}
                                             onChange={(e) => setEtapaProjeto(e.target.value)}
                                         />
@@ -189,7 +189,7 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
                                         <label className='text-lg text-gray-600 mb-0 leading-none'>CÓDIGO <span className='text-red-akaer'>*</span></label>
                                         <input
                                             className="bg-gray-100/80 border rounded h-10 px-2"
-                                            placeholder="ex: ISO 9001"
+                                            placeholder="Ex: ISO 9001"
                                             value={codigo}
                                             onChange={(e) => setCodigo(e.target.value)}
                                             required
@@ -225,7 +225,7 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
                                     </div>
 
                                     <div className='flex flex-col text-start gap-1'>
-                                        <label className='text-lg text-gray-600 mb-0 leading-none'>REVISÃO</label>
+                                        <label className='text-lg text-gray-600 mb-0 leading-none'>REVISÃO <span className='text-red-akaer'>*</span></label>
                                         <input
                                             className="bg-gray-100/80 border rounded h-10 px-2"
                                             placeholder="Ex: A,B"
@@ -233,6 +233,7 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
                                             onChange={(e) => setRevisao(formatarRevisao(e.target.value))}
                                             inputMode='text'
                                             maxLength={1}
+                                            required
                                         />
                                     </div>
                                 </div>
