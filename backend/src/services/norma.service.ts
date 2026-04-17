@@ -69,8 +69,6 @@ export const searchNormasService = async (texto: string, pagina: number) => {
         OR: [
           { codigo:        { contains: termo } },
           { titulo:        { contains: termo } },
-          { orgao_emissor: { nome: { contains: termo } } },
-          { categoria:     { nome: { contains: termo } } },
         ],
       }
     : {};
@@ -98,7 +96,7 @@ export const searchNormasService = async (texto: string, pagina: number) => {
     itens: normas,
     paginacao: {
       pagina,
-      limite:           LIMITE_POR_PAGINA,
+      limite:            LIMITE_POR_PAGINA,
       total,
       totalPaginas,
       temPaginaAnterior: pagina > 1,

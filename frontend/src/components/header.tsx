@@ -1,3 +1,4 @@
+import { IoNotificationsOutline } from "react-icons/io5";
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 
@@ -57,7 +58,7 @@ export default function Home() {
             {/* Notificação e Perfil */}
             <div className="flex items-center gap-2">
                 <div className="flex border border-font-border rounded-lg cursor-pointer p-2.5">
-                    <img className='w-5' src="./src/assets/icons/notificacao.png" alt="" />
+                    <IoNotificationsOutline className="w-6 h-6" />
                 </div>
 
                 <div onClick={handleLogout} className="flex items-center gap-2 border border-font-border rounded-lg cursor-pointer py-1 px-2">
