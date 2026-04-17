@@ -2,10 +2,10 @@ import prisma from "../prisma/client";
 import { parseBrDate } from "../utils/validateDate";
 
 export const createNormaService = async (data: any, filePath: string) => {
-  const { codigo, titulo, orgao_emissor, categoria, etapa_projeto, revisao, status, data_publicacao } = data;
+  const { codigo, titulo, orgao_emissor_id, categoria_id, etapa_projeto_id, revisao, status, data_publicacao } = data;
 
-  if (!codigo || !titulo || !orgao_emissor || !categoria || !data_publicacao) {
-    throw new Error("Campos obrigatórios não preenchidos: codigo, titulo, orgao_emissor, categoria, data_publicacao");
+  if (!codigo || !titulo || !orgao_emissor_id || !categoria_id || !data_publicacao) {
+    throw new Error("Campos obrigatórios não preenchidos: codigo, titulo, orgao_emissor_id, categoria_id, data_publicacao");
   }
 
   const codigoJaExiste = await prisma.norma.findUnique({
@@ -23,13 +23,13 @@ export const createNormaService = async (data: any, filePath: string) => {
     data: {
       codigo,
       titulo,
-      orgao_emissor,
-      categoria,
-      etapa_projeto: etapa_projeto || null,
-      revisao: revisao || null,
+      orgao_emissor_id: Number(orgao_emissor_id),
+      categoria_id:     Number(categoria_id),
+      etapa_projeto_id: etapa_projeto_id ? Number(etapa_projeto_id) : null,
+      revisao:          revisao || null,
       status,
-      data_publicacao: dataPublicacao,
-      arquivo: filePath,
+      data_publicacao:  dataPublicacao,
+      arquivo:          filePath,
     }
   });
 
@@ -46,14 +46,14 @@ export const updateNormaService = async (codigo: string, data: any) => {
   const updatedNorma = await prisma.norma.update({
     where: { codigo },
     data: {
-      titulo: data.titulo ?? existingNorma.titulo,
-      orgao_emissor: data.orgao_emissor ?? existingNorma.orgao_emissor,
-      categoria: data.categoria ?? existingNorma.categoria,
-      etapa_projeto: data.etapa_projeto ?? existingNorma.etapa_projeto,
-      revisao: data.revisao ?? existingNorma.revisao,
-      status: data.status ?? existingNorma.status,
-      data_publicacao: data.data_publicacao ? new Date(data.data_publicacao) : existingNorma.data_publicacao,
-      arquivo: data.arquivo ?? existingNorma.arquivo,
+      titulo:           data.titulo           ?? existingNorma.titulo,
+      orgao_emissor_id: data.orgao_emissor_id ? Number(data.orgao_emissor_id) : existingNorma.orgao_emissor_id,
+      categoria_id:     data.categoria_id     ? Number(data.categoria_id)     : existingNorma.categoria_id,
+      etapa_projeto_id: data.etapa_projeto_id ? Number(data.etapa_projeto_id) : existingNorma.etapa_projeto_id,
+      revisao:          data.revisao          ?? existingNorma.revisao,
+      status:           data.status           ?? existingNorma.status,
+      data_publicacao:  data.data_publicacao  ? new Date(data.data_publicacao) : existingNorma.data_publicacao,
+      arquivo:          data.arquivo          ?? existingNorma.arquivo,
     }
   });
 
@@ -67,10 +67,10 @@ export const searchNormasService = async (texto: string, pagina: number) => {
   const whereClause = termo
     ? {
         OR: [
-          { codigo: { contains: termo } },
-          { titulo: { contains: termo } },
-          { orgao_emissor: { contains: termo } },
-          { categoria: { contains: termo } },
+          { codigo:        { contains: termo } },
+          { titulo:        { contains: termo } },
+          { orgao_emissor: { nome: { contains: termo } } },
+          { categoria:     { nome: { contains: termo } } },
         ],
       }
     : {};
@@ -84,6 +84,11 @@ export const searchNormasService = async (texto: string, pagina: number) => {
       orderBy: { titulo: "asc" },
       skip,
       take: LIMITE_POR_PAGINA,
+      include: {
+        orgao_emissor: true,
+        categoria:     true,
+        etapa_projeto: true,
+      },
     }),
   ]);
 
@@ -93,11 +98,11 @@ export const searchNormasService = async (texto: string, pagina: number) => {
     itens: normas,
     paginacao: {
       pagina,
-      limite: LIMITE_POR_PAGINA,
+      limite:           LIMITE_POR_PAGINA,
       total,
       totalPaginas,
       temPaginaAnterior: pagina > 1,
-      temProximaPagina: pagina < totalPaginas,
+      temProximaPagina:  pagina < totalPaginas,
     },
   };
 };
