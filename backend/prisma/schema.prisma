@@ -12,33 +12,61 @@ enum Role {
   VISUALIZADOR
 }
 
+enum norma_status {
+  Ativa
+  Obsoleta
+}
+
 model User {
-  id         Int      @id @default(autoincrement())
-  nome       String   @db.VarChar(100)
-  email      String   @unique @db.VarChar(225)
-  password   String   @db.VarChar(255)
-  role       Role     @default(VISUALIZADOR)
-  ativo      Boolean  @default(true)
-  criado_em  DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  nome      String   @db.VarChar(100)
+  email     String   @unique @db.VarChar(225)
+  password  String   @db.VarChar(255)
+  role      Role     @default(VISUALIZADOR)
+  ativo     Boolean  @default(true)
+  criado_em DateTime @default(now())
 
   @@map("users")
 }
 
-model Norma {
-  codigo          String       @id @db.VarChar(50)
-  titulo          String       @db.VarChar(255)
-  orgao_emissor   String       @db.VarChar(25)
-  categoria       String       @db.VarChar(100)
-  etapa_projeto   String?      @db.VarChar(100)
-  revisao         String?      @db.VarChar(20)
-  status          norma_status @default(Ativa)
-  data_publicacao DateTime     @db.Date
-  arquivo         String       @db.VarChar(500)
+model OrgaoEmissor {
+  id     Int     @id @default(autoincrement())
+  nome   String  @unique @db.VarChar(100)
+  normas Norma[]
 
-  @@map("norma")
+  @@map("orgao_emissor")
 }
 
-enum norma_status {
-  Ativa
-  Obsoleta
+model Categoria {
+  id     Int     @id @default(autoincrement())
+  nome   String  @unique @db.VarChar(100)
+  normas Norma[]
+
+  @@map("categoria")
+}
+
+model EtapaProjeto {
+  id     Int     @id @default(autoincrement())
+  nome   String  @unique @db.VarChar(100)
+  normas Norma[]
+
+  @@map("etapa_projeto")
+}
+
+model Norma {
+  codigo           String       @id @db.VarChar(50)
+  titulo           String       @db.VarChar(255)
+  orgao_emissor_id Int
+  categoria_id     Int
+  etapa_projeto_id Int?
+  revisao          String?      @db.VarChar(20)
+  status           norma_status @default(Ativa)
+  data_publicacao  DateTime     @db.Date
+  arquivo          String       @db.VarChar(500)
+
+  orgao_emissor OrgaoEmissor  @relation(fields: [orgao_emissor_id], references: [id])
+  categoria     Categoria     @relation(fields: [categoria_id], references: [id])
+  etapa_projeto EtapaProjeto? @relation(fields: [etapa_projeto_id], references: [id])
+
+  @@map("norma")
 }
