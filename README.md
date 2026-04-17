@@ -126,7 +126,25 @@ git clone https://github.com/OmniDevsOficial/API-Akaer.git
 cd API-Akaer/
 ```
 
-### 2. Configurando o Back-End
+
+### 2. Configurando o Banco de Dados
+```
+# Crie um banco MySQL na sua máquina (ou use um serviço na nuvem).
+
+# Entre na pasta backend.
+cd backend/
+
+# Instale todas as dependências do projeto
+npm i
+
+# Depois, crie um arquivo .env na raiz do projeto com base no exemplo:
+DATABASE_URL = "mysql://[usuário]:[senha]@[host]:[porta]/[nome_do_banco]"
+
+# Rode o prisma studio para criar as tabelas do banco de dados.
+npm run db:setup
+```
+
+### 3. Configurando o Back-End
 ```
 # Entre na pasta backend.
 cd backend/
@@ -138,31 +156,15 @@ npm i
 npm run dev
 ```
 
-### 3. Configurando o Banco de Dados
-```
-# Crie um banco MySQL na sua máquina (ou use um serviço na nuvem).
-
-# Depois, crie um arquivo .env na raiz do projeto com base no exemplo:
-
-DATABASE_URL="mysql://USER:PASSWORD@localhost:3306/NOME_DO_BANCO"
-
-# Após isso, abra outro terminal e certifique-se de estar dentro na pasta backend com o comando abaixo.
-ls
-
-# Rode o prisma studio para criar as tabelas do banco de dados.
-npx prisma migrate dev
-```
-
 ### 4. Configurando o Front-End
 ```
 # Volte para a pasta raiz ./API-Akaer/ e entre na pasta frontend.
-cd..
 cd frontend/
 
 # Instale todas as dependências do projeto.
 npm i
 
-# Rode o projeto em sua máquina em modo desenvolvedor.
+# Rode o projeto na sua máquina em modo desenvolvedor.
 npm run dev
 
 # Copie e cole a URL em seu navegador para acessar o projeto em localhost.
