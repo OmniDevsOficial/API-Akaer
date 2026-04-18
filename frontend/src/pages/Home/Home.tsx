@@ -6,6 +6,7 @@ import Barra_pesquisa from '../../components/barra_pes';
 import TabelaNormas from '../../components/tabela';
 import AddStandardModal from '@/components/add-standard-modal';
 import { getUserRole } from '../../utils/auth';
+import { FilterModal } from '../../components/FilterModal/FilterModal';
 // import modalCadastro from '' é de onde vai vir o modal
 
 export default function Home() {
@@ -21,6 +22,7 @@ export default function Home() {
     };
     // Funções do modal para abri-lo
     const [modalAberto, setModalAberto] = useState(false);
+    const [filtroModalOpen, setFiltroModalOpen] = useState(false);
 
     return (
         <>
@@ -51,7 +53,12 @@ export default function Home() {
                         </div>
 
                         {/* Barra de pesquisa, filtro e ordenar */}
-                        <Barra_pesquisa />
+                       <Barra_pesquisa onOpenFilters={() => setFiltroModalOpen(true)} />
+
+                        <FilterModal
+                           isOpen={filtroModalOpen}
+                          onClose={() => setFiltroModalOpen(false)}
+                            />
 
                         {/* Tabela de normas */}
                         <TabelaNormas />

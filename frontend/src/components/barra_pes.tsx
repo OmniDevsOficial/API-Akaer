@@ -2,8 +2,12 @@ import { useState } from "react";
 import { IoMdSearch } from "react-icons/io";
 import { BiSortAlt2 } from "react-icons/bi";
 
+type Props = {
+  onOpenFilters: () => void;
+};
 
-export default function Barra_pesquisa() {
+
+export default function Barra_pesquisa({ onOpenFilters }: Props) {
     const [busca, setBusca] = useState('')
     return (
         <div className="flex items-center gap-4 my-6">
@@ -16,7 +20,10 @@ export default function Barra_pesquisa() {
 
             {/* Botão de filtros */}
             <div>
-                <button className="flex gap-2 items-center text-sm text-gray-medium border border-font-border rounded-md py-2 px-3">
+                <button
+                  onClick={onOpenFilters}
+                   className="flex gap-2 items-center text-sm text-gray-medium border border-font-border rounded-md py-2 px-3"
+>
                     <IoMdSearch className='text-lg'/>
                         <div className="h-3 w-px bg-font-border "></div>
                         Filtros
