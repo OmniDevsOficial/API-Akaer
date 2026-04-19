@@ -49,12 +49,19 @@ export const searchNormas = async (req: Request, res: Response) => {
   try {
     const textoQuery = req.query.texto;
     const pageQuery = req.query.page;
+    const orgaoQuery = req.query.orgao;
+    const categoriaQuery = req.query.categoria;
+    const etapaQuery = req.query.etapa;
+
     const texto = typeof textoQuery === "string" ? textoQuery : "";
+    const orgao = typeof orgaoQuery === "string" ? Number(orgaoQuery) : undefined;
+    const categoria = typeof categoriaQuery === "string" ? Number(categoriaQuery) : undefined;
+    const etapa = typeof etapaQuery === "string" ? Number(etapaQuery) : undefined;
 
     const paginaRecebida = typeof pageQuery === "string" ? Number(pageQuery) : 1;
     const pagina = Number.isInteger(paginaRecebida) && paginaRecebida > 0 ? paginaRecebida : 1;
 
-    const normas = await searchNormasService(texto, pagina);
+    const normas = await searchNormasService(texto, pagina, orgao, categoria, etapa);
 
     return res.status(200).json(normas);
   } catch (error: any) {
