@@ -60,18 +60,36 @@ export const updateNormaService = async (codigo: string, data: any) => {
   return updatedNorma;
 };
 
-export const searchNormasService = async (texto: string, pagina: number) => {
+export const searchNormasService = async (
+  texto: string,
+  pagina: number,
+  orgao?: number,
+  categoria?: number,
+  etapa?: number
+) => {
   const LIMITE_POR_PAGINA = 8;
   const termo = texto.trim();
 
-  const whereClause = termo
-    ? {
-        OR: [
-          { codigo:        { contains: termo } },
-          { titulo:        { contains: termo } },
-        ],
-      }
-    : {};
+  const whereClause: any = {};
+
+  if (termo) {
+    whereClause.OR = [
+      { codigo: { contains: termo } },
+      { titulo: { contains: termo } },
+    ];
+  }
+
+  if (orgao) {
+    whereClause.orgao_emissor_id = orgao;
+  }
+
+  if (categoria) {
+    whereClause.categoria_id = categoria;
+  }
+
+  if (etapa) {
+    whereClause.etapa_projeto_id = etapa;
+  }
 
   const skip = (pagina - 1) * LIMITE_POR_PAGINA;
 
