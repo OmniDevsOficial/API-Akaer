@@ -11,7 +11,7 @@ async function main() {
 
   if (fs.existsSync(importsDir)) {
     const files = fs.readdirSync(importsDir);
-    const jsonFiles = files.filter(file => file.endsWith('.json'));
+    const jsonFiles = files.filter(file => file.endsWith('.json')); 
 
     if (jsonFiles.length > 0) {
       backupFileName = jsonFiles.sort().reverse()[0];
@@ -20,7 +20,7 @@ async function main() {
 
   if (!backupFileName) {
     console.log('Nenhum arquivo de backup (.json) encontrado na pasta imports. Inserindo apenas os dados vitais...');
-
+    
     const hashedPassword1 = await hashPassword('admin123');
     const hashedPassword2 = await hashPassword('viewer123');
 

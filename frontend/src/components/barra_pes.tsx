@@ -1,6 +1,10 @@
 import { IoMdSearch } from "react-icons/io";
 import { BiSortAlt2 } from "react-icons/bi";
 
+interface BarraPesquisaProps {
+    busca: string;
+    onBuscaChange: (value: string) => void;
+}
 
 interface BarraPesquisaProps {
     busca: string;

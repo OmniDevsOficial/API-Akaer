@@ -24,12 +24,12 @@ export const createNormaService = async (data: any, filePath: string) => {
       codigo,
       titulo,
       orgao_emissor_id: Number(orgao_emissor_id),
-      categoria_id: Number(categoria_id),
+      categoria_id:     Number(categoria_id),
       etapa_projeto_id: etapa_projeto_id ? Number(etapa_projeto_id) : null,
-      revisao: revisao || null,
+      revisao:          revisao || null,
       status,
-      data_publicacao: dataPublicacao,
-      arquivo: filePath,
+      data_publicacao:  dataPublicacao,
+      arquivo:          filePath,
     }
   });
 
@@ -46,14 +46,14 @@ export const updateNormaService = async (codigo: string, data: any) => {
   const updatedNorma = await prisma.norma.update({
     where: { codigo },
     data: {
-      titulo: data.titulo ?? existingNorma.titulo,
+      titulo:           data.titulo           ?? existingNorma.titulo,
       orgao_emissor_id: data.orgao_emissor_id ? Number(data.orgao_emissor_id) : existingNorma.orgao_emissor_id,
-      categoria_id: data.categoria_id ? Number(data.categoria_id) : existingNorma.categoria_id,
+      categoria_id:     data.categoria_id     ? Number(data.categoria_id)     : existingNorma.categoria_id,
       etapa_projeto_id: data.etapa_projeto_id ? Number(data.etapa_projeto_id) : existingNorma.etapa_projeto_id,
-      revisao: data.revisao ?? existingNorma.revisao,
-      status: data.status ?? existingNorma.status,
-      data_publicacao: data.data_publicacao ? new Date(data.data_publicacao) : existingNorma.data_publicacao,
-      arquivo: data.arquivo ?? existingNorma.arquivo,
+      revisao:          data.revisao          ?? existingNorma.revisao,
+      status:           data.status           ?? existingNorma.status,
+      data_publicacao:  data.data_publicacao  ? new Date(data.data_publicacao) : existingNorma.data_publicacao,
+      arquivo:          data.arquivo          ?? existingNorma.arquivo,
     }
   });
 
@@ -66,11 +66,11 @@ export const searchNormasService = async (texto: string, pagina: number) => {
 
   const whereClause = termo
     ? {
-      OR: [
-        { codigo: { contains: termo } },
-        { titulo: { contains: termo } },
-      ],
-    }
+        OR: [
+          { codigo:        { contains: termo } },
+          { titulo:        { contains: termo } },
+        ],
+      }
     : {};
 
   const skip = (pagina - 1) * LIMITE_POR_PAGINA;
@@ -84,7 +84,7 @@ export const searchNormasService = async (texto: string, pagina: number) => {
       take: LIMITE_POR_PAGINA,
       include: {
         orgao_emissor: true,
-        categoria: true,
+        categoria:     true,
         etapa_projeto: true,
       },
     }),
@@ -96,11 +96,11 @@ export const searchNormasService = async (texto: string, pagina: number) => {
     itens: normas,
     paginacao: {
       pagina,
-      limite: LIMITE_POR_PAGINA,
+      limite:            LIMITE_POR_PAGINA,
       total,
       totalPaginas,
       temPaginaAnterior: pagina > 1,
-      temProximaPagina: pagina < totalPaginas,
+      temProximaPagina:  pagina < totalPaginas,
     },
   };
 };
