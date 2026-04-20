@@ -2,6 +2,7 @@ import prisma from "../prisma/client";
 import { comparePassword, hashPassword } from "../utils/hash";
 import jwt from "jsonwebtoken";
 import { validatePassword } from "../utils/validatePassword";
+import { Role } from "@prisma/client";
 
 export const loginService = async (email: string, password: string) => {
   validatePassword(password);
@@ -21,7 +22,7 @@ export const loginService = async (email: string, password: string) => {
   return { token };
 };
 
-export const registerService = async (email: string, password: string, role: string) => {
+export const registerService = async (email: string, password: string, role: string, nome: string) => {
   validatePassword(password);
   const existingUser = await prisma.user.findUnique({ where: { email } });
   if (existingUser) throw new Error("Usuário já existe");
@@ -29,8 +30,8 @@ export const registerService = async (email: string, password: string, role: str
   const hashedPassword = await hashPassword(password);
 
   const user = await prisma.user.create({
-    data: { email, password: hashedPassword, role }
+    data: { nome, email, password: hashedPassword, role: role as Role }
   });
 
-  return { id: user.id, email: user.email, role: user.role };
+  return { id: user.id, nome: user.nome, email: user.email, role: user.role };
 };

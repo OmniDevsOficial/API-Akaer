@@ -3,17 +3,18 @@ import { Button } from './ui/button';
 import { Check } from 'lucide-react';
 import { useState } from 'react';
 import { FileUpload } from './ui/file-upload';
+import api from '@/services/api';
 
 interface StandardModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    // onSuccess: (data: { titulo: string; orgaoEmissor: string; status: string; }) => void; -> prop que poderá ser usada para enviar ao backend
+    onSuccess: () => void;
 }
 
-function AddStandardModal({ open, onOpenChange }: StandardModalProps) {
+function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps) {
     const [titulo, setTitulo] = useState('');
     const [orgaoEmissor, setOrgaoEmissor] = useState('');
-    const [status, setStatus] = useState('');
+    const [status, setStatus] = useState('Ativa');
     const [etapaProjeto, setEtapaProjeto] = useState('');
     const [codigo, setCodigo] = useState('');
     const [categoria, setCategoria] = useState('');
@@ -22,10 +23,45 @@ function AddStandardModal({ open, onOpenChange }: StandardModalProps) {
     const [arquivoNorma, setArquivoNorma] = useState<File | null>(null);
     const [cadastroConcluido, setCadastroConcluido] = useState(false);
 
+    const handleSubmit = async (e: any) => {
+        e.preventDefault();
+
+        const payload = {
+            codigo,
+            titulo,
+            orgao_emissor_id: orgaoEmissor,
+            categoria_id: categoria,
+            etapa_projeto_id: etapaProjeto,
+            revisao,
+            status,
+            data_publicacao: dataPublicacao,
+        };
+
+        const formData = new FormData();
+        formData.append('file', arquivoNorma!);
+
+        Object.entries(payload).forEach(([key, value]) => {
+            formData.append(key, value);
+        });
+
+        try {
+            const response = await api.post('/normas/create', formData);
+            console.log('Norma Cadastrada com Sucesso:', response.data);
+            setCadastroConcluido(true);
+            onSuccess();
+            return response.data;
+        } catch (error: any) {
+            const mensagemErro = 'Erro ao cadastrar norma: ' +  (error.response?.data?.error || error.message);
+            alert(mensagemErro);
+            console.error('Erro ao cadastrar Norma:', error);
+            throw error;
+        }
+    };
+
     const limparFormulario = () => {
         setTitulo('');
         setOrgaoEmissor('');
-        setStatus('');
+        setStatus('Ativa');
         setEtapaProjeto('');
         setCodigo('');
         setCategoria('');
@@ -58,11 +94,6 @@ function AddStandardModal({ open, onOpenChange }: StandardModalProps) {
         return valor.replace(/[^a-zA-ZÀ-ÿ]/g, '').toLocaleUpperCase('pt-BR');
     };
 
-    const handleCadastrarNorma = () => {
-        if (!arquivoNorma) return;
-        setCadastroConcluido(true);
-    };
-
     return (
         <>
             <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -91,15 +122,15 @@ function AddStandardModal({ open, onOpenChange }: StandardModalProps) {
                             </div>
                         </>
                     ) : (
-                        <>
+                        <form onSubmit={handleSubmit}>
                             <div className='mx-5'>
                                 <FileUpload onFileSelected={setArquivoNorma} />
                             </div>
 
-                            <div className='grid grid-cols-[1fr_auto_1fr] items-center gap-3 mx-8 my-auto'>
+                            <div className='grid grid-cols-[1fr_auto_1fr] items-center gap-3 mx-8 mb-6'>
                                 <hr className='w-full border-gray-400' />
                                 <span className='text-center text-[0.95rem] text-gray-400'>METADADOS</span>
-                                <hr className='w-full border-gray-400'/>
+                                <hr className='w-full border-gray-400' />
                             </div>
 
                             <div className='grid grid-cols-2 mx-8 gap-4'>
@@ -108,9 +139,10 @@ function AddStandardModal({ open, onOpenChange }: StandardModalProps) {
                                         <label className='text-lg text-gray-600 mb-0 leading-none'>TÍTULO <span className='text-red-akaer'>*</span></label>
                                         <input
                                             className="bg-gray-100/80 border rounded h-10 px-2"
-                                            placeholder="Certificação de Gestão"
+                                            placeholder="Ex: Certificação de Gestão"
                                             value={titulo}
                                             onChange={(e) => setTitulo(e.target.value)}
+                                            required
                                         />
                                     </div>
 
@@ -120,11 +152,12 @@ function AddStandardModal({ open, onOpenChange }: StandardModalProps) {
                                             className={`bg-gray-100/80 border rounded h-10 px-2 ${orgaoEmissor == '' ? 'text-black/60' : ''}`}
                                             value={orgaoEmissor}
                                             onChange={(e) => setOrgaoEmissor(e.target.value)}
+                                            required
                                         >
                                             <option className="text-black/40" value="">Selecione...</option>
-                                            <option className="text-black" value="anac">ANAC</option>
-                                            <option className="text-black" value="easa">EASA</option>
-                                            <option className="text-black" value="faa">FAA</option>
+                                            <option className="text-black" value="1">ANAC</option>
+                                            <option className="text-black" value="2">EASA</option>
+                                            <option className="text-black" value="3">FAA</option>
                                         </select>
                                     </div>
 
@@ -134,9 +167,10 @@ function AddStandardModal({ open, onOpenChange }: StandardModalProps) {
                                             className="bg-gray-100/80 border rounded h-10 px-2"
                                             value={status}
                                             onChange={(e) => setStatus(e.target.value)}
+                                            required
                                         >
-                                            <option className="text-black" value="ativa">Ativa</option>
-                                            <option className="text-black" value="obsoleta">Obsoleta</option>
+                                            <option className="text-black" value="Ativa">Ativa</option>
+                                            <option className="text-black" value="Obsoleta">Obsoleta</option>
                                         </select>
                                     </div>
 
@@ -144,7 +178,7 @@ function AddStandardModal({ open, onOpenChange }: StandardModalProps) {
                                         <label className='text-lg text-gray-600 mb-0 leading-none'>ETAPA DO PROJETO</label>
                                         <input
                                             className="bg-gray-100/80 border rounded h-10 px-2"
-                                            placeholder="Montagem"
+                                            placeholder="Ex: Montagem"
                                             value={etapaProjeto}
                                             onChange={(e) => setEtapaProjeto(e.target.value)}
                                         />
@@ -155,9 +189,10 @@ function AddStandardModal({ open, onOpenChange }: StandardModalProps) {
                                         <label className='text-lg text-gray-600 mb-0 leading-none'>CÓDIGO <span className='text-red-akaer'>*</span></label>
                                         <input
                                             className="bg-gray-100/80 border rounded h-10 px-2"
-                                            placeholder="ex: ISO 9001"
+                                            placeholder="Ex: ISO 9001"
                                             value={codigo}
                                             onChange={(e) => setCodigo(e.target.value)}
+                                            required
                                         />
                                     </div>
 
@@ -167,11 +202,12 @@ function AddStandardModal({ open, onOpenChange }: StandardModalProps) {
                                             className={`bg-gray-100/80 border rounded h-10 px-2 ${categoria == '' ? 'text-black/60' : ''}`}
                                             value={categoria}
                                             onChange={(e) => setCategoria(e.target.value)}
+                                            required
                                         >
                                             <option className="text-black/40" value="">Selecione...</option>
-                                            <option className="text-black" value="qualidade">Qualidade</option>
-                                            <option className="text-black" value="seguranca">Segurança</option>
-                                            <option className="text-black" value="manutencao">Manutenção</option>
+                                            <option className="text-black" value="1">Qualidade</option>
+                                            <option className="text-black" value="2">Segurança</option>
+                                            <option className="text-black" value="3">Manutenção</option>
                                         </select>
                                     </div>
 
@@ -184,11 +220,12 @@ function AddStandardModal({ open, onOpenChange }: StandardModalProps) {
                                             onChange={(e) => setDataPublicacao(formatarDataBrasileira(e.target.value))}
                                             inputMode="numeric"
                                             maxLength={10}
+                                            required
                                         />
                                     </div>
 
                                     <div className='flex flex-col text-start gap-1'>
-                                        <label className='text-lg text-gray-600 mb-0 leading-none'>REVISÃO</label>
+                                        <label className='text-lg text-gray-600 mb-0 leading-none'>REVISÃO <span className='text-red-akaer'>*</span></label>
                                         <input
                                             className="bg-gray-100/80 border rounded h-10 px-2"
                                             placeholder="Ex: A,B"
@@ -196,21 +233,22 @@ function AddStandardModal({ open, onOpenChange }: StandardModalProps) {
                                             onChange={(e) => setRevisao(formatarRevisao(e.target.value))}
                                             inputMode='text'
                                             maxLength={1}
+                                            required
                                         />
                                     </div>
                                 </div>
                             </div>
 
-                            <hr />
+                            <hr className='mb-4 mt-6' />
 
                             <div className='grid grid-cols-2 mx-8 items-center mb-4'>
                                 <div className='text-start'>Campos com <span className='text-red-akaer'>*</span> são Obrigatórios</div>
                                 <div className='flex justify-end'>
                                     <Button size={'lg'} className='ml-auto border border-gray-600/40 hover:bg-gray-200' variant={'secondary'} onClick={() => handleOpenChange(false)}>Cancelar</Button>
-                                    <Button size={'lg'} className='ml-2 hover:bg-black/80' disabled={!arquivoNorma} onClick={handleCadastrarNorma}><Check/>Cadastrar Norma</Button>
+                                    <Button size={'lg'} className='ml-2 hover:bg-black/80' type="submit"><Check />Cadastrar Norma</Button>
                                 </div>
                             </div>
-                        </>
+                        </form>
                     )}
 
                 </DialogContent>

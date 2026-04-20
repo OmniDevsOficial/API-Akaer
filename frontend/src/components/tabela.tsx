@@ -1,70 +1,78 @@
+import { useEffect, useState } from "react";
 import { TfiPencilAlt, TfiWorld } from "react-icons/tfi";
+import api from "@/services/api";
 import { getUserRole } from '../utils/auth';
-
 
 interface Norma {
     id: number;
     codigo: string;
     titulo: string;
-    descricao: string;
-    orgao: string;
-    categoria: string;
+    orgao_emissor: {nome: string};
+    orgao_emissor_id: {nome: string};
+    categoria: {nome: string};
+    categoria_id: {nome: string};
     status: string;
-    corStatus: string;
-    visibilidade: string;
 }
 
-const normasAPI: Norma[] = [
-    {
-        id: 1,
-        codigo: '90001',
-        titulo: 'Certificação de Sistemas de Gestão da Qualidade',
-        descricao: 'Melhoria na gestão de riscos',
-        orgao: 'ISO',
-        categoria: 'Mecânica',
-        status: 'Ativa',
-        corStatus: 'bg-green-500',
-        visibilidade: 'Público',
-    },
-    {
-        id: 2,
-        codigo: 'RBAC 21',
-        titulo: 'Certificação de Produtos e Peças Aeronáuticas',
-        descricao: 'Procedimentos de aprovação de projetos',
-        orgao: 'ANAC',
-        categoria: 'Elétrico',
-        status: 'Ativo',
-        corStatus: 'bg-green-500',
-        visibilidade: 'Público',
-    },
-    {
-        id: 3,
-        codigo: '90001',
-        titulo: 'Airworthiness Standards — Transport Category',
-        descricao: 'Requisitos estruturais e de desempenho',
-        orgao: 'FAA',
-        categoria: 'Certificação',
-        status: 'Obsoleto',
-        corStatus: 'bg-gray-400',
-        visibilidade: 'Público',
-    },
-    {
-        id: 4,
-        codigo: 'RBAC 21',
-        titulo: 'Aeronavegabilidade — Aviões Cat. A',
-        descricao: 'Requisitos estruturais e de desempenho',
-        orgao: 'ANAC',
-        categoria: 'Estrutural',
-        status: 'Obsoleto',
-        corStatus: 'bg-gray-400',
-        visibilidade: 'Público',
-    },
-];
+interface NormasLeituraResponse {
+    itens?: Norma[];
+    paginacao?: {
+        total?: number;
+    };
+}
 
-export default function TabelaNormas() {
+interface TabelaNormasProps {
+    refreshTrigger?: number;
+    searchText?: string;
+}
+
+const statusColorClass = (status: string) => {
+    const normalizado = status.toLowerCase();
+    return normalizado.includes('ativa') || normalizado.includes('ativo')
+        ? 'bg-green-500'
+        : 'bg-gray-400';
+};
+
+export default function TabelaNormas({ refreshTrigger = 0, searchText = '' }: TabelaNormasProps) {
 
     const role = getUserRole();
-    const isAdmin = role === 'admin';
+    const isAdmin = role?.toLowerCase() === 'admin';
+    const [normas, setNormas] = useState<Norma[]>([]);
+    const [totalNormas, setTotalNormas] = useState(0);
+    const [carregando, setCarregando] = useState(true);
+
+    useEffect(() => {
+        const carregarNormas = async () => {
+            setCarregando(true);
+            const textoBusca = searchText.trim();
+
+            try {
+                const response = await api.get<NormasLeituraResponse>('/normas/listar', {
+                    params: {
+                        page: 1,
+                        texto: textoBusca || undefined,
+                    },
+                });
+
+                const itens = Array.isArray(response.data?.itens) ? response.data.itens : [];
+                const total = response.data?.paginacao?.total ?? itens.length;
+
+                setNormas(itens);
+                setTotalNormas(total);
+            } catch (error) {
+                console.error('Erro ao listar normas:', error);
+                setNormas([]);
+                setTotalNormas(0);
+            } finally {
+                setCarregando(false);
+            }
+        };
+
+        carregarNormas();
+    }, [refreshTrigger, searchText]);
+
+    const quantidadeExibida = normas.length;
+    const quantidadeTotal = totalNormas || quantidadeExibida;
 
     return (
         <div className="border border-font-border rounded-lg overflow-hidden">
@@ -92,7 +100,19 @@ export default function TabelaNormas() {
 
                 {/* Linhas das normas */}
                     <tbody>
-                        {normasAPI.map(norma => (
+                        {carregando ? (
+                            <tr>
+                                <td colSpan={isAdmin ? 7 : 6} className="px-6 py-6 text-sm text-gray-medium text-center">
+                                    Carregando normas...
+                                </td>
+                            </tr>
+                        ) : normas.length === 0 ? (
+                            <tr>
+                                <td colSpan={isAdmin ? 7 : 6} className="px-6 py-6 text-sm text-gray-medium text-center">
+                                    Nenhuma norma encontrada.
+                                </td>
+                            </tr>
+                        ) : normas.map(norma => (
                         <tr key={norma.id} className="border-b border-font-border last:border-none hover:bg-gray-50 transition-colors">
 
                             {/* Código — vermelho no design */}
@@ -103,16 +123,17 @@ export default function TabelaNormas() {
                             {/* Título + descrição empilhados */}
                             <td className="px-6 py-4">
                                 <span className="block text-sm font-medium text-gray-900">{norma.titulo}</span>
-                                <span className="block text-xs text-gray-medium">{norma.descricao}</span>
+                                <span className="block text-xs text-gray-medium">Categoria: {norma.categoria?.nome || norma.categoria_id?.nome}</span> 
+                                {/* Colocar este acima como campo de palavra-chave */}
                             </td>
 
-                            <td className="px-6 py-4 text-sm text-gray-700">{norma.orgao}</td>
-                            <td className="px-6 py-4 text-sm text-gray-700">{norma.categoria}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700">{norma.orgao_emissor?.nome || norma.orgao_emissor_id?.nome}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700">{norma.categoria?.nome || norma.categoria_id?.nome}</td>
 
                             {/* Status com bolinha colorida */}
                             <td className="px-6 py-4">
                                 <div className="flex items-center gap-1">
-                                    <span className={`w-2 h-2 rounded-full ${norma.corStatus}`}></span>
+                                    <span className={`w-2 h-2 rounded-full ${statusColorClass(norma.status)}`}></span>
                                     <span className="text-sm text-gray-700">{norma.status}</span>
                                 </div>
                             </td>
@@ -131,7 +152,7 @@ export default function TabelaNormas() {
                             <td className="px-6 py-4 text-sm text-gray-700">
                                 <div className="flex items-center gap-1">
                                     <TfiWorld />
-                                    <span>{norma.visibilidade}</span>
+                                    <span>Público</span>
                                 </div>
                             </td>
 
@@ -142,7 +163,7 @@ export default function TabelaNormas() {
 
             {/* Rodapé */}
             <div className="px-6 py-3 border-t border-font-border">
-                <span className="text-xs text-gray-medium">Exibindo {normasAPI.length} de {normasAPI.length} Normas</span>
+                <span className="text-xs text-gray-medium">Exibindo {quantidadeExibida} de {quantidadeTotal} Normas</span>
             </div>
         </div>
     );

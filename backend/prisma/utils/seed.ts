@@ -9,60 +9,91 @@ async function main() {
   const importsDir = './prisma/imports';
   let backupFileName: string | null = null;
 
-  // Verifica a existência de arquivos na pasta imports
   if (fs.existsSync(importsDir)) {
     const files = fs.readdirSync(importsDir);
-    const jsonFiles = files.filter(file => file.endsWith('.json')); // Filtra só os .json
+    const jsonFiles = files.filter(file => file.endsWith('.json'));
 
-    // Ordena e escolhe o registro mais recente
     if (jsonFiles.length > 0) {
       backupFileName = jsonFiles.sort().reverse()[0];
     }
   }
 
-  // Caso não haja json, insere um usuário padrão para poder logar no sistema
   if (!backupFileName) {
     console.log('Nenhum arquivo de backup (.json) encontrado na pasta imports. Inserindo apenas os dados vitais...');
-    
-    const hashedPassword = await hashPassword('admin123');
+
+    const hashedPassword1 = await hashPassword('admin123');
+    const hashedPassword2 = await hashPassword('viewer123');
 
     await prisma.user.upsert({
       where: { email: 'admin1@gmail.com' },
       update: {},
-      create: { email: 'admin1@gmail.com', password: hashedPassword, role: 'ADMIN' },
-    });
+      create: { nome: 'Administrador', email: 'admin1@gmail.com', password: hashedPassword1, role: 'ADMIN' },
+    },
+    );
+    await prisma.user.upsert({
+      where: { email: 'viewer1@gmail.com' },
+      update: {},
+      create: { nome: 'Visualizador', email: 'viewer1@gmail.com', password: hashedPassword2, role: 'VISUALIZADOR' },
+    },
+    );
+
+    // 1. Criar Categorias
+    const categorias = ['Qualidade', 'Segurança', 'Manutenção'];
+    for (const nome of categorias) {
+      await prisma.categoria.upsert({
+        where: { nome: nome },
+        update: {},
+        create: { nome: nome },
+      });
+    }
+
+    // 2. Criar Órgãos Emissores
+    const orgaos = ['ANAC', 'EASA', 'FAA'];
+    for (const nome of orgaos) {
+      await prisma.orgaoEmissor.upsert({
+        where: { nome: nome },
+        update: {},
+        create: { nome: nome },
+      });
+    }
+
+    // 3. Criar Etapas do Projeto
+    const etapas = ['Projeto', 'Fabricação', 'Montagem', 'Testes'];
+    for (const nome of etapas) {
+      await prisma.etapaProjeto.upsert({
+        where: { nome: nome },
+        update: {},
+        create: { nome: nome },
+      });
+    }
     return;
   }
 
-  // Cenário 2: existe arquivo json para ser importado
   console.log(`Arquivo de backup detectado: ${backupFileName}. Iniciando Importação...`);
   const rawData = fs.readFileSync(`${importsDir}/${backupFileName}`, 'utf-8');
   const bancoCompleto = JSON.parse(rawData);
 
-  // Fazer com que todos os comandos executem de uma vez: na mesma transaction.
+
   await prisma.$transaction(async (tx) => {
-    
-    // 1. Desliga a verificação de Chaves Estrangeiras no MySQL (Pra ele não se importar com a ordem de inserção)
+
     await tx.$executeRawUnsafe('SET FOREIGN_KEY_CHECKS = 0;');
 
     try {
-      // 2. Itera sobre o JSON
       for (const model of Object.keys(bancoCompleto)) {
         const registros = bancoCompleto[model];
-        
+
         if (!registros || registros.length === 0) continue;
 
         const modelDelegate = model.charAt(0).toLowerCase() + model.slice(1);
-        
+
         const insercao = await (tx as any)[modelDelegate].createMany({
           data: registros,
-          skipDuplicates: true, 
+          skipDuplicates: true,
         });
 
         console.log(`Injetados ${insercao.count} registros na tabela ${model}.`);
       }
     } finally {
-      // 3. Mesmo se o código der erro no meio, as travas de segurança do MySQL serão religadas.
       await tx.$executeRawUnsafe('SET FOREIGN_KEY_CHECKS = 1;');
     }
   });

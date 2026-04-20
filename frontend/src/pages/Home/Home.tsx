@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import Header from '../../components/header';
 import Sidebar from '../../components/sidebar';
@@ -7,22 +6,25 @@ import TabelaNormas from '../../components/tabela';
 import AddStandardModal from '@/components/add-standard-modal';
 import { getUserRole } from '../../utils/auth';
 import { FilterModal } from '../../components/FilterModal/FilterModal';
-// import modalCadastro from '' é de onde vai vir o modal
 
 export default function Home() {
 
-    const navigate = useNavigate();
     const role = getUserRole();
-    const isAdmin = role === 'admin';
+    const isAdmin = role?.toLocaleLowerCase() === 'admin';
 
-    // Usar para sair da plataforma, vai ser colocado no dropdown do perfil
-    const handleLogout = async () => {
-        localStorage.removeItem("token");
-        navigate('/');
-    };
     // Funções do modal para abri-lo
     const [modalAberto, setModalAberto] = useState(false);
+    
+    // Estado que veio da branch do modal de filtros
     const [filtroModalOpen, setFiltroModalOpen] = useState(false);
+
+    // Estados que vieram da main (Busca e Recarregamento da tabela)
+    const [recarregarTabela, setRecarregarTabela] = useState(0);
+    const [buscaNorma, setBuscaNorma] = useState('');
+
+    const handleCadastroSucesso = () => {
+        setRecarregarTabela((anterior) => anterior + 1);
+    };
 
     return (
         <>
@@ -49,24 +51,30 @@ export default function Home() {
                             </button>
                           )}
 
-                            <AddStandardModal open={modalAberto} onOpenChange={() => setModalAberto(false)} />
+                            {/* Modal de Cadastro de Normas */}
+                            <AddStandardModal
+                                open={modalAberto}
+                                onOpenChange={setModalAberto}
+                                onSuccess={handleCadastroSucesso}
+                            />
                         </div>
 
-                        {/* Barra de pesquisa, filtro e ordenar */}
-                       <Barra_pesquisa onOpenFilters={() => setFiltroModalOpen(true)} />
+                        {/* Barra de pesquisa, filtro e ordenar unificados */}
+                        <Barra_pesquisa 
+                            busca={buscaNorma} 
+                            onBuscaChange={setBuscaNorma}
+                            onOpenFilters={() => setFiltroModalOpen(true)} 
+                        />
 
                         <FilterModal
                            isOpen={filtroModalOpen}
-                          onClose={() => setFiltroModalOpen(false)}
-                            />
+                           onClose={() => setFiltroModalOpen(false)}
+                        />
 
                         {/* Tabela de normas */}
-                        <TabelaNormas />
+                        <TabelaNormas refreshTrigger={recarregarTabela} searchText={buscaNorma} />
                     </main>
                 </div>
-
-                {/* Mais tarde vou colocar essa função dentro do perfil */}
-                <button onClick={() => handleLogout()}>Logout</button>
             </div>
         </>
     )
