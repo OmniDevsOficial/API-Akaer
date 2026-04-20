@@ -7,8 +7,10 @@ interface Norma {
     id: number;
     codigo: string;
     titulo: string;
-    orgao_emissor: string;
-    categoria: string;
+    orgao_emissor: {nome: string};
+    orgao_emissor_id: {nome: string};
+    categoria: {nome: string};
+    categoria_id: {nome: string};
     status: string;
 }
 
@@ -114,18 +116,19 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '' }: Ta
                         <tr key={norma.id} className="border-b border-font-border last:border-none hover:bg-gray-50 transition-colors">
 
                             {/* Código — vermelho no design */}
-                            <td className="px-6 py-4 text-sm text-red-akaer font-medium whitespace-nowrap">
+                            <td className="px-6 py-4 text-sm text-red-akaer font-semibold whitespace-nowrap">
                                 {norma.codigo}
                             </td>
 
                             {/* Título + descrição empilhados */}
                             <td className="px-6 py-4">
                                 <span className="block text-sm font-medium text-gray-900">{norma.titulo}</span>
-                                <span className="block text-xs text-gray-medium">Categoria: {norma.categoria}</span>
+                                <span className="block text-xs text-gray-medium">Categoria: {norma.categoria?.nome || norma.categoria_id?.nome}</span> 
+                                {/* Colocar este acima como campo de palavra-chave */}
                             </td>
 
-                            <td className="px-6 py-4 text-sm text-gray-700">{norma.orgao_emissor}</td>
-                            <td className="px-6 py-4 text-sm text-gray-700">{norma.categoria}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700">{norma.orgao_emissor?.nome || norma.orgao_emissor_id?.nome}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700">{norma.categoria?.nome || norma.categoria_id?.nome}</td>
 
                             {/* Status com bolinha colorida */}
                             <td className="px-6 py-4">

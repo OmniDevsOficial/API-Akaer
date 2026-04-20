@@ -29,9 +29,9 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
         const payload = {
             codigo,
             titulo,
-            orgao_emissor: orgaoEmissor,
-            categoria,
-            etapa_projeto: etapaProjeto,
+            orgao_emissor_id: orgaoEmissor,
+            categoria_id: categoria,
+            etapa_projeto_id: etapaProjeto,
             revisao,
             status,
             data_publicacao: dataPublicacao,
@@ -155,9 +155,9 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
                                             required
                                         >
                                             <option className="text-black/40" value="">Selecione...</option>
-                                            <option className="text-black" value="anac">ANAC</option>
-                                            <option className="text-black" value="easa">EASA</option>
-                                            <option className="text-black" value="faa">FAA</option>
+                                            <option className="text-black" value="1">ANAC</option>
+                                            <option className="text-black" value="2">EASA</option>
+                                            <option className="text-black" value="3">FAA</option>
                                         </select>
                                     </div>
 
@@ -176,12 +176,16 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
 
                                     <div className='flex flex-col text-start gap-1'>
                                         <label className='text-lg text-gray-600 mb-0 leading-none'>ETAPA DO PROJETO</label>
-                                        <input
-                                            className="bg-gray-100/80 border rounded h-10 px-2"
-                                            placeholder="Ex: Montagem"
+                                        <select
+                                            className={`bg-gray-100/80 border rounded h-10 px-2 ${etapaProjeto == '' ? 'text-black/60' : ''}`}
                                             value={etapaProjeto}
                                             onChange={(e) => setEtapaProjeto(e.target.value)}
-                                        />
+                                            >
+                                            <option className="text-black/40" value="">Selecione...</option>
+                                            <option className="text-black" value="1">Montagem</option>
+                                            <option className="text-black" value="2">Selagem</option>
+                                            <option className="text-black" value="3">Testes</option>
+                                        </select>
                                     </div>
                                 </div>
                                 <div className='grid gap-5'>
@@ -205,9 +209,9 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
                                             required
                                         >
                                             <option className="text-black/40" value="">Selecione...</option>
-                                            <option className="text-black" value="qualidade">Qualidade</option>
-                                            <option className="text-black" value="seguranca">Segurança</option>
-                                            <option className="text-black" value="manutencao">Manutenção</option>
+                                            <option className="text-black" value="1">Qualidade</option>
+                                            <option className="text-black" value="2">Segurança</option>
+                                            <option className="text-black" value="3">Manutenção</option>
                                         </select>
                                     </div>
 
@@ -228,7 +232,7 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
                                         <label className='text-lg text-gray-600 mb-0 leading-none'>REVISÃO <span className='text-red-akaer'>*</span></label>
                                         <input
                                             className="bg-gray-100/80 border rounded h-10 px-2"
-                                            placeholder="Ex: A,B"
+                                            placeholder="Ex: A, B"
                                             value={revisao}
                                             onChange={(e) => setRevisao(formatarRevisao(e.target.value))}
                                             inputMode='text'

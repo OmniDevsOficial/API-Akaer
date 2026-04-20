@@ -18,7 +18,7 @@ export const createNormaService = async (data: any, filePath: string) => {
   }
 
   const dataPublicacao = parseBrDate(String(data_publicacao), "data_publicacao");
-
+  
   const norma = await prisma.norma.create({
     data: {
       codigo,
