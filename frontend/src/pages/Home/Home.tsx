@@ -5,7 +5,7 @@ import Barra_pesquisa from '../../components/barra_pes';
 import TabelaNormas from '../../components/tabela';
 import AddStandardModal from '@/components/add-standard-modal';
 import { getUserRole } from '../../utils/auth';
-// import modalCadastro from '' é de onde vai vir o modal
+import { FilterModal } from '../../components/FilterModal/FilterModal';
 
 export default function Home() {
 
@@ -14,6 +14,11 @@ export default function Home() {
 
     // Funções do modal para abri-lo
     const [modalAberto, setModalAberto] = useState(false);
+    
+    // Estado que veio da branch do modal de filtros
+    const [filtroModalOpen, setFiltroModalOpen] = useState(false);
+
+    // Estados que vieram da main (Busca e Recarregamento da tabela)
     const [recarregarTabela, setRecarregarTabela] = useState(0);
     const [buscaNorma, setBuscaNorma] = useState('');
 
@@ -54,8 +59,17 @@ export default function Home() {
                             />
                         </div>
 
-                        {/* Barra de pesquisa, filtro e ordenar */}
-                        <Barra_pesquisa busca={buscaNorma} onBuscaChange={setBuscaNorma} />
+                        {/* Barra de pesquisa, filtro e ordenar unificados */}
+                        <Barra_pesquisa 
+                            busca={buscaNorma} 
+                            onBuscaChange={setBuscaNorma}
+                            onOpenFilters={() => setFiltroModalOpen(true)} 
+                        />
+
+                        <FilterModal
+                           isOpen={filtroModalOpen}
+                           onClose={() => setFiltroModalOpen(false)}
+                        />
 
                         {/* Tabela de normas */}
                         <TabelaNormas refreshTrigger={recarregarTabela} searchText={buscaNorma} />

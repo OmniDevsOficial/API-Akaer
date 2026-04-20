@@ -25,17 +25,47 @@ async function main() {
     const hashedPassword2 = await hashPassword('viewer123');
 
     await prisma.user.upsert({
-        where: { email: 'admin1@gmail.com' },
-        update: {},
-        create: { nome: 'Administrador', email: 'admin1@gmail.com', password: hashedPassword1, role: 'ADMIN' },
-      },
+      where: { email: 'admin1@gmail.com' },
+      update: {},
+      create: { nome: 'Administrador', email: 'admin1@gmail.com', password: hashedPassword1, role: 'ADMIN' },
+    },
     );
     await prisma.user.upsert({
-        where: { email: 'viewer1@gmail.com' },
-        update: {},
-        create: { nome: 'Visualizador', email: 'viewer1@gmail.com', password: hashedPassword2, role: 'VISUALIZADOR' },
-      },
+      where: { email: 'viewer1@gmail.com' },
+      update: {},
+      create: { nome: 'Visualizador', email: 'viewer1@gmail.com', password: hashedPassword2, role: 'VISUALIZADOR' },
+    },
     );
+
+    // 1. Criar Categorias
+    const categorias = ['Qualidade', 'Segurança', 'Manutenção'];
+    for (const nome of categorias) {
+      await prisma.categoria.upsert({
+        where: { nome: nome },
+        update: {},
+        create: { nome: nome },
+      });
+    }
+
+    // 2. Criar Órgãos Emissores
+    const orgaos = ['ANAC', 'EASA', 'FAA'];
+    for (const nome of orgaos) {
+      await prisma.orgaoEmissor.upsert({
+        where: { nome: nome },
+        update: {},
+        create: { nome: nome },
+      });
+    }
+
+    // 3. Criar Etapas do Projeto
+    const etapas = ['Montagem', 'Testes', 'Selagem'];
+    for (const nome of etapas) {
+      await prisma.etapaProjeto.upsert({
+        where: { nome: nome },
+        update: {},
+        create: { nome: nome },
+      });
+    }
     return;
   }
 
@@ -45,20 +75,20 @@ async function main() {
 
 
   await prisma.$transaction(async (tx) => {
-    
+
     await tx.$executeRawUnsafe('SET FOREIGN_KEY_CHECKS = 0;');
 
     try {
       for (const model of Object.keys(bancoCompleto)) {
         const registros = bancoCompleto[model];
-        
+
         if (!registros || registros.length === 0) continue;
 
         const modelDelegate = model.charAt(0).toLowerCase() + model.slice(1);
-        
+
         const insercao = await (tx as any)[modelDelegate].createMany({
           data: registros,
-          skipDuplicates: true, 
+          skipDuplicates: true,
         });
 
         console.log(`Injetados ${insercao.count} registros na tabela ${model}.`);
