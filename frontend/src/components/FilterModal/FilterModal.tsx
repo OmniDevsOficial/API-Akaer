@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import "./FilterModal.css";
 
 type Props = {
@@ -21,8 +22,6 @@ type Filtros = {
 };
 
 export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
-
 
   // ESTADO DOS FILTROS
 
@@ -61,7 +60,7 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
     },
   ];
 
- 
+
   // OPÇÕES DO FILTRO
 
   const opcoes = {
@@ -77,7 +76,7 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
     setAberto((prev) => (prev === filtro ? null : filtro));
   };
 
- 
+
 
 
   const toggleFiltro = (tipo: keyof Filtros, valor: string) => {
@@ -94,7 +93,7 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
   };
 
 
-  
+
   const limparFiltros = () => {
     setFiltros({
       orgao: [],
@@ -118,15 +117,13 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
     return orgaoOk && categoriaOk && etapaOk;
   });
 
- 
   return (
-    <div className="overlay">
-      <div className="modal">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="modal p-0 gap-0 max-w-none">
 
         {/* HEADER */}
         <div className="header">
           <h2>Filtros de Normas</h2>
-          <button onClick={onClose}>✕</button>
         </div>
 
         <div className="content">
@@ -242,10 +239,10 @@ export const FilterModal: React.FC<Props> = ({ isOpen, onClose }) => {
         {/* FOOTER */}
         <div className="footer">
           <button onClick={onClose}>Cancelar</button>
-          <button className="apply">Aplicar filtros</button>
+          <button onClick={onClose} className="apply">Aplicar filtros</button>
         </div>
 
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };

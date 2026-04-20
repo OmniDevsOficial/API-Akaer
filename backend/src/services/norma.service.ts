@@ -18,10 +18,6 @@ export const createNormaService = async (data: any, filePath: string) => {
   }
 
   const dataPublicacao = parseBrDate(String(data_publicacao), "data_publicacao");
-
-  if (isNaN(orgao_emissor_id) || isNaN(categoria_id) || isNaN(etapa_projeto_id)) {
-    throw new Error("Os campos orgao_emissor_id, categoria_id e etapa_projeto_id são obrigatórios e devem ser números válidos.");
-  }
   
   const norma = await prisma.norma.create({
     data: {

@@ -8,7 +8,7 @@ interface BarraPesquisaProps {
     onOpenFilters: () => void;
 }
 
-export default function Barra_pesquisa({ busca, onBuscaChange, onOpenFilters}: BarraPesquisaProps) {
+export default function Barra_pesquisa({ busca, onBuscaChange, onOpenFilters }: BarraPesquisaProps) {
     return (
         <div className="flex items-center gap-4 my-6">
             {/* Barra de Pesquisa */}
@@ -22,7 +22,7 @@ export default function Barra_pesquisa({ busca, onBuscaChange, onOpenFilters}: B
             <div>
                 <button
                     onClick={onOpenFilters}
-                    className="flex gap-2 items-center text-sm text-gray-medium border border-font-border rounded-md py-2 px-3"
+                    className="flex gap-2 items-center text-sm text-gray-medium border border-font-border rounded-md py-2 px-3 cursor-pointer"
                 >
                     <IoMdSearch className='text-lg' />
                     <div className="h-3 w-px bg-font-border "></div>

@@ -1,24 +1,21 @@
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.65);
+.content {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
+  flex: 1;
+  min-height: 0;
 }
 
 .modal {
-  width: 900px;
-  max-width: 95%;
-  height: 85vh;
   background: #fff;
   border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   display: flex;
+  font-family: 'DM Sans';
   flex-direction: column;
+  height: 85vh;
+  max-height: 85vh;
+  width: 900px;
+  max-width: 95%;
   overflow: hidden;
-  font-family: Arial, sans-serif;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 
 .header {
@@ -32,6 +29,7 @@
 .header h2 {
   font-size: 18px;
   margin: 0;
+  color: #8B0000;
 }
 
 .header button {
@@ -54,13 +52,17 @@
   padding: 15px;
   overflow-y: auto;
   background: #fafafa;
+  height: 100%;
 }
 
 .filter-group {
   padding: 10px;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 500;
+  font-family: 'Inter';
+  font-size: 16px;
+  letter-spacing: 1px;
   display: flex;
   justify-content: space-between;
   transition: 0.2s;
@@ -78,10 +80,11 @@
 }
 
 .sub-options label {
-  font-size: 13px;
-  display: flex;
-  gap: 6px;
+  align-items: center;
   cursor: pointer;
+  display: flex;
+  font-size: 14px;
+  gap: 6px;
 }
 
 
@@ -89,6 +92,7 @@
   flex: 1;
   padding: 20px;
   overflow-y: auto;
+  min-height: 0;
 }
 
 
@@ -100,14 +104,14 @@
 }
 
 .active-filters button {
-  width: fit-content;
-  padding: 5px 10px;
+  background: #2a2a2a;
   border: none;
-  background: #111;
-  color: #fff;
   border-radius: 5px;
   cursor: pointer;
+  color: #fff;
   font-size: 12px;
+  padding: 6px 12px;
+  width: fit-content;
 }
 
 .tags {
@@ -150,7 +154,7 @@
 }
 
 .item strong {
-  color: #d32f2f;
+  color: #8B0000;
   min-width: 50px;
 }
 
@@ -158,24 +162,20 @@
   display: flex;
   justify-content: space-between;
   padding: 15px 20px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #E8E4DF;
   background: #fff;
 }
 
 .footer button {
   padding: 8px 14px;
   border-radius: 6px;
+  border: 1px solid #E8E4DF;
   cursor: pointer;
-  border: none;
   font-size: 13px;
 }
 
-.footer button:first-child {
-  background: #eee;
-}
-
 .apply {
-  background: #111;
+  background: #2A2A2A;
   color: #fff;
 }
 

@@ -116,7 +116,7 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '' }: Ta
                         <tr key={norma.id} className="border-b border-font-border last:border-none hover:bg-gray-50 transition-colors">
 
                             {/* Código — vermelho no design */}
-                            <td className="px-6 py-4 text-sm text-red-akaer font-medium whitespace-nowrap">
+                            <td className="px-6 py-4 text-sm text-red-akaer font-semibold whitespace-nowrap">
                                 {norma.codigo}
                             </td>
 

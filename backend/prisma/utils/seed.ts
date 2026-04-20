@@ -58,7 +58,7 @@ async function main() {
     }
 
     // 3. Criar Etapas do Projeto
-    const etapas = ['Projeto', 'Fabricação', 'Montagem', 'Testes'];
+    const etapas = ['Montagem', 'Testes', 'Selagem'];
     for (const nome of etapas) {
       await prisma.etapaProjeto.upsert({
         where: { nome: nome },
