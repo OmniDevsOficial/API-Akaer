@@ -1,7 +1,7 @@
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from './ui/button';
 import { Check } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FileUpload } from './ui/file-upload';
 import api from '@/services/api';
 
@@ -9,6 +9,12 @@ interface StandardModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSuccess: () => void;
+}
+
+// Tipagem para o retorno da API
+interface OpcaoSelect {
+    id: number;
+    nome: string;
 }
 
 function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps) {
@@ -22,6 +28,17 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
     const [revisao, setRevisao] = useState('');
     const [arquivoNorma, setArquivoNorma] = useState<File | null>(null);
     const [cadastroConcluido, setCadastroConcluido] = useState(false);
+
+    // Opções dinâmicas
+    const [listaOrgao, setListaOrgao] = useState<any[]>([]);
+    const [listaCategoria, setListaCategoria] = useState<any[]>([]);
+    const [listaEtapaProjeto, setListaEtapaProjeto] = useState<any[]>([]);
+
+    useEffect(() => {
+        api.get('/orgaos-emissores').then(res => setListaOrgao(res.data));
+        api.get('/categorias').then(res => setListaCategoria(res.data));
+        api.get('/etapa-projeto').then(res => setListaEtapaProjeto(res.data));
+    }), [open];
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
@@ -51,7 +68,7 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
             onSuccess();
             return response.data;
         } catch (error: any) {
-            const mensagemErro = 'Erro ao cadastrar norma: ' +  (error.response?.data?.error || error.message);
+            const mensagemErro = 'Erro ao cadastrar norma: ' + (error.response?.data?.error || error.message);
             alert(mensagemErro);
             console.error('Erro ao cadastrar Norma:', error);
             throw error;
@@ -155,9 +172,13 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
                                             required
                                         >
                                             <option className="text-black/40" value="">Selecione...</option>
+                                            {listaOrgao.map(orgao => (
+                                                <option key={orgao.id} value={orgao.id}>{orgao.nome}</option>
+                                            ))}
+                                            {/* 
                                             <option className="text-black" value="1">ANAC</option>
                                             <option className="text-black" value="2">EASA</option>
-                                            <option className="text-black" value="3">FAA</option>
+                                            <option className="text-black" value="3">FAA</option> */}
                                         </select>
                                     </div>
 
@@ -180,11 +201,15 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
                                             className={`bg-gray-100/80 border rounded h-10 px-2 ${etapaProjeto == '' ? 'text-black/60' : ''}`}
                                             value={etapaProjeto}
                                             onChange={(e) => setEtapaProjeto(e.target.value)}
-                                            >
+                                        >
                                             <option className="text-black/40" value="">Selecione...</option>
-                                            <option className="text-black" value="1">Montagem</option>
+                                            {listaEtapaProjeto.map(etapa => (
+                                                <option key={etapa.id} value={etapa.id}>{etapa.nome}</option>
+                                            ))}
+
+                                            {/* <option className="text-black" value="1">Montagem</option>
                                             <option className="text-black" value="2">Selagem</option>
-                                            <option className="text-black" value="3">Testes</option>
+                                            <option className="text-black" value="3">Testes</option> */}
                                         </select>
                                     </div>
                                 </div>
@@ -209,9 +234,12 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
                                             required
                                         >
                                             <option className="text-black/40" value="">Selecione...</option>
-                                            <option className="text-black" value="1">Qualidade</option>
+                                            {listaCategoria.map(cat => (
+                                                <option key={cat.id} value={cat.id}>{cat.nome}</option>
+                                            ))}
+                                            {/* <option className="text-black" value="1">Qualidade</option>
                                             <option className="text-black" value="2">Segurança</option>
-                                            <option className="text-black" value="3">Manutenção</option>
+                                            <option className="text-black" value="3">Manutenção</option> */}
                                         </select>
                                     </div>
 
@@ -248,7 +276,7 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
                             <div className='grid grid-cols-2 mx-8 items-center mb-4'>
                                 <div className='text-start'>Campos com <span className='text-red-akaer'>*</span> são Obrigatórios</div>
                                 <div className='flex justify-end'>
-                                    <Button size={'lg'} className='ml-auto border border-gray-600/40 hover:bg-gray-200' variant={'secondary'} onClick={() => handleOpenChange(false)}>Cancelar</Button>
+                                    <Button type='button' size={'lg'} className='ml-auto border border-gray-600/40 hover:bg-gray-200' variant={'secondary'} onClick={() => handleOpenChange(false)}>Cancelar</Button>
                                     <Button size={'lg'} className='ml-2 hover:bg-black/80' type="submit"><Check />Cadastrar Norma</Button>
                                 </div>
                             </div>
