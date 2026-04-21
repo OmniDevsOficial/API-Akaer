@@ -24,15 +24,27 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
     const [cadastroConcluido, setCadastroConcluido] = useState(false);
 
     // Opções dinâmicas
-    const [listaOrgao, setListaOrgao] = useState<any[]>([]);
-    const [listaCategoria, setListaCategoria] = useState<any[]>([]);
-    const [listaEtapaProjeto, setListaEtapaProjeto] = useState<any[]>([]);
+    const [listaOrgao, setListaOrgao] = useState<any[]>([
+        {id: 1, nome:'ANAC'}, 
+        {id: 2, nome:'EASA'}, 
+        {id: 3, nome:'FAA'}
+    ]);
+    const [listaCategoria, setListaCategoria] = useState<any[]>([
+        {id: 1, nome:'Qualidade'}, 
+        {id: 2, nome:'Segurança'}, 
+        {id: 3, nome:'Manutenção'}
+    ]);
+    const [listaEtapaProjeto, setListaEtapaProjeto] = useState<any[]>([
+        {id: 1, nome:'Montagem'}, 
+        {id: 2, nome:'Testes'}, 
+        {id: 3, nome:'Selagem'}
+    ]);
 
-    useEffect(() => {
-        api.get('/orgaos-emissores').then(res => setListaOrgao(res.data));
-        api.get('/categorias').then(res => setListaCategoria(res.data));
-        api.get('/etapa-projeto').then(res => setListaEtapaProjeto(res.data));
-    }), [open];
+    // useEffect(() => {
+    //     api.get('/orgaos-emissores').then(res => setListaOrgao(res.data));
+    //     api.get('/categorias').then(res => setListaCategoria(res.data));
+    //     api.get('/etapa-projeto').then(res => setListaEtapaProjeto(res.data));
+    // }), [open];
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
