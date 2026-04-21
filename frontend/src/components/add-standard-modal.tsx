@@ -31,8 +31,47 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
     useEffect(() => {
         api.get('/orgaos-emissores').then(res => setListaOrgao(res.data));
         api.get('/categorias').then(res => setListaCategoria(res.data));
-        api.get('/etapa-projeto').then(res => setListaEtapaProjeto(res.data));
-    }), [open];
+        api.get('/etapas-projeto').then(res => setListaEtapaProjeto(res.data));
+    }, [open]);
+
+    const handleAddOrgao = async () => {
+        const novo = window.prompt('Digite o nome do novo Órgão Emissor:');
+        if (novo && novo.trim()) {
+            try {
+                const res = await api.post('/orgaos-emissores', { nome: novo.trim() });
+                setListaOrgao([...listaOrgao, res.data]);
+                setOrgaoEmissor(res.data.id);
+            } catch (err: any) {
+                alert('Erro ao cadastrar Órgão Emissor: ' + (err.response?.data?.error || err.message));
+            }
+        }
+    };
+
+    const handleAddCategoria = async () => {
+        const novo = window.prompt('Digite o nome da nova Categoria:');
+        if (novo && novo.trim()) {
+            try {
+                const res = await api.post('/categorias', { nome: novo.trim() });
+                setListaCategoria([...listaCategoria, res.data]);
+                setCategoria(res.data.id);
+            } catch (err: any) {
+                alert('Erro ao cadastrar Categoria: ' + (err.response?.data?.error || err.message));
+            }
+        }
+    };
+
+    const handleAddEtapa = async () => {
+        const novo = window.prompt('Digite o nome da nova Etapa do Projeto:');
+        if (novo && novo.trim()) {
+            try {
+                const res = await api.post('/etapas-projeto', { nome: novo.trim() });
+                setListaEtapaProjeto([...listaEtapaProjeto, res.data]);
+                setEtapaProjeto(res.data.id);
+            } catch (err: any) {
+                alert('Erro ao cadastrar Etapa do Projeto: ' + (err.response?.data?.error || err.message));
+            }
+        }
+    };
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
@@ -162,13 +201,20 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
                                         <select
                                             className={`bg-gray-100/80 border rounded h-10 px-2 ${orgaoEmissor == '' ? 'text-black/60' : ''}`}
                                             value={orgaoEmissor}
-                                            onChange={(e) => setOrgaoEmissor(e.target.value)}
+                                            onChange={(e) => {
+                                                if (e.target.value === 'novo') {
+                                                    handleAddOrgao();
+                                                } else {
+                                                    setOrgaoEmissor(e.target.value);
+                                                }
+                                            }}
                                             required
                                         >
                                             <option className="text-black/40" value="">Selecione...</option>
                                             {listaOrgao.map(orgao => (
                                                 <option key={orgao.id} value={orgao.id}>{orgao.nome}</option>
                                             ))}
+                                            <option className="text-blue-600 font-bold" value="novo">+ Cadastrar novo...</option>
                                         </select>
                                     </div>
 
@@ -190,12 +236,19 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
                                         <select
                                             className={`bg-gray-100/80 border rounded h-10 px-2 ${etapaProjeto == '' ? 'text-black/60' : ''}`}
                                             value={etapaProjeto}
-                                            onChange={(e) => setEtapaProjeto(e.target.value)}
+                                            onChange={(e) => {
+                                                if (e.target.value === 'novo') {
+                                                    handleAddEtapa();
+                                                } else {
+                                                    setEtapaProjeto(e.target.value);
+                                                }
+                                            }}
                                         >
                                             <option className="text-black/40" value="">Selecione...</option>
                                             {listaEtapaProjeto.map(etapa => (
                                                 <option key={etapa.id} value={etapa.id}>{etapa.nome}</option>
                                             ))}
+                                            <option className="text-blue-600 font-bold" value="novo">+ Cadastrar novo...</option>
                                         </select>
                                     </div>
                                 </div>
@@ -216,13 +269,20 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
                                         <select
                                             className={`bg-gray-100/80 border rounded h-10 px-2 ${categoria == '' ? 'text-black/60' : ''}`}
                                             value={categoria}
-                                            onChange={(e) => setCategoria(e.target.value)}
+                                            onChange={(e) => {
+                                                if (e.target.value === 'novo') {
+                                                    handleAddCategoria();
+                                                } else {
+                                                    setCategoria(e.target.value);
+                                                }
+                                            }}
                                             required
                                         >
                                             <option className="text-black/40" value="">Selecione...</option>
                                             {listaCategoria.map(cat => (
                                                 <option key={cat.id} value={cat.id}>{cat.nome}</option>
                                             ))}
+                                            <option className="text-blue-600 font-bold" value="novo">+ Cadastrar novo...</option>
                                         </select>
                                     </div>
 
