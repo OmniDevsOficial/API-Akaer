@@ -11,12 +11,6 @@ interface StandardModalProps {
     onSuccess: () => void;
 }
 
-// Tipagem para o retorno da API
-interface OpcaoSelect {
-    id: number;
-    nome: string;
-}
-
 function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps) {
     const [titulo, setTitulo] = useState('');
     const [orgaoEmissor, setOrgaoEmissor] = useState('');
@@ -175,10 +169,6 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
                                             {listaOrgao.map(orgao => (
                                                 <option key={orgao.id} value={orgao.id}>{orgao.nome}</option>
                                             ))}
-                                            {/* 
-                                            <option className="text-black" value="1">ANAC</option>
-                                            <option className="text-black" value="2">EASA</option>
-                                            <option className="text-black" value="3">FAA</option> */}
                                         </select>
                                     </div>
 
@@ -206,10 +196,6 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
                                             {listaEtapaProjeto.map(etapa => (
                                                 <option key={etapa.id} value={etapa.id}>{etapa.nome}</option>
                                             ))}
-
-                                            {/* <option className="text-black" value="1">Montagem</option>
-                                            <option className="text-black" value="2">Selagem</option>
-                                            <option className="text-black" value="3">Testes</option> */}
                                         </select>
                                     </div>
                                 </div>
@@ -237,9 +223,6 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
                                             {listaCategoria.map(cat => (
                                                 <option key={cat.id} value={cat.id}>{cat.nome}</option>
                                             ))}
-                                            {/* <option className="text-black" value="1">Qualidade</option>
-                                            <option className="text-black" value="2">Segurança</option>
-                                            <option className="text-black" value="3">Manutenção</option> */}
                                         </select>
                                     </div>
 
