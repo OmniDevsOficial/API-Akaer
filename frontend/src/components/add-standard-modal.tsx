@@ -29,10 +29,14 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
     const [listaEtapaProjeto, setListaEtapaProjeto] = useState<any[]>([]);
 
     useEffect(() => {
-        api.get('/orgaos-emissores').then(res => setListaOrgao(res.data));
-        api.get('/categorias').then(res => setListaCategoria(res.data));
-        api.get('/etapas-projeto').then(res => setListaEtapaProjeto(res.data));
-    }), [open];
+        const getFilterOptions = async () => {
+            await api.get('/orgaos-emissores').then(res => setListaOrgao(res.data));
+            await api.get('/categorias').then(res => setListaCategoria(res.data));
+            await api.get('/etapas-projeto').then(res => setListaEtapaProjeto(res.data));
+        }
+
+        getFilterOptions();
+    }, [open]);
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
