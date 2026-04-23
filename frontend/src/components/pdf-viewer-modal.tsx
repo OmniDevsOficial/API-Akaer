@@ -133,6 +133,30 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
         return () => observer.disconnect();
     }, [open]);
 
+    useEffect(() => {
+        if (!open) {
+            return;
+        }
+
+        const blockKeyboardShortcuts = (event: KeyboardEvent) => {
+            const isBlockedShortcut =
+                (event.ctrlKey || event.metaKey) && ["p", "s", "u"].includes(event.key.toLowerCase());
+
+            if (!isBlockedShortcut) {
+                return;
+            }
+
+            event.preventDefault();
+            event.stopPropagation();
+        };
+
+        window.addEventListener("keydown", blockKeyboardShortcuts, true);
+
+        return () => {
+            window.removeEventListener("keydown", blockKeyboardShortcuts, true);
+        };
+    }, [open]);
+
     const irParaPaginaAnterior = () => {
         if (podeVoltar) {
             setPaginaAtual((pagina) => pagina - 1);
@@ -246,24 +270,32 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
                     {!pdfUrl ? (
                         <p className="text-sm text-gray-600 text-center mt-10">Nenhum arquivo PDF informado para esta norma.</p>
                     ) : (
-                        <div className="flex justify-center min-h-full py-1">
-                            <Document
-                                file={pdfUrl}
-                                loading={<p className="text-sm text-gray-600">Carregando PDF...</p>}
-                                error={<p className="text-sm text-red-600">Não foi possível carregar este PDF.</p>}
-                                onLoadSuccess={({ numPages }) => {
-                                    setTotalPaginas(numPages);
-                                    setPaginaAtual(1);
-                                }}
-                            >
-                                <Page
-                                    pageNumber={paginaAtual}
-                                    width={larguraBasePagina}
-                                    scale={zoom}
-                                    renderAnnotationLayer
-                                    renderTextLayer
-                                />
-                            </Document>
+                        <div
+                            className="flex justify-center min-h-full py-1"
+                            onContextMenu={(event) => {
+                                event.preventDefault();
+                                event.stopPropagation();
+                            }}
+                        >
+                            <div className="relative">
+                                <Document
+                                    file={pdfUrl}
+                                    loading={<p className="text-sm text-gray-600">Carregando PDF...</p>}
+                                    error={<p className="text-sm text-red-600">Não foi possível carregar este PDF.</p>}
+                                    onLoadSuccess={({ numPages }) => {
+                                        setTotalPaginas(numPages);
+                                        setPaginaAtual(1);
+                                    }}
+                                >
+                                    <Page
+                                        pageNumber={paginaAtual}
+                                        width={larguraBasePagina}
+                                        scale={zoom}
+                                        renderAnnotationLayer
+                                        renderTextLayer
+                                    />
+                                </Document>
+                            </div>
                         </div>
                     )}
                 </div>

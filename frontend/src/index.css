@@ -146,3 +146,25 @@
     @apply font-sans;
     }
 }
+
+  @media print {
+    body * {
+      visibility: hidden !important;
+    }
+
+    body::after {
+      content: "Impressao desabilitada por politica de seguranca.";
+      visibility: visible !important;
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 2rem;
+      text-align: center;
+      background: #ffffff;
+      color: #1f2937;
+      font-size: 1.125rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+  }
