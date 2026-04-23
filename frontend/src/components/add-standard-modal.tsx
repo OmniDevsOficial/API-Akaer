@@ -40,11 +40,15 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
         {id: 3, nome:'Selagem'}
     ]);
 
-    // useEffect(() => {
-    //     api.get('/orgaos-emissores').then(res => setListaOrgao(res.data));
-    //     api.get('/categorias').then(res => setListaCategoria(res.data));
-    //     api.get('/etapa-projeto').then(res => setListaEtapaProjeto(res.data));
-    // }), [open];
+    useEffect(() => {
+        const getFilterOptions = async () => {
+            await api.get('/orgaos-emissores').then(res => setListaOrgao(res.data));
+            await api.get('/categorias').then(res => setListaCategoria(res.data));
+            await api.get('/etapas-projeto').then(res => setListaEtapaProjeto(res.data));
+        }
+
+        getFilterOptions();
+    }, [open]);
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
