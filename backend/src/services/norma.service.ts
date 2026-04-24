@@ -102,9 +102,15 @@ export const searchNormasService = async (
       orderBy: { titulo: "asc" },
       skip,
       take: LIMITE_POR_PAGINA,
-      include: {
+      select: {
+        codigo: true,
+        titulo: true,
+        status: true,
+        revisao: true,
+        data_publicacao: true,
+        etapa_projeto_id: true,
         orgao_emissor: true,
-        categoria:     true,
+        categoria: true,
         etapa_projeto: true,
       },
     }),

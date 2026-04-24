@@ -117,7 +117,7 @@ O desafio consiste em desenvolver uma plataforma web estruturada para centraliza
 - **Git**
 
 ### 1. Clone o Projeto
-```
+```bash
 # Em seu terminal usando Git Bash
 # Baixe o código do projeto que está no GitHub para sua máquina local.
 git clone https://github.com/OmniDevsOficial/API-Akaer.git
@@ -128,7 +128,7 @@ cd API-Akaer/
 
 
 ### 2. Configurando o Backend e o Banco de Dados
-```
+```bash
 # Crie um banco MySQL na sua máquina (ou use um serviço na nuvem).
 
 # Entre na pasta backend.
@@ -145,13 +145,13 @@ npm run db:setup
 ```
 
 ### 3. Rodando o Back-End
-```
+```bash
 # Rode o projeto em sua máquina em modo desenvolvedor.
 npm run dev
 ```
 
 ### 4. Configurando e Rodando o Front-End
-```
+```bash
 # Na pasta raiz do projeto ./API-Akaer/ (Se não estiver, rode cd ..), entre na pasta frontend.
 cd frontend/
 
@@ -163,7 +163,7 @@ npm run dev
 ```
 
 ### 5. Abrindo a Aplicação no Navegador
-```
+```bash
 # Copie e cole a URL em seu navegador para acessar o projeto em localhost.
 http://localhost:5173/
 ```

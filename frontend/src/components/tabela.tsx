@@ -1,17 +1,32 @@
 import { useEffect, useState } from "react";
 import { TfiPencilAlt, TfiWorld } from "react-icons/tfi";
+import { FaRegFilePdf } from "react-icons/fa6";
 import api from "@/services/api";
 import { getUserRole } from '../utils/auth';
+import { Button } from "./ui/button";
+import PdfViewerModal from "./pdf-viewer-modal";
 
 interface Norma {
     id: number;
     codigo: string;
     titulo: string;
-    orgao_emissor: {nome: string};
-    orgao_emissor_id: {nome: string};
-    categoria: {nome: string};
-    categoria_id: {nome: string};
+    arquivo?: string;
+    revisao?: string | null;
+    orgao_emissor?: { nome: string };
+    orgao_emissor_id?: { nome: string };
+    categoria?: { nome: string };
+    categoria_id?: { nome: string };
     status: string;
+}
+
+interface NormaSelecionadaPdf {
+    codigo?: string;
+    titulo?: string;
+    status?: string;
+    orgaoEmissor?: string;
+    categoria?: string;
+    revisao?: string | null;
+    arquivo?: string | null;
 }
 
 interface NormasLeituraResponse {
@@ -40,6 +55,8 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '' }: Ta
     const [normas, setNormas] = useState<Norma[]>([]);
     const [totalNormas, setTotalNormas] = useState(0);
     const [carregando, setCarregando] = useState(true);
+    const [pdfModalAberto, setPdfModalAberto] = useState(false);
+    const [normaSelecionadaPdf, setNormaSelecionadaPdf] = useState<NormaSelecionadaPdf | null>(null);
 
     useEffect(() => {
         const carregarNormas = async () => {
@@ -74,6 +91,19 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '' }: Ta
     const quantidadeExibida = normas.length;
     const quantidadeTotal = totalNormas || quantidadeExibida;
 
+    const abrirPdf = (norma: Norma) => {
+        setNormaSelecionadaPdf({
+            codigo: norma.codigo,
+            titulo: norma.titulo,
+            status: norma.status,
+            orgaoEmissor: norma.orgao_emissor?.nome || norma.orgao_emissor_id?.nome,
+            categoria: norma.categoria?.nome || norma.categoria_id?.nome,
+            revisao: norma.revisao,
+            arquivo: norma.arquivo ?? null,
+        });
+        setPdfModalAberto(true);
+    };
+
     return (
         <div className="border border-font-border rounded-lg overflow-hidden">
             <table className="w-full">
@@ -86,11 +116,12 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '' }: Ta
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">ÓRGÃO</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">CATEGORIA</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">STATUS</th>
+                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">DOCUMENTO</th>
 
                         {isAdmin && (
-                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">
-                          AÇÕES
-                        </th>
+                            <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">
+                                AÇÕES
+                            </th>
                         )}
 
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">VISIB.</th>
@@ -99,20 +130,20 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '' }: Ta
                 </thead>
 
                 {/* Linhas das normas */}
-                    <tbody>
-                        {carregando ? (
-                            <tr>
-                                <td colSpan={isAdmin ? 7 : 6} className="px-6 py-6 text-sm text-gray-medium text-center">
-                                    Carregando normas...
-                                </td>
-                            </tr>
-                        ) : normas.length === 0 ? (
-                            <tr>
-                                <td colSpan={isAdmin ? 7 : 6} className="px-6 py-6 text-sm text-gray-medium text-center">
-                                    Nenhuma norma encontrada.
-                                </td>
-                            </tr>
-                        ) : normas.map(norma => (
+                <tbody>
+                    {carregando ? (
+                        <tr>
+                            <td colSpan={isAdmin ? 7 : 6} className="px-6 py-6 text-sm text-gray-medium text-center">
+                                Carregando normas...
+                            </td>
+                        </tr>
+                    ) : normas.length === 0 ? (
+                        <tr>
+                            <td colSpan={isAdmin ? 7 : 6} className="px-6 py-6 text-sm text-gray-medium text-center">
+                                Nenhuma norma encontrada.
+                            </td>
+                        </tr>
+                    ) : normas.map(norma => (
                         <tr key={norma.id} className="border-b border-font-border last:border-none hover:bg-gray-50 transition-colors">
 
                             {/* Código — vermelho no design */}
@@ -123,7 +154,7 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '' }: Ta
                             {/* Título + descrição empilhados */}
                             <td className="px-6 py-4">
                                 <span className="block text-sm font-medium text-gray-900">{norma.titulo}</span>
-                                <span className="block text-xs text-gray-medium">Categoria: {norma.categoria?.nome || norma.categoria_id?.nome}</span> 
+                                <span className="block text-xs text-gray-medium">Categoria: {norma.categoria?.nome || norma.categoria_id?.nome}</span>
                                 {/* Colocar este acima como campo de palavra-chave */}
                             </td>
 
@@ -138,16 +169,28 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '' }: Ta
                                 </div>
                             </td>
 
+                            {/* Visualizaçao do PDF */}
+                            <td className="py-4 px-6">
+                                <Button
+                                    size={'icon'}
+                                    onClick={() => abrirPdf(norma)}
+                                    title={norma.arquivo ? 'Visualizar PDF' : 'Norma sem PDF cadastrado'}
+                                    className="ml-6"
+                                >
+                                    <FaRegFilePdf className="ml-[4px]"/>
+                                </Button>
+                            </td>
+
                             {/* Botões de ação */}
                             {isAdmin && (
-                            <td className="px-6 py-4">
-                                <div className="flex items-center gap-1 text-gray-700 hover:text-red-akaer transition-colors cursor-pointer">
-                                    <TfiPencilAlt className="p-1  text-2xl" />
-                                    <span className="text-sm">Editar</span>
-                                </div>
-                            </td>
+                                <td className="px-6 py-4">
+                                    <div className="flex items-center gap-1 text-gray-700 hover:text-red-akaer transition-colors cursor-pointer">
+                                        <TfiPencilAlt className="p-1  text-2xl" />
+                                        <span className="text-sm">Editar</span>
+                                    </div>
+                                </td>
                             )}
-                            
+
                             {/* Visibilidade */}
                             <td className="px-6 py-4 text-sm text-gray-700">
                                 <div className="flex items-center gap-1">
@@ -165,6 +208,12 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '' }: Ta
             <div className="px-6 py-3 border-t border-font-border">
                 <span className="text-xs text-gray-medium">Exibindo {quantidadeExibida} de {quantidadeTotal} Normas</span>
             </div>
+
+            <PdfViewerModal
+                open={pdfModalAberto}
+                onOpenChange={setPdfModalAberto}
+                norma={normaSelecionadaPdf}
+            />
         </div>
     );
 }
