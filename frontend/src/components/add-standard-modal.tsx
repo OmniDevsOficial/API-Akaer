@@ -24,21 +24,9 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
     const [cadastroConcluido, setCadastroConcluido] = useState(false);
 
     // Opções dinâmicas
-    const [listaOrgao, setListaOrgao] = useState<any[]>([
-        {id: 1, nome:'ANAC'}, 
-        {id: 2, nome:'EASA'}, 
-        {id: 3, nome:'FAA'}
-    ]);
-    const [listaCategoria, setListaCategoria] = useState<any[]>([
-        {id: 1, nome:'Qualidade'}, 
-        {id: 2, nome:'Segurança'}, 
-        {id: 3, nome:'Manutenção'}
-    ]);
-    const [listaEtapaProjeto, setListaEtapaProjeto] = useState<any[]>([
-        {id: 1, nome:'Montagem'}, 
-        {id: 2, nome:'Testes'}, 
-        {id: 3, nome:'Selagem'}
-    ]);
+    const [listaOrgao, setListaOrgao] = useState<any[]>([]);
+    const [listaCategoria, setListaCategoria] = useState<any[]>([]);
+    const [listaEtapaProjeto, setListaEtapaProjeto] = useState<any[]>([]);
 
     useEffect(() => {
         const getFilterOptions = async () => {
