@@ -1,5 +1,7 @@
 import prisma from "../prisma/client";
 import { parseBrDate } from "../utils/validateDate";
+import path from "path";
+import fs from "fs";
 
 export const createNormaService = async (data: any, filePath: string) => {
   const { codigo, titulo, orgao_emissor_id, categoria_id, etapa_projeto_id, revisao, status, data_publicacao } = data;
@@ -120,5 +122,32 @@ export const searchNormasService = async (
       temPaginaAnterior: pagina > 1,
       temProximaPagina:  pagina < totalPaginas,
     },
+  };
+};
+
+export const getNormaDocumentoService = async (codigo: string) => {
+  const norma = await prisma.norma.findUnique({
+    where: { codigo },
+    select: { arquivo: true }
+  });
+
+  if (!norma) {
+    throw new Error("Norma não encontrada");
+  }
+
+  const uploadsDir = path.resolve(__dirname, "../../uploads");
+  const arquivoPath = path.resolve(norma.arquivo);
+
+  if (!arquivoPath.startsWith(uploadsDir)) {
+    throw new Error("Arquivo inválido");
+  }
+
+  if (!fs.existsSync(arquivoPath)) {
+    throw new Error("Documento não encontrado");
+  }
+
+  return {
+    filePath: arquivoPath,
+    fileName: path.basename(arquivoPath)
   };
 };
