@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createNormaService, searchNormasService, updateNormaService } from "../services/norma.service";
+import { createNormaService, searchNormasService, updateNormaService, getNormaDocumentoService } from "../services/norma.service";
 import fs from "fs";
 
 export const createNorma = async (req: Request, res: Response) => {
@@ -66,5 +66,33 @@ export const searchNormas = async (req: Request, res: Response) => {
     return res.status(200).json(normas);
   } catch (error: any) {
     return res.status(400).json({ error: error.message });
+  }
+};
+
+export const getNormaDocumento = async (req: Request, res: Response) => {
+  try {
+    const { codigo } = req.params;
+
+    if (!codigo || typeof codigo !== "string") {
+      return res.status(400).json({ error: "Código da norma inválido" });
+    }
+
+    const { filePath, fileName } = await getNormaDocumentoService(codigo);
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `inline; filename="${encodeURIComponent(fileName)}"`);
+
+    return res.sendFile(filePath);
+  } catch (error: any) {
+    if (
+      error.message === "Norma não encontrada" ||
+      error.message === "Documento não encontrado"
+    ) {
+      return res.status(404).json({ error: error.message });
+    } else if (error.message === "Arquivo inválido") {
+      return res.status(403).json({ error: error.message });
+    }
+
+    return res.status(500).json({ error: "Erro interno no servidor" });
   }
 };
