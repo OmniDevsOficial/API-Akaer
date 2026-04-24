@@ -5,7 +5,7 @@ import Barra_pesquisa from '../../components/barra_pes';
 import TabelaNormas from '../../components/tabela';
 import AddStandardModal from '@/components/add-standard-modal';
 import { getUserRole } from '../../utils/auth';
-import { FilterModal } from '../../components/FilterModal/FilterModal';
+import { FilterAside } from '../../components/FilterAside/FilterAside';
 
 export default function Home() {
 
@@ -66,7 +66,7 @@ export default function Home() {
                             onOpenFilters={() => setFiltroModalOpen(true)} 
                         />
 
-                        <FilterModal
+                        <FilterAside
                            isOpen={filtroModalOpen}
                            onClose={() => setFiltroModalOpen(false)}
                         />
