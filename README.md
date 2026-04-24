@@ -113,7 +113,7 @@ O desafio consiste em desenvolver uma plataforma web estruturada para centraliza
 ### Pré-requisitos
 
 - **Node.js** (Versão LTS recomendada)
-- **MySQL Server**
+- **MySQL Server** (ou MySQL Workbench)
 - **Git**
 
 ### 1. Clone o Projeto
@@ -127,7 +127,7 @@ cd API-Akaer/
 ```
 
 
-### 2. Configurando o Banco de Dados
+### 2. Configurando o Backend e o Banco de Dados
 ```
 # Crie um banco MySQL na sua máquina (ou use um serviço na nuvem).
 
@@ -137,28 +137,22 @@ cd backend/
 # Instale todas as dependências do projeto
 npm i
 
-# Depois, crie um arquivo .env na raiz do projeto com base no exemplo:
+# Depois, crie um arquivo .env na 'raiz do backend' (em /backend) com base no exemplo:
 DATABASE_URL = "mysql://[usuário]:[senha]@[host]:[porta]/[nome_do_banco]"
 
-# Rode o prisma studio para criar as tabelas do banco de dados.
+# Rode o comando de configuração para que o prisma crie e configure as tabelas do banco de dados.
 npm run db:setup
 ```
 
-### 3. Configurando o Back-End
+### 3. Rodando o Back-End
 ```
-# Entre na pasta backend.
-cd backend/
-
-# Instale todas as dependências do projeto.
-npm i
-
 # Rode o projeto em sua máquina em modo desenvolvedor.
 npm run dev
 ```
 
-### 4. Configurando o Front-End
+### 4. Configurando e Rodando o Front-End
 ```
-# Volte para a pasta raiz ./API-Akaer/ e entre na pasta frontend.
+# Na pasta raiz do projeto ./API-Akaer/ (Se não estiver, rode cd ..), entre na pasta frontend.
 cd frontend/
 
 # Instale todas as dependências do projeto.
@@ -166,7 +160,10 @@ npm i
 
 # Rode o projeto na sua máquina em modo desenvolvedor.
 npm run dev
+```
 
+### 5. Abrindo a Aplicação no Navegador
+```
 # Copie e cole a URL em seu navegador para acessar o projeto em localhost.
 http://localhost:5173/
 ```
