@@ -174,7 +174,6 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '' }: Ta
                                 <Button
                                     size={'icon'}
                                     onClick={() => abrirPdf(norma)}
-                                    disabled={!norma.arquivo}
                                     title={norma.arquivo ? 'Visualizar PDF' : 'Norma sem PDF cadastrado'}
                                     className="ml-6"
                                 >

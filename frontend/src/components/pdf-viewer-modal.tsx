@@ -19,58 +19,12 @@ interface PdfViewerModalProps {
         orgaoEmissor?: string;
         categoria?: string;
         revisao?: string | null;
-        arquivo?: string | null;
     } | null;
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3333";
 
 const joinApiUrl = (pathname: string) => new URL(pathname, API_BASE_URL).toString();
-
-const buildPdfUrl = (arquivo?: string | null) => {
-    if (!arquivo) {
-        return null;
-    }
-
-    const valor = arquivo.trim();
-
-    if (!valor) {
-        return null;
-    }
-
-    if (/^https?:\/\//i.test(valor)) {
-        return valor;
-    }
-
-    const normalizado = valor.replace(/\\/g, "/");
-    const matchUploads = normalizado.match(/(?:^|\/)uploads\/(.+)$/i);
-
-    if (matchUploads?.[1]) {
-        const caminhoRelativoUploads = matchUploads[1]
-            .split("/")
-            .filter(Boolean)
-            .map((parte) => encodeURIComponent(parte))
-            .join("/");
-
-        return joinApiUrl(`/uploads/${caminhoRelativoUploads}`);
-    }
-
-    if (normalizado.startsWith("/uploads/")) {
-        const caminhoUploads = normalizado
-            .split("/")
-            .filter(Boolean)
-            .map((parte) => encodeURIComponent(parte))
-            .join("/");
-
-        return joinApiUrl(`/${caminhoUploads}`);
-    }
-
-    if (normalizado.startsWith("/")) {
-        return joinApiUrl(normalizado);
-    }
-
-    return joinApiUrl(`/uploads/${encodeURIComponent(normalizado.split("/").pop() ?? normalizado)}`);
-};
 
 export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerModalProps) {
     const [totalPaginas, setTotalPaginas] = useState(0);
@@ -79,7 +33,28 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
     const [containerWidth, setContainerWidth] = useState(0);
     const areaRef = useRef<HTMLDivElement | null>(null);
 
-    const pdfUrl = useMemo(() => buildPdfUrl(norma?.arquivo), [norma?.arquivo]);
+    const pdfFile = useMemo(() => {
+        const codigo = norma?.codigo?.trim();
+
+        if (!codigo) {
+            return null;
+        }
+
+        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+
+        if (!token) {
+            return null;
+        }
+
+        return {
+            url: joinApiUrl(`/normas/${encodeURIComponent(codigo)}/documento`),
+            httpHeaders: {
+                Authorization: `Bearer ${token}`,
+            },
+            withCredentials: false,
+        };
+    }, [norma?.codigo]);
+    
     const totalPaginasExibicao = totalPaginas || 1;
     const metadadosRodape = [
         norma?.status || "Sem status",
@@ -267,8 +242,8 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
                 </div>
 
                 <div ref={areaRef} className="flex-1 overflow-auto bg-[#d2cdc8] p-4">
-                    {!pdfUrl ? (
-                        <p className="text-sm text-gray-600 text-center mt-10">Nenhum arquivo PDF informado para esta norma.</p>
+                    {!pdfFile ? (
+                        <p className="text-sm text-gray-600 text-center mt-10">Nao foi possivel preparar o documento para visualizacao.</p>
                     ) : (
                         <div
                             className="flex justify-center min-h-full py-1"
@@ -279,7 +254,7 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
                         >
                             <div className="relative">
                                 <Document
-                                    file={pdfUrl}
+                                    file={pdfFile}
                                     loading={<p className="text-sm text-gray-600">Carregando PDF...</p>}
                                     error={<p className="text-sm text-red-600">Não foi possível carregar este PDF.</p>}
                                     onLoadSuccess={({ numPages }) => {
