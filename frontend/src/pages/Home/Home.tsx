@@ -5,22 +5,18 @@ import Barra_pesquisa from '../../components/barra_pes';
 import TabelaNormas from '../../components/tabela';
 import AddStandardModal from '@/components/add-standard-modal';
 import { getUserRole } from '../../utils/auth';
-import { FilterAside } from '../../components/FilterAside/FilterAside';
+import { FilterAside, type FiltrosSelecionados } from '../../components/FilterAside/FilterAside';
 
 export default function Home() {
 
     const role = getUserRole();
     const isAdmin = role?.toLocaleLowerCase() === 'admin';
 
-    // Funções do modal para abri-lo
     const [modalAberto, setModalAberto] = useState(false);
-    
-    // Estado que veio da branch do modal de filtros
     const [filtroModalOpen, setFiltroModalOpen] = useState(false);
-
-    // Estados que vieram da main (Busca e Recarregamento da tabela)
     const [recarregarTabela, setRecarregarTabela] = useState(0);
     const [buscaNorma, setBuscaNorma] = useState('');
+    const [filtrosSelecionados, setFiltrosSelecionados] = useState<FiltrosSelecionados>({});
 
     const handleCadastroSucesso = () => {
         setRecarregarTabela((anterior) => anterior + 1);
@@ -32,7 +28,6 @@ export default function Home() {
 
                 <Header />
 
-                {/* O container que divide a parte de baixo em duas colunas */}
                 <div className="flex flex-1">
 
                     <Sidebar />
@@ -40,18 +35,16 @@ export default function Home() {
                     <main className="flex-1 p-8">
                         <h2 className="text-red-akaer font-bold text-sm tracking-widest mb-2">GERENCIAMENTO</h2>
 
-                        {/* Botão de cadastro de norma */}
                         <div className='flex justify-between items-center'>
                             <h1 className="text-3xl font-dm font-semibold text-dark-title">Normas Aeronáuticas</h1>
-                          
-                          {isAdmin && (
-                            <button onClick={() => setModalAberto(true)}
-                                className='font-semibold text-white text-sm bg-dark-title border border-font-border rounded-md py-3 px-6 cursor-pointer'>
-                                + Novo Cadastro
-                            </button>
-                          )}
 
-                            {/* Modal de Cadastro de Normas */}
+                            {isAdmin && (
+                                <button onClick={() => setModalAberto(true)}
+                                    className='font-semibold text-white text-sm bg-dark-title border border-font-border rounded-md py-3 px-6 cursor-pointer'>
+                                    + Novo Cadastro
+                                </button>
+                            )}
+
                             <AddStandardModal
                                 open={modalAberto}
                                 onOpenChange={setModalAberto}
@@ -59,23 +52,26 @@ export default function Home() {
                             />
                         </div>
 
-                        {/* Barra de pesquisa, filtro e ordenar unificados */}
-                        <Barra_pesquisa 
-                            busca={buscaNorma} 
+                        <Barra_pesquisa
+                            busca={buscaNorma}
                             onBuscaChange={setBuscaNorma}
-                            onOpenFilters={() => setFiltroModalOpen(true)} 
+                            onOpenFilters={() => setFiltroModalOpen(true)}
                         />
 
                         <FilterAside
-                           isOpen={filtroModalOpen}
-                           onClose={() => setFiltroModalOpen(false)}
+                            isOpen={filtroModalOpen}
+                            onClose={() => setFiltroModalOpen(false)}
+                            onApplyFilters={setFiltrosSelecionados}
                         />
 
-                        {/* Tabela de normas */}
-                        <TabelaNormas refreshTrigger={recarregarTabela} searchText={buscaNorma} />
+                        <TabelaNormas
+                            refreshTrigger={recarregarTabela}
+                            searchText={buscaNorma}
+                            filtros={filtrosSelecionados}
+                        />
                     </main>
                 </div>
             </div>
         </>
-    )
+    );
 }
