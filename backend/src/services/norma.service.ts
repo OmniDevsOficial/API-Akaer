@@ -1,7 +1,7 @@
 import prisma from "../prisma/client";
 
 export const createNormaService = async (data: any, filePath: string) => {
-  const { titulo, numero, orgao, categoria } = data;
+  const { titulo, numero, orgao, categoria, escopo, notas } = data;
 
   if (!titulo || !numero || !orgao || !categoria) {
     throw new Error("Campos obrigatórios não preenchidos");
@@ -13,9 +13,38 @@ export const createNormaService = async (data: any, filePath: string) => {
       numero,
       orgao,
       categoria,
+      escopo: escopo ?? null,
+      notas: notas ?? null,
       arquivo: filePath
     }
   });
 
   return norma;
+};
+
+export const getNormaByIdService = async (id: number) => {
+  const norma = await prisma.norma.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      titulo: true,
+      numero: true,
+      orgao: true,
+      categoria: true,
+      escopo: true,
+      notas: true,
+      arquivo: true,
+      status: true,
+      createdAt: true
+    }
+  });
+
+  if (!norma) {
+    throw new Error("Norma não encontrada");
+  }
+
+  return {
+    ...norma,
+    notas: norma.notas ?? null
+  };
 };
