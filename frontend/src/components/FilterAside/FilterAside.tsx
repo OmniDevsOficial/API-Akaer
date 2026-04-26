@@ -1,43 +1,69 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./FilterAside.css";
+import api from "@/services/api";
 
 type Props = {
   isOpen: boolean;
   onClose: () => void;
+  onApplyFilters: (filtros: FiltrosSelecionados) => void;
 };
 
-type Filtros = {
-  orgao: string[];
-  categoria: string[];
-  status: string[];
+export type FiltrosSelecionados = {
+  orgao?: number;
+  categoria?: number;
+  etapa?: number;
 };
 
-export const FilterAside: React.FC<Props> = ({ isOpen, onClose }) => {
+type Opcao = {
+  id: number;
+  nome: string;
+};
 
-  const [filtros, setFiltros] = useState<Filtros>({
-    orgao: [],
-    categoria: [],
-    status: [],
-  });
+export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters }) => {
 
-  const opcoes = {
-    orgao: ["ANAC", "EASA", "FAA", "MIL-SPEC"],
-    categoria: ["Estrutural", "Elétrico", "Sistemas", "Certificação"],
-    status: ["Ativa", "Revisão", "Obsoleta"],
-  };
+  const [orgaos, setOrgaos] = useState<Opcao[]>([]);
+  const [categorias, setCategorias] = useState<Opcao[]>([]);
+  const [etapas, setEtapas] = useState<Opcao[]>([]);
 
-  const toggleFiltro = (tipo: keyof Filtros, valor: string) => {
-    setFiltros((prev) => {
-      const existe = prev[tipo].includes(valor);
-      return {
-        ...prev,
-        [tipo]: existe ? prev[tipo].filter((v) => v !== valor) : [...prev[tipo], valor],
-      };
-    });
-  };
+  const [orgaoSelecionado, setOrgaoSelecionado] = useState<number | undefined>();
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState<number | undefined>();
+  const [etapaSelecionada, setEtapaSelecionada] = useState<number | undefined>();
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const carregarOpcoes = async () => {
+      try {
+        const [resOrgaos, resCategorias, resEtapas] = await Promise.all([
+          api.get<Opcao[]>('/orgaos-emissores'),
+          api.get<Opcao[]>('/categorias'),
+          api.get<Opcao[]>('/etapas-projeto'),
+        ]);
+        setOrgaos(resOrgaos.data);
+        setCategorias(resCategorias.data);
+        setEtapas(resEtapas.data);
+      } catch (error) {
+        console.error('Erro ao carregar opções de filtro:', error);
+      }
+    };
+
+    carregarOpcoes();
+  }, [isOpen]);
 
   const limparFiltros = () => {
-    setFiltros({ orgao: [], categoria: [], status: [] });
+    setOrgaoSelecionado(undefined);
+    setCategoriaSelecionada(undefined);
+    setEtapaSelecionada(undefined);
+    onApplyFilters({});
+  };
+
+  const aplicarFiltros = () => {
+    onApplyFilters({
+      orgao: orgaoSelecionado,
+      categoria: categoriaSelecionada,
+      etapa: etapaSelecionada,
+    });
+    onClose();
   };
 
   return (
@@ -61,14 +87,16 @@ export const FilterAside: React.FC<Props> = ({ isOpen, onClose }) => {
           {/* ÓRGÃO EMISSOR */}
           <div className="filter-section">
             <span className="section-label">ÓRGÃO EMISSOR</span>
-            {opcoes.orgao.map((item) => (
-              <label key={item} className="option">
+            {orgaos.map((item) => (
+              <label key={item.id} className="option">
                 <input
                   type="checkbox"
-                  checked={filtros.orgao.includes(item)}
-                  onChange={() => toggleFiltro("orgao", item)}
+                  checked={orgaoSelecionado === item.id}
+                  onChange={() => setOrgaoSelecionado(
+                    orgaoSelecionado === item.id ? undefined : item.id
+                  )}
                 />
-                <span>{item}</span>
+                <span>{item.nome}</span>
               </label>
             ))}
           </div>
@@ -76,38 +104,51 @@ export const FilterAside: React.FC<Props> = ({ isOpen, onClose }) => {
           {/* CATEGORIA */}
           <div className="filter-section">
             <span className="section-label">CATEGORIA</span>
-            {opcoes.categoria.map((item) => (
-              <label key={item} className="option">
+            {categorias.map((item) => (
+              <label key={item.id} className="option">
                 <input
                   type="checkbox"
-                  checked={filtros.categoria.includes(item)}
-                  onChange={() => toggleFiltro("categoria", item)}
+                  checked={categoriaSelecionada === item.id}
+                  onChange={() => setCategoriaSelecionada(
+                    categoriaSelecionada === item.id ? undefined : item.id
+                  )}
                 />
-                <span>{item}</span>
+                <span>{item.nome}</span>
               </label>
             ))}
           </div>
 
-          {/* STATUS */}
+          {/* ETAPA DO PROJETO */}
           <div className="filter-section">
-            <span className="section-label">STATUS</span>
-            {opcoes.status.map((item) => (
-              <label key={item} className="option">
+            <span className="section-label">ETAPA DO PROJETO</span>
+            {etapas.map((item) => (
+              <label key={item.id} className="option">
                 <input
                   type="checkbox"
-                  checked={filtros.status.includes(item)}
-                  onChange={() => toggleFiltro("status", item)}
+                  checked={etapaSelecionada === item.id}
+                  onChange={() => setEtapaSelecionada(
+                    etapaSelecionada === item.id ? undefined : item.id
+                  )}
                 />
-                <span>{item}</span>
+                <span>{item.nome}</span>
               </label>
             ))}
           </div>
 
         </div>
 
-        {/* BOTÃO LIMPAR */}
-        <div className="aside-footer">
-          <button className="clear-btn" onClick={limparFiltros}>Limpar filtros</button>
+        {/* FOOTER */}
+        <div className="aside-footer" style={{ display: 'flex', gap: '8px' }}>
+          <button className="clear-btn" onClick={limparFiltros}>
+            Limpar
+          </button>
+          <button
+            className="clear-btn"
+            onClick={aplicarFiltros}
+            style={{ background: '#8B0000', color: '#fff', borderColor: '#8B0000' }}
+          >
+            Aplicar
+          </button>
         </div>
 
       </aside>
