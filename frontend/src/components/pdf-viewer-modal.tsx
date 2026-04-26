@@ -19,6 +19,8 @@ interface PdfViewerModalProps {
         orgaoEmissor?: string;
         categoria?: string;
         revisao?: string | null;
+        escopo?: string;
+        palavrasChave?: string[];
     } | null;
 }
 
@@ -241,39 +243,93 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
                     </div>
                 </div>
 
-                <div ref={areaRef} className="flex-1 overflow-auto bg-[#d2cdc8] p-4">
-                    {!pdfFile ? (
-                        <p className="text-sm text-gray-600 text-center mt-10">Nao foi possivel preparar o documento para visualizacao.</p>
-                    ) : (
-                        <div
-                            className="flex justify-center min-h-full py-1"
-                            onContextMenu={(event) => {
-                                event.preventDefault();
-                                event.stopPropagation();
-                            }}
-                        >
-                            <div className="relative">
-                                <Document
-                                    file={pdfFile}
-                                    loading={<p className="text-sm text-gray-600">Carregando PDF...</p>}
-                                    error={<p className="text-sm text-red-600">Não foi possível carregar este PDF.</p>}
-                                    onLoadSuccess={({ numPages }) => {
-                                        setTotalPaginas(numPages);
-                                        setPaginaAtual(1);
-                                    }}
-                                >
-                                    <Page
-                                        pageNumber={paginaAtual}
-                                        width={larguraBasePagina}
-                                        scale={zoom}
-                                        renderAnnotationLayer
-                                        renderTextLayer
-                                    />
-                                </Document>
-                            </div>
-                        </div>
-                    )}
+               <div className="flex flex-1 overflow-hidden">
+
+    {/* ===== VIEWER PDF ===== */}
+    <div ref={areaRef} className="flex-1 overflow-auto bg-[#d2cdc8] p-4">
+
+        {!pdfFile ? (
+            <p className="text-sm text-gray-600 text-center mt-10">
+                Não foi possível preparar o documento para visualização.
+            </p>
+        ) : (
+            <div
+                className="flex justify-center min-h-full py-1"
+                onContextMenu={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }}
+            >
+                <div className="relative">
+                    <Document
+                        file={pdfFile}
+                        loading={<p className="text-sm text-gray-600">Carregando PDF...</p>}
+                        error={<p className="text-sm text-red-600">Não foi possível carregar este PDF.</p>}
+                        onLoadSuccess={({ numPages }) => {
+                            setTotalPaginas(numPages);
+                            setPaginaAtual(1);
+                        }}
+                    >
+                        <Page
+                            pageNumber={paginaAtual}
+                            width={larguraBasePagina}
+                            scale={zoom}
+                            renderAnnotationLayer
+                            renderTextLayer
+                        />
+                    </Document>
                 </div>
+            </div>
+        )}
+
+    </div>
+
+    {/* ===== PAINEL LATERAL (ESCPO + TAGS) ===== */}
+    <div className="w-[360px] border-l bg-white p-5 overflow-auto">
+
+        <h2 className="text-lg font-semibold text-[#7f2943] mb-6">
+            Detalhes da Norma
+        </h2>
+
+        {/* Escopo */}
+        <div className="mb-8">
+            <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                Escopo
+            </h3>
+
+            <p className="text-sm text-gray-600 leading-6 whitespace-pre-line">
+                {norma?.escopo || "Não informado"}
+            </p>
+        </div>
+
+        {/* Palavras-chave */}
+        <div>
+            <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                Palavras-chave
+            </h3>
+
+            <div className="flex flex-wrap gap-2">
+                {norma?.palavrasChave?.length ? (
+                    norma.palavrasChave.map((p, i) => (
+                        <span
+                            key={i}
+                            className="px-3 py-1 text-sm rounded-full bg-[#eef3ff]"
+                        >
+                            {p}
+                        </span>
+                    ))
+                ) : (
+                    <span className="text-sm text-gray-500">
+                        Não informadas
+                    </span>
+                )}
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
 
                 <div className="px-4 py-5 border-t border-font-border bg-[#f5f4f2] flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2 text-[0.7rem] text-gray-400">
@@ -286,7 +342,13 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
                         <span className="text-right">{metadadosRodape}</span>
                     </div>
                 </div>
+                 
+
+                
             </DialogContent>
         </Dialog>
+
+
+
     );
 }
