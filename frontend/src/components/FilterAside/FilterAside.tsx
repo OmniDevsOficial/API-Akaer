@@ -23,7 +23,7 @@ export const FilterAside: React.FC<Props> = ({ isOpen, onClose }) => {
   const opcoes = {
     orgao: ["ANAC", "EASA", "FAA", "MIL-SPEC"],
     categoria: ["Estrutural", "Elétrico", "Sistemas", "Certificação"],
-    status: ["Ativa", "Revisão", "Obsoleta"],
+    status: ["Ativa", "Obsoleta"],
   };
 
   const toggleFiltro = (tipo: keyof Filtros, valor: string) => {
