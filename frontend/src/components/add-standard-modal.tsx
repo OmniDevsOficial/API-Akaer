@@ -4,6 +4,7 @@ import { Check } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { FileUpload } from './ui/file-upload';
 import api from '@/services/api';
+import { NotasField } from './notes-field';
 
 interface StandardModalProps {
     open: boolean;
@@ -255,6 +256,9 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
                                             required
                                         />
                                     </div>
+                                </div>
+                                <div className='col-span-2'>
+                                    <NotasField label="NOTAS" />
                                 </div>
                             </div>
 
