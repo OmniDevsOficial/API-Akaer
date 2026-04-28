@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createNormaService, searchNormasService, updateNormaService, getNormaDocumentoService } from "../services/norma.service";
+import { createNormaService, searchNormasService, updateNormaService, getNormaDocumentoService, getNormaByCodeService } from "../services/norma.service";
 import fs from "fs";
 
 export const createNorma = async (req: Request, res: Response) => {
@@ -94,5 +94,25 @@ export const getNormaDocumento = async (req: Request, res: Response) => {
     }
 
     return res.status(500).json({ error: "Erro interno no servidor" });
+  }
+};
+
+export const getNormaByCode = async (req: Request, res: Response) => {
+  try {
+    const { codigo } = req.params;
+
+    if (!codigo || typeof codigo !== "string") {
+      return res.status(400).json({ error: "Código inválido" });
+    }
+
+    const norma = await getNormaByCodeService(codigo);
+
+    return res.status(200).json(norma);
+  } catch (error: any) {
+    if (error.message === "Norma não encontrada") {
+      return res.status(404).json({ error: error.message });
+    }
+
+    return res.status(400).json({ error: error.message });
   }
 };
