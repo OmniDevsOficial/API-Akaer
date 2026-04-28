@@ -50,11 +50,10 @@ export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters }
     carregarOpcoes();
   }, [isOpen]);
 
-  const limparFiltros = () => {
-    setOrgaoSelecionado(undefined);
-    setCategoriaSelecionada(undefined);
-    setEtapaSelecionada(undefined);
-    onApplyFilters({});
+  const opcoes = {
+    orgao: ["ANAC", "EASA", "FAA", "MIL-SPEC"],
+    categoria: ["Estrutural", "Elétrico", "Sistemas", "Certificação"],
+    status: ["Ativa", "Obsoleta"],
   };
 
   const aplicarFiltros = () => {
