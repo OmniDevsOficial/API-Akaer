@@ -3,6 +3,7 @@ import { FileText, Pencil, Globe } from "lucide-react";
 import api from "@/services/api";
 import { getUserRole } from '../utils/auth';
 import PdfViewerModal from "./pdf-viewer-modal";
+import { type FiltrosSelecionados } from "./FilterAside/FilterAside";
 
 interface Norma {
     id: number;
@@ -37,6 +38,7 @@ interface NormasLeituraResponse {
 interface TabelaNormasProps {
     refreshTrigger?: number;
     searchText?: string;
+    filtros?: FiltrosSelecionados;
 }
 
 const statusColorClass = (status: string) => {
@@ -46,7 +48,7 @@ const statusColorClass = (status: string) => {
         : 'bg-gray-400';
 };
 
-export default function TabelaNormas({ refreshTrigger = 0, searchText = '' }: TabelaNormasProps) {
+export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filtros }: TabelaNormasProps) {
 
     const role = getUserRole();
     const isAdmin = role?.toLowerCase() === 'admin';
@@ -65,7 +67,10 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '' }: Ta
                 const response = await api.get<NormasLeituraResponse>('/normas/listar', {
                     params: {
                         page: 1,
-                        texto: textoBusca || undefined,
+                        texto:     textoBusca        || undefined,
+                        orgao:     filtros?.orgao     ?? undefined,
+                        categoria: filtros?.categoria ?? undefined,
+                        etapa:     filtros?.etapa     ?? undefined,
                     },
                 });
 
@@ -84,7 +89,7 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '' }: Ta
         };
 
         carregarNormas();
-    }, [refreshTrigger, searchText]);
+    }, [refreshTrigger, searchText, filtros]);
 
     const quantidadeExibida = normas.length;
     const quantidadeTotal = totalNormas || quantidadeExibida;
@@ -106,7 +111,6 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '' }: Ta
         <div className="border border-font-border rounded-lg overflow-hidden">
             <table className="w-full">
 
-                {/* Header da Tabela */}
                 <thead>
                     <tr className="border-b border-font-border">
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">CÓDIGO</th>
@@ -123,43 +127,37 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '' }: Ta
                         )}
 
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">VISIB.</th>
-
                     </tr>
                 </thead>
 
-                {/* Linhas das normas */}
                 <tbody>
                     {carregando ? (
                         <tr>
-                            <td colSpan={isAdmin ? 7 : 6} className="px-6 py-6 text-sm text-gray-medium text-center">
+                            <td colSpan={isAdmin ? 8 : 7} className="px-6 py-6 text-sm text-gray-medium text-center">
                                 Carregando normas...
                             </td>
                         </tr>
                     ) : normas.length === 0 ? (
                         <tr>
-                            <td colSpan={isAdmin ? 7 : 6} className="px-6 py-6 text-sm text-gray-medium text-center">
+                            <td colSpan={isAdmin ? 8 : 7} className="px-6 py-6 text-sm text-gray-medium text-center">
                                 Nenhuma norma encontrada.
                             </td>
                         </tr>
                     ) : normas.map(norma => (
                         <tr key={norma.id} className="border-b border-font-border last:border-none hover:bg-gray-50 transition-colors">
 
-                            {/* Código — vermelho no design */}
                             <td className="px-6 py-4 text-sm text-red-akaer font-semibold whitespace-nowrap">
                                 {norma.codigo}
                             </td>
 
-                            {/* Título + descrição empilhados */}
                             <td className="px-6 py-4">
                                 <span className="block text-sm font-medium text-gray-900">{norma.titulo}</span>
                                 <span className="block text-xs text-gray-medium">Categoria: {norma.categoria?.nome || norma.categoria_id?.nome}</span>
-                                {/* Colocar este acima como campo de palavra-chave */}
                             </td>
 
                             <td className="px-6 py-4 text-sm text-gray-700">{norma.orgao_emissor?.nome || norma.orgao_emissor_id?.nome}</td>
                             <td className="px-6 py-4 text-sm text-gray-700">{norma.categoria?.nome || norma.categoria_id?.nome}</td>
 
-                            {/* Status com bolinha colorida */}
                             <td className="px-6 py-4">
                                 <div className="flex items-center gap-1">
                                     <span className={`w-2 h-2 rounded-full ${statusColorClass(norma.status)}`}></span>
@@ -179,7 +177,6 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '' }: Ta
                                 </button>
                             </td>
 
-                            {/* Botões de ação */}
                             {isAdmin && (
                                 <td className="px-6 py-4">
                                     <button className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors">
@@ -202,7 +199,6 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '' }: Ta
                 </tbody>
             </table>
 
-            {/* Rodapé */}
             <div className="px-6 py-3 border-t border-font-border">
                 <span className="text-xs text-gray-medium">Exibindo {quantidadeExibida} de {quantidadeTotal} Normas</span>
             </div>
