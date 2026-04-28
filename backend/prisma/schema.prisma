@@ -63,13 +63,26 @@ model Norma {
   status           norma_status @default(Ativa)
   data_publicacao  DateTime     @db.Date
   arquivo          String       @db.VarChar(500)
-  escopo    String?
-  notas     String?
-  palavrasChave String?
+  escopo           String?
+  palavras_chave   Json?
+
+  notas NormaNota[]
 
   orgao_emissor OrgaoEmissor  @relation(fields: [orgao_emissor_id], references: [id])
   categoria     Categoria     @relation(fields: [categoria_id], references: [id])
   etapa_projeto EtapaProjeto? @relation(fields: [etapa_projeto_id], references: [id])
 
   @@map("norma")
+}
+
+model NormaNota {
+  id           Int    @id @default(autoincrement())
+  norma_codigo String @db.VarChar(50)
+  texto        String @db.Text
+  ordem        Int    @default(0) @db.SmallInt
+
+  norma Norma @relation(fields: [norma_codigo], references: [codigo])
+
+  @@index([norma_codigo])
+  @@map("norma_notas")
 }

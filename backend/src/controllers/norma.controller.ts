@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createNormaService, searchNormasService, updateNormaService, getNormaDocumentoService, getNormaByIdService } from "../services/norma.service";
+import { createNormaService, searchNormasService, updateNormaService, getNormaDocumentoService, getNormaByCodeService } from "../services/norma.service";
 import fs from "fs";
 
 export const createNorma = async (req: Request, res: Response) => {
@@ -97,15 +97,15 @@ export const getNormaDocumento = async (req: Request, res: Response) => {
   }
 };
 
-export const getNormaById = async (req: Request, res: Response) => {
+export const getNormaByCode = async (req: Request, res: Response) => {
   try {
-    const id = Number(req.params.id);
+    const { codigo } = req.params;
 
-    if (Number.isNaN(id)) {
-      return res.status(400).json({ error: "ID inválido" });
+    if (!codigo || typeof codigo !== "string") {
+      return res.status(400).json({ error: "Código inválido" });
     }
 
-    const norma = await getNormaByIdService(id);
+    const norma = await getNormaByCodeService(codigo);
 
     return res.status(200).json(norma);
   } catch (error: any) {
