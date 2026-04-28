@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
-import { TfiPencilAlt, TfiWorld } from "react-icons/tfi";
-import { FaRegFilePdf } from "react-icons/fa6";
+import { FileText, Pencil, Globe } from "lucide-react";
 import api from "@/services/api";
 import { getUserRole } from '../utils/auth';
-import { Button } from "./ui/button";
 import PdfViewerModal from "./pdf-viewer-modal";
 import { type FiltrosSelecionados } from "./FilterAside/FilterAside";
 
@@ -167,29 +165,31 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                                 </div>
                             </td>
 
-                            <td className="py-4 px-6">
-                                <Button
-                                    size={'icon'}
+                            {/* Visualizaçao do PDF */}
+                            <td className="px-10 py-4">
+                                <button
                                     onClick={() => abrirPdf(norma)}
-                                    title={norma.arquivo ? 'Visualizar PDF' : 'Norma sem PDF cadastrado'}
-                                    className="ml-6"
+                                    title={norma.arquivo ? 'Visualizar PDF' : 'Sem PDF cadastrado'}
+                                    className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
                                 >
-                                    <FaRegFilePdf className="ml-[4px]"/>
-                                </Button>
+                                    <FileText size={15} />
+                                    <span>PDF</span>
+                                </button>
                             </td>
 
                             {isAdmin && (
                                 <td className="px-6 py-4">
-                                    <div className="flex items-center gap-1 text-gray-700 hover:text-red-akaer transition-colors cursor-pointer">
-                                        <TfiPencilAlt className="p-1 text-2xl" />
-                                        <span className="text-sm">Editar</span>
-                                    </div>
+                                    <button className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors">
+                                        <Pencil size={15} />
+                                        <span>Editar</span>
+                                    </button>
                                 </td>
                             )}
 
-                            <td className="px-6 py-4 text-sm text-gray-700">
-                                <div className="flex items-center gap-1">
-                                    <TfiWorld />
+                            {/* Visibilidade */}
+                            <td className="px-6 py-4">
+                                <div className="flex items-center gap-1.5 text-sm text-gray-700">
+                                    <Globe size={15} />
                                     <span>Público</span>
                                 </div>
                             </td>
