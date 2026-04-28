@@ -3,6 +3,7 @@ import { Document, Page, pdfjs } from "react-pdf";
 import { Dialog, DialogClose, DialogContent } from "@/components/ui/dialog";
 import { FaRegFilePdf, FaLock } from "react-icons/fa6";
 import { ChevronLeft, ChevronRight, Minus, Plus, X } from "lucide-react";
+import { useRecolher } from "./recolher-aside";
 
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -28,7 +29,9 @@ const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3333";
 
 const joinApiUrl = (pathname: string) => new URL(pathname, API_BASE_URL).toString();
 
+
 export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerModalProps) {
+    const { recolher, alternar } = useRecolher();
     const [totalPaginas, setTotalPaginas] = useState(0);
     const [paginaAtual, setPaginaAtual] = useState(1);
     const [zoom, setZoom] = useState(1);
@@ -56,7 +59,7 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
             withCredentials: false,
         };
     }, [norma?.codigo]);
-    
+
     const totalPaginasExibicao = totalPaginas || 1;
     const metadadosRodape = [
         norma?.status || "Sem status",
@@ -243,92 +246,86 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
                     </div>
                 </div>
 
-               <div className="flex flex-1 overflow-hidden">
+                <div className="flex flex-1 overflow-hidden">
 
-    {/* ===== VIEWER PDF ===== */}
-    <div ref={areaRef} className="flex-1 overflow-auto bg-[#d2cdc8] p-4">
+                    {/* ===== VIEWER PDF ===== */}
+                    <div ref={areaRef} className="flex-1 overflow-auto bg-[#d2cdc8] p-4">
 
-        {!pdfFile ? (
-            <p className="text-sm text-gray-600 text-center mt-10">
-                Não foi possível preparar o documento para visualização.
-            </p>
-        ) : (
-            <div
-                className="flex justify-center min-h-full py-1"
-                onContextMenu={(event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }}
-            >
-                <div className="relative">
-                    <Document
-                        file={pdfFile}
-                        loading={<p className="text-sm text-gray-600">Carregando PDF...</p>}
-                        error={<p className="text-sm text-red-600">Não foi possível carregar este PDF.</p>}
-                        onLoadSuccess={({ numPages }) => {
-                            setTotalPaginas(numPages);
-                            setPaginaAtual(1);
-                        }}
-                    >
-                        <Page
-                            pageNumber={paginaAtual}
-                            width={larguraBasePagina}
-                            scale={zoom}
-                            renderAnnotationLayer
-                            renderTextLayer
-                        />
-                    </Document>
-                </div>
-            </div>
-        )}
+                        {!pdfFile ? (
+                            <p className="text-sm text-gray-600 text-center mt-10">
+                                Não foi possível preparar o documento para visualização.
+                            </p>
+                        ) : (
+                            <div
+                                className="flex justify-center min-h-full py-1"
+                                onContextMenu={(event) => {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                }}
+                            >
+                                <div className="relative">
+                                    <Document
+                                        file={pdfFile}
+                                        loading={<p className="text-sm text-gray-600">Carregando PDF...</p>}
+                                        error={<p className="text-sm text-red-600">Não foi possível carregar este PDF.</p>}
+                                        onLoadSuccess={({ numPages }) => {
+                                            setTotalPaginas(numPages);
+                                            setPaginaAtual(1);
+                                        }}
+                                    >
+                                        <Page
+                                            pageNumber={paginaAtual}
+                                            width={larguraBasePagina}
+                                            scale={zoom}
+                                            renderAnnotationLayer
+                                            renderTextLayer
+                                        />
+                                    </Document>
+                                </div>
+                            </div>
+                        )}
 
-    </div>
+                    </div>
 
-    {/* ===== PAINEL LATERAL (ESCPO + TAGS) ===== */}
-    <div className="w-[360px] border-l bg-white p-5 overflow-auto">
+                    {/* ===== PAINEL LATERAL (ESCOPO + TAGS) ===== */}
+                    <div className={`relative border-l bg-white transition-all duration-300 ${recolher ? "w-8" : "w-[360px]"}`}>
 
-        <h2 className="text-lg font-semibold text-[#7f2943] mb-6">
-            Detalhes da Norma
-        </h2>
-
-        {/* Escopo */}
-        <div className="mb-8">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">
-                Escopo
-            </h3>
-
-            <p className="text-sm text-gray-600 leading-6 whitespace-pre-line">
-                {norma?.escopo || "Não informado"}
-            </p>
-        </div>
-
-        {/* Palavras-chave */}
-        <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">
-                Palavras-chave
-            </h3>
-
-            <div className="flex flex-wrap gap-2">
-                {norma?.palavrasChave?.length ? (
-                    norma.palavrasChave.map((p, i) => (
-                        <span
-                            key={i}
-                            className="px-3 py-1 text-sm rounded-full bg-[#eef3ff]"
+                        {/* Botão de recolher/expansão */}
+                        <button
+                            onClick={alternar}
+                            className="absolute -right-0 top-6.5 bg-white border border-gray-200 rounded-full p-0.5 mr-1.5 text-gray-400 hover:text-red-akaer transition-colors z-10 flex items-center justify-center"
                         >
-                            {p}
-                        </span>
-                    ))
-                ) : (
-                    <span className="text-sm text-gray-500">
-                        Não informadas
-                    </span>
-                )}
-            </div>
-        </div>
+                            {recolher ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+                        </button>
 
-    </div>
+                        {/* Detalhes da Norma */}
+                        {!recolher && (
+                            <div className="p-5 h-full overflow-auto">
+                                <h2 className="text-lg font-semibold text-red-akaer mb-6">Detalhes da Norma</h2>
 
-</div>
+                                <div className="mb-8">
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-2">Escopo</h3>
+                                    <p className="text-sm text-gray-600 leading-6 whitespace-pre-line">
+                                        {norma?.escopo || "Não informado"}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-2">Palavras-chave</h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {norma?.palavrasChave?.length ? (
+                                            norma.palavrasChave.map((p, i) => (
+                                                <span key={i} className="px-3 py-1 text-sm rounded-full bg-[#eef3ff]">{p}</span>
+                                            ))
+                                        ) : (
+                                            <span className="text-sm text-gray-500">Não informadas</span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
 
 
                 <div className="px-4 py-5 border-t border-font-border bg-[#f5f4f2] flex items-center justify-between gap-3">
@@ -342,9 +339,9 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
                         <span className="text-right">{metadadosRodape}</span>
                     </div>
                 </div>
-                 
 
-                
+
+
             </DialogContent>
         </Dialog>
 
