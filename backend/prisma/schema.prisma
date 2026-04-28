@@ -3,29 +3,73 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  ADMIN
+  VISUALIZADOR
+}
+
+enum norma_status {
+  Ativa
+  Obsoleta
+}
+
 model User {
-  id       Int    @id @default(autoincrement())
-  email    String @unique
-  role     String 
-  password String 
+  id        Int      @id @default(autoincrement())
+  nome      String   @db.VarChar(100)
+  email     String   @unique @db.VarChar(225)
+  password  String   @db.VarChar(255)
+  role      Role     @default(VISUALIZADOR)
+  ativo     Boolean  @default(true)
+  criado_em DateTime @default(now())
 
   @@map("users")
 }
 
+model OrgaoEmissor {
+  id     Int     @id @default(autoincrement())
+  nome   String  @unique @db.VarChar(100)
+  normas Norma[]
+
+  @@map("orgao_emissor")
+}
+
+model Categoria {
+  id     Int     @id @default(autoincrement())
+  nome   String  @unique @db.VarChar(100)
+  normas Norma[]
+
+  @@map("categoria")
+}
+
+model EtapaProjeto {
+  id     Int     @id @default(autoincrement())
+  nome   String  @unique @db.VarChar(100)
+  normas Norma[]
+
+  @@map("etapa_projeto")
+}
+
 model Norma {
-  id        Int      @id @default(autoincrement())
-  titulo    String
-  numero    String
-  orgao     String
-  categoria String
+  codigo           String       @id @db.VarChar(50)
+  titulo           String       @db.VarChar(255)
+  orgao_emissor_id Int
+  categoria_id     Int
+  etapa_projeto_id Int?
+  revisao          String?      @db.VarChar(20)
+  status           norma_status @default(Ativa)
+  data_publicacao  DateTime     @db.Date
+  arquivo          String       @db.VarChar(500)
   escopo    String?
   notas     String?
   palavrasChave String?
-  arquivo   String   // caminho do PDF
-  status    String   @default("ATIVA")
-  createdAt DateTime @default(now())
+
+  orgao_emissor OrgaoEmissor  @relation(fields: [orgao_emissor_id], references: [id])
+  categoria     Categoria     @relation(fields: [categoria_id], references: [id])
+  etapa_projeto EtapaProjeto? @relation(fields: [etapa_projeto_id], references: [id])
+
+  @@map("norma")
 }
