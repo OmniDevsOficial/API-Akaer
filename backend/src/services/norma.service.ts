@@ -71,7 +71,7 @@ export const createNormaService = async (data: any, filePath: string) => {
       status,
       data_publicacao:  dataPublicacao,
       escopo: escopo ?? null,
-      palavras_chave: palavrasChaveJson ?? null,
+      palavras_chave: palavrasChaveJson ?? [],
       arquivo:        filePath,
     }
   });

@@ -55,7 +55,7 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
             status,
             data_publicacao: dataPublicacao,
             escopo,
-           // palavras_chave: palavrasChave.join(','),
+            // palavras_chave: palavrasChave.join(','),
         };
 
         const formData = new FormData();
@@ -285,7 +285,7 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
 
                                 <div className='mx-8 mt-6'>
 
-                                
+
                                     <div className='flex flex-col text-start gap-1 mb-5'>
                                         <label className='text-lg text-gray-600'>
                                             ESCOPO <span className='text-red-akaer'>*</span>
@@ -302,7 +302,7 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
 
 
 
-                                    <div className='flex flex-col text-start gap-2'>
+                                    <div className='flex flex-col text-start'>
                                         <label className='text-lg text-gray-600'>
                                             PALAVRAS-CHAVE
                                         </label>
@@ -335,26 +335,24 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
                                                 }}
                                                 placeholder="Adicionar palavra-chave"
                                             />
-
                                         </div>
                                     </div>
-                                  </div>
-                                </div>
-                                <div className='col-span-2'>
-                                    <NotasField label="NOTAS" />
+
+                                    {/* Notas */}
+                                    <div className='col-span-2 my-6'>
+                                        <NotasField label="NOTAS" />
+                                    </div>
                                 </div>
                             </div>
 
 
-
-
-                                <div className='grid grid-cols-2 mx-8 items-center py-4 border-t'>
-                                    <div className='text-start'>Campos com <span className='text-red-akaer'>*</span> são Obrigatórios</div>
-                                    <div className='flex justify-end'>
-                                        <Button type='button' size={'lg'} className='ml-auto border border-gray-600/40 hover:bg-gray-200' variant={'secondary'} onClick={() => handleOpenChange(false)}>Cancelar</Button>
-                                        <Button size={'lg'} className='ml-2 hover:bg-black/80' type="submit"><Check />Cadastrar Norma</Button>
-                                    </div>
+                            <div className='grid grid-cols-2 mx-8 items-center py-4 border-t'>
+                                <div className='text-start'>Campos com <span className='text-red-akaer'>*</span> são Obrigatórios</div>
+                                <div className='flex justify-end'>
+                                    <Button type='button' size={'lg'} className='ml-auto border border-gray-600/40 hover:bg-gray-200' variant={'secondary'} onClick={() => handleOpenChange(false)}>Cancelar</Button>
+                                    <Button size={'lg'} className='ml-2 hover:bg-black/80' type="submit"><Check />Cadastrar Norma</Button>
                                 </div>
+                            </div>
                         </form>
                     )}
 
