@@ -1,7 +1,7 @@
 import prisma from "../prisma/client";
 
 export const createNormaService = async (data: any, filePath: string) => {
-  const { titulo, numero, orgao, categoria, escopo, notas } = data;
+  const { titulo, numero, orgao, categoria, escopo, notas, palavrasChave } = data;
 
   if (!titulo || !numero || !orgao || !categoria) {
     throw new Error("Campos obrigatórios não preenchidos");
@@ -15,6 +15,7 @@ export const createNormaService = async (data: any, filePath: string) => {
       categoria,
       escopo: escopo ?? null,
       notas: notas ?? null,
+      palavrasChave: palavrasChave ?? null,
       arquivo: filePath
     }
   });
@@ -33,6 +34,7 @@ export const getNormaByIdService = async (id: number) => {
       categoria: true,
       escopo: true,
       notas: true,
+      palavrasChave: true,
       arquivo: true,
       status: true,
       createdAt: true
@@ -45,6 +47,7 @@ export const getNormaByIdService = async (id: number) => {
 
   return {
     ...norma,
-    notas: norma.notas ?? null
+    notas: norma.notas ?? null,
+    palavrasChave: norma.palavrasChave ?? null
   };
 };

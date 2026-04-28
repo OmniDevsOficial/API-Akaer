@@ -24,6 +24,7 @@ model Norma {
   categoria String
   escopo    String?
   notas     String?
+  palavrasChave String?
   arquivo   String   // caminho do PDF
   status    String   @default("ATIVA")
   createdAt DateTime @default(now())
