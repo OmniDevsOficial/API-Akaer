@@ -50,10 +50,11 @@ export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters }
     carregarOpcoes();
   }, [isOpen]);
 
-  const opcoes = {
-    orgao: ["ANAC", "EASA", "FAA", "MIL-SPEC"],
-    categoria: ["Estrutural", "Elétrico", "Sistemas", "Certificação"],
-    status: ["Ativa", "Obsoleta"],
+  // Função criada para limpar os estados dos filtros selecionados
+  const limparFiltros = () => {
+    setOrgaoSelecionado(undefined);
+    setCategoriaSelecionada(undefined);
+    setEtapaSelecionada(undefined);
   };
 
   const aplicarFiltros = () => {
@@ -144,7 +145,7 @@ export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters }
           <button
             className="clear-btn"
             onClick={aplicarFiltros}
-            style={{ background: '#8B0000', color: '#fff', borderColor: '#8B0000' }}
+            style={{ background: '#73203A', color: '#fff', borderColor: '#73203A' }}
           >
             Aplicar
           </button>
