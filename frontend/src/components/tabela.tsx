@@ -3,6 +3,7 @@ import { FileText, Pencil, Globe } from "lucide-react";
 import api from "@/services/api";
 import { getUserRole } from '../utils/auth';
 import PdfViewerModal from "./pdf-viewer-modal";
+import { getNormaDetalhes } from "@/services/normaService";
 import { type FiltrosSelecionados } from "./FilterAside/FilterAside";
 
 interface Norma {
@@ -26,6 +27,8 @@ interface NormaSelecionadaPdf {
     categoria?: string;
     revisao?: string | null;
     arquivo?: string | null;
+    escopo?: string;
+    palavrasChave?: string[];
 }
 
 interface NormasLeituraResponse {
@@ -57,6 +60,7 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
     const [carregando, setCarregando] = useState(true);
     const [pdfModalAberto, setPdfModalAberto] = useState(false);
     const [normaSelecionadaPdf, setNormaSelecionadaPdf] = useState<NormaSelecionadaPdf | null>(null);
+    const [carregandoDetalhes, setCarregandoDetalhes] = useState(false);
 
     useEffect(() => {
         const carregarNormas = async () => {
@@ -94,7 +98,7 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
     const quantidadeExibida = normas.length;
     const quantidadeTotal = totalNormas || quantidadeExibida;
 
-    const abrirPdf = (norma: Norma) => {
+    const abrirPdf = async (norma: Norma) => {
         setNormaSelecionadaPdf({
             codigo: norma.codigo,
             titulo: norma.titulo,
@@ -105,6 +109,27 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
             arquivo: norma.arquivo ?? null,
         });
         setPdfModalAberto(true);
+        setCarregandoDetalhes(true);
+
+        try {
+            const detalhes = await getNormaDetalhes(norma.codigo);
+
+            setNormaSelecionadaPdf({
+                codigo: detalhes.codigo,
+                titulo: detalhes.titulo,
+                status: detalhes.status,
+                orgaoEmissor: detalhes.orgao_emissor?.nome,
+                categoria: detalhes.categoria?.nome,
+                revisao: detalhes.revisao,
+                arquivo: detalhes.arquivo ?? null,
+                escopo: detalhes.escopo ?? undefined,
+                palavrasChave: detalhes.palavras_chave ?? undefined,
+            });
+        } catch (error) {
+            console.error('Erro ao buscar detalhes da norma:', error);
+        } finally {
+            setCarregandoDetalhes(false);
+        }
     };
 
     return (
@@ -169,6 +194,7 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                             <td className="px-10 py-4">
                                 <button
                                     onClick={() => abrirPdf(norma)}
+                                    disabled={carregandoDetalhes}
                                     title={norma.arquivo ? 'Visualizar PDF' : 'Sem PDF cadastrado'}
                                     className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
                                 >
