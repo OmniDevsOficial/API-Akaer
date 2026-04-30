@@ -45,6 +45,12 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
+        // 1. A NOVA BLINDAGEM DA DATA: Impede o envio se não tiver 10 caracteres
+        if (dataPublicacao.length !== 10) {
+            alert("A data de publicação deve estar no formato completo: DD/MM/AAAA");
+            return;
+        }
+
         const payload = {
             codigo,
             titulo,
@@ -55,14 +61,16 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
             status,
             data_publicacao: dataPublicacao,
             escopo,
-            // palavras_chave: palavrasChave.join(','),
+            // 2. CONSERTO DAS PALAVRAS-CHAVE: Envia como JSON válido
+            palavras_chave: palavrasChave.length > 0 ? JSON.stringify(palavrasChave) : undefined,
         };
 
         const formData = new FormData();
         formData.append('file', arquivoNorma!);
 
         Object.entries(payload).forEach(([key, value]) => {
-            if (value !== undefined && value !== null) {
+            // 3. CONSERTO DO ERRO 500 SILENCIOSO: Impede envio de IDs vazios
+            if (value !== undefined && value !== null && value !== '') {
                 formData.append(key, String(value));
             }
         });
