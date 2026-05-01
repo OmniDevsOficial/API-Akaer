@@ -1,4 +1,4 @@
-<h1 align="center"> Documentação da Sprint 1 </h1>
+<h1 align="center"> Documentação da Sprint 2 </h1>
 
 
 <div align="center">
@@ -7,8 +7,8 @@
 
 
 <p align="center">|
-  <a href="#sprint-1-meta"> Metas Sprint 1 </a> |
-  <a href="#sprint-1"> Sprint 1 </a> |
+  <a href="#sprint-2-meta"> Metas Sprint 2 </a> |
+  <a href="#sprint-2"> Sprint 2 </a> |
   <a href="#definition-of-ready"> DoR </a> | 
   <a href="#definition-of-done"> DoD </a> | 
   <a href="#documentos"> Documentos </a> |
@@ -18,29 +18,32 @@
 </p>
 
 
+
 ## 📅 Cronograma da Sprint
 
 | Período | Status |
 | :---------: | :---------: | 
-| 16/03 - 05/04 | ✅ Concluido |
+| 13/04 - 03/05 | 🔛 Em andamento |
 
-### 🎯 Metas da Sprint 1 <a id="sprint-1-meta"></a>
 
-| Foco | User Story Meta |
+### 🎯 Metas da Sprint 2 <a id="sprint-2-meta"></a>
+
+| Foco | User Story Alvo |
 | :---: | :--- | 
-| 🥇 | **US-1:** Como Administrador, quero cadastrar normas no sistema, para disponibilizar essa documentação aos visualizadores. |
-| 🥈 | **US-3:** Como Administrador, quero realizar login seguro na plataforma, para acessar o ambiente de gestão do sistema. |
+| 🥇 | **US-5:** Como Visualizador, quero filtrar as normas por órgão emissor, categoria, etapa do projeto e status da norma para encontrar rapidamente os documentos necessários. |
+| 🥈 | **US-8:** Como Administrador, quero correlacionar normas no sistema, para que o visualizador possa acessar facilmente as normas associadas. |
 
-<br>
 
-## Sprint 1 <a id="sprint-1"></a>
+## Sprint 2 <a id="sprint-2"></a>
 
 | Rank | Prioridade | User Story | Estimativa | Sprint |
 | :---------: | :---------: | :---------: | :---------: | :---------: |
-| 🎗  1 | Alta | Como Administrador, quero cadastrar normas no sistema, para disponibilizar essa documentação aos visualizadores. | 8 | 1 |
-| 🎗  2 | Alta | Como Visualizador, quero acessar a plataforma no cargo de leitor, para consultar o acervo sem o risco de alterar os dados. | 7 | 1 |
-| 🎗  3 | Alta | Como Administrador, quero realizar login seguro na plataforma, para acessar o ambiente de gestão do sistema. | 6 | 1 |
-| 🎗  4 | Alta | Como Visualizador, quero pesquisar normas por palavras-chave, nome ou número, para localizar um documento específico de forma direta. | 10 | 1 |
+| 🎗  5 | Alta | Como Visualizador, quero filtrar as normas por órgão emissor, categoria, etapa do projeto e status da norma para encontrar rapidamente os documentos necessários. | 10 | 2 |
+| 🎗  6 | Alta | Como Administrador, quero editar os dados de uma norma já cadastrada para corrigir erros e informações incorretas também incluir a adição de notas na norma, sem precisar criar uma nova revisão no sistema. | 8 | 2 |
+| 🎗  7 | Alta | Como Visualizador, quero ler o documento original da norma diretamente na tela sem permissão de download, para garantir o sigilo da informação. | 3 | 2 |
+| 🎗  8 | Alta | Como Administrador, quero correlacionar normas no sistema, para que o visualizador possa acessar facilmente as normas associadas. | 10 | 2 |
+| 🎗  9 | Média | Como Visualizador, quero visualizar a página da norma com seu escopo e caso exista suas notas, para entender corretamente a aplicação da norma no meu projeto sem precisar ler todo o documento. | 5 | 2 |
+
 
 ### 📋Definition of Ready (DoR) <a id="definition-of-ready"></a>
 
