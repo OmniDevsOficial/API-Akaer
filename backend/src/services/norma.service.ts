@@ -8,6 +8,11 @@ import {
   parseNormaNotasInput,
   replaceNormaNotasService,
 } from "./norma-nota.service";
+import {
+  getNormasRelacionadasIdsService,
+  parseNormasRelacionadasInput,
+  replaceNormasRelacionadasService,
+} from "./norma-relacionada.service";
 
 const parseJsonInput = (input: unknown, fieldName: string): unknown => {
   if (input === undefined) return undefined;
@@ -96,6 +101,10 @@ export const updateNormaService = async (codigo: string, data: any) => {
   const palavrasChaveJson = hasPalavrasChave
     ? parseJsonInput(data.palavras_chave, "palavras_chave")
     : undefined;
+  const hasNormasRelacionadasIds = Object.prototype.hasOwnProperty.call(data, "normas_relacionadas_ids");
+  const normasRelacionadasIds = hasNormasRelacionadasIds
+    ? parseNormasRelacionadasInput(data.normas_relacionadas_ids)
+    : [];
 
   const updateData: Record<string, unknown> = {
     titulo:           data.titulo           ?? existingNorma.titulo,
@@ -104,8 +113,9 @@ export const updateNormaService = async (codigo: string, data: any) => {
     etapa_projeto_id: data.etapa_projeto_id ? Number(data.etapa_projeto_id) : existingNorma.etapa_projeto_id,
     revisao:          data.revisao          ?? existingNorma.revisao,
     status:           data.status           ?? existingNorma.status,
-    data_publicacao:  data.data_publicacao  ? new Date(data.data_publicacao) : existingNorma.data_publicacao,
+    data_publicacao:  data.data_publicacao  ? parseBrDate(String(data.data_publicacao), "data_publicacao") : existingNorma.data_publicacao,
     arquivo:          data.arquivo          ?? existingNorma.arquivo,
+    escopo:           data.escopo           ?? existingNorma.escopo,
   };
 
   if (hasPalavrasChave) {
@@ -121,7 +131,20 @@ export const updateNormaService = async (codigo: string, data: any) => {
     await replaceNormaNotasService(codigo, notasNormalizadas);
   }
 
-  return updatedNorma;
+  if (hasNormasRelacionadasIds) {
+    await replaceNormasRelacionadasService(codigo, normasRelacionadasIds);
+  }
+
+  const [notas, normasRelacionadasIdsAtualizadas] = await Promise.all([
+    getNormaNotasService(codigo),
+    getNormasRelacionadasIdsService(codigo),
+  ]);
+
+  return {
+    ...updatedNorma,
+    notas,
+    normas_relacionadas_ids: normasRelacionadasIdsAtualizadas,
+  };
 };
 
 export const searchNormasService = async (
@@ -251,11 +274,15 @@ export const getNormaByCodeService = async (codigo: string) => {
     throw new Error("Norma não encontrada");
   }
 
-  const notas = await getNormaNotasService(codigo);
+  const [notas, normasRelacionadasIds] = await Promise.all([
+    getNormaNotasService(codigo),
+    getNormasRelacionadasIdsService(codigo),
+  ]);
 
   return {
     ...norma,
     notas,
+    normas_relacionadas_ids: normasRelacionadasIds,
     palavras_chave: norma.palavras_chave ?? null,
   };
 };

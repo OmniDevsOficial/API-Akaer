@@ -9,7 +9,8 @@ const router = Router();
 router.get("/listar", authMiddleware, searchNormas);
 router.get("/:codigo/documento", authMiddleware, getNormaDocumento);
 router.post("/create", authMiddleware, roleMiddleware(["ADMIN"]), upload.single("file"), createNorma);
-router.put("/:codigo", authMiddleware, roleMiddleware(["ADMIN"]), updateNorma);
+router.put("/:codigo", authMiddleware, roleMiddleware(["ADMIN", "TECNICO"]), updateNorma);
+router.patch("/:codigo", authMiddleware, roleMiddleware(["ADMIN", "TECNICO"]), updateNorma);
 router.get("/:codigo", getNormaByCode);
 
 export default router;
