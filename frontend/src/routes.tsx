@@ -1,10 +1,12 @@
 import { Route, BrowserRouter, Routes } from "react-router-dom";
 import LoginPage from "./pages/Login/Login";
 import Home from './pages/Home/Home';
+import Editar from './pages/Editar/Editar'
 
 const routes = [
     {element: <LoginPage />, path: "/"},
-    {element: <Home />, path: "/home"}
+    {element: <Home />, path: "/home"},
+    {element: <Editar />, path: "/normas/editar"}
 ]
 
 const Router = () => {
