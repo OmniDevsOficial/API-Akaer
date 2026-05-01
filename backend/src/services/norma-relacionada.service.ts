@@ -56,6 +56,96 @@ export const getNormasRelacionadasIdsService = async (normaCodigo: string) => {
   return registros.map((registro) => registro.relacionada_codigo);
 };
 
+export const getNormasRelacionadasService = async (normaCodigo: string) => {
+  const registros = await prisma.normaRelacionada.findMany({
+    where: { norma_codigo: normaCodigo },
+    orderBy: { ordem: "asc" },
+    include: {
+      relacionada: {
+        include: {
+          orgao_emissor: true,
+          categoria: true,
+          etapa_projeto: true,
+        }
+      }
+    }
+  });
+
+  return registros.map((registro) => registro.relacionada);
+};
+
+export const addNormaRelacionadaService = async (normaCodigo: string, relacionadaCodigo: string) => {
+  if (normaCodigo === relacionadaCodigo) {
+    throw new Error("Uma norma não pode ser relacionada a si mesma.");
+  }
+
+  const normaExistente = await prisma.norma.findUnique({ where: { codigo: normaCodigo } });
+  if (!normaExistente) {
+    throw new Error(`Norma origem não encontrada: ${normaCodigo}`);
+  }
+
+  const relacionadaExistente = await prisma.norma.findUnique({ where: { codigo: relacionadaCodigo } });
+  if (!relacionadaExistente) {
+    throw new Error(`Norma relacionada não encontrada: ${relacionadaCodigo}`);
+  }
+
+  const relacaoExistente = await prisma.normaRelacionada.findUnique({
+    where: {
+      norma_codigo_relacionada_codigo: {
+        norma_codigo: normaCodigo,
+        relacionada_codigo: relacionadaCodigo
+      }
+    }
+  });
+
+  if (relacaoExistente) {
+    throw new Error("Essa correlação já existe.");
+  }
+
+  const ultimaRelacao = await prisma.normaRelacionada.findFirst({
+    where: { norma_codigo: normaCodigo },
+    orderBy: { ordem: "desc" }
+  });
+
+  const novaOrdem = ultimaRelacao ? ultimaRelacao.ordem + 1 : 0;
+
+  await prisma.normaRelacionada.create({
+    data: {
+      norma_codigo: normaCodigo,
+      relacionada_codigo: relacionadaCodigo,
+      ordem: novaOrdem
+    }
+  });
+
+  return getNormasRelacionadasIdsService(normaCodigo);
+};
+
+export const removeNormaRelacionadaService = async (normaCodigo: string, relacionadaCodigo: string) => {
+  const relacaoExistente = await prisma.normaRelacionada.findUnique({
+    where: {
+      norma_codigo_relacionada_codigo: {
+        norma_codigo: normaCodigo,
+        relacionada_codigo: relacionadaCodigo
+      }
+    }
+  });
+
+  if (!relacaoExistente) {
+    throw new Error("Essa correlação não existe.");
+  }
+
+  await prisma.normaRelacionada.delete({
+    where: {
+      norma_codigo_relacionada_codigo: {
+        norma_codigo: normaCodigo,
+        relacionada_codigo: relacionadaCodigo
+      }
+    }
+  });
+
+  return getNormasRelacionadasIdsService(normaCodigo);
+};
+
 export const replaceNormasRelacionadasService = async (
   normaCodigo: string,
   relacionadasIds: NormaRelacionadaId[]

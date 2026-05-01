@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { createNorma, searchNormas, updateNorma, getNormaDocumento, getNormaByCode } from "../controllers/norma.controller";
+import { createNorma, searchNormas, updateNorma, getNormaDocumento, getNormaByCode, getNormasRelacionadas, addNormaRelacionada, removeNormaRelacionada } from "../controllers/norma.controller";
 import { upload } from "../middlewares/upload";
 import { authMiddleware } from "../middlewares/authMiddleware";
 import { roleMiddleware } from "../middlewares/roleMiddleware";
@@ -22,5 +22,8 @@ router.get("/:codigo/documento", authMiddleware, getNormaDocumento);
 router.post("/create", authMiddleware, roleMiddleware(["ADMIN"]), handleUpload, createNorma);
 router.put("/:codigo", authMiddleware, roleMiddleware(["ADMIN"]), updateNorma);
 router.get("/:codigo", getNormaByCode);
+router.get("/:codigo/relacionadas", authMiddleware, getNormasRelacionadas);
+router.post("/:codigo/relacionadas", authMiddleware, roleMiddleware(["ADMIN", "TECNICO"]), addNormaRelacionada);
+router.delete("/:codigo/relacionadas/:relacionadaCodigo", authMiddleware, roleMiddleware(["ADMIN", "TECNICO"]), removeNormaRelacionada);
 
 export default router;
