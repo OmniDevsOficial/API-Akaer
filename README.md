@@ -37,10 +37,10 @@ O desafio consiste em desenvolver uma plataforma web estruturada para centraliza
 | 🎗  3 | Alta | Como Administrador, quero realizar login seguro na plataforma, para acessar o ambiente de gestão do sistema. | 6 | 1 |
 | 🎗  4 | Alta | Como Visualizador, quero pesquisar normas por palavras-chave, nome ou número, para localizar um documento específico de forma direta. | 10 | 1 |
 | 🎗  5 | Alta | Como Visualizador, quero filtrar as normas por órgão emissor, categoria, etapa do projeto e status da norma para encontrar rapidamente os documentos necessários. | 10 | 2 |
-| 🎗  6 | Alta | Como Administrador, quero editar os dados de uma norma já cadastrada para corrigir erros e informações incorretas tambem incluir a adição de notas na norma, sem precisar criar uma nova revisão no sistema. | 8 | 2 |
+| 🎗  6 | Alta | Como Administrador, quero editar os dados de uma norma já cadastrada para corrigir erros e informações incorretas também incluir a adição de notas na norma, sem precisar criar uma nova revisão no sistema. | 8 | 2 |
 | 🎗  7 | Alta | Como Visualizador, quero ler o documento original da norma diretamente na tela sem permissão de download, para garantir o sigilo da informação. | 3 | 2 |
 | 🎗  8 | Alta | Como Administrador, quero correlacionar normas no sistema, para que o visualizador possa acessar facilmente as normas associadas. | 10 | 2 |
-| 🎗  9 | Média | Como Visualizador, quero visualizar a página da norma com seu escopo, para entender corretamente a aplicação da norma no meu projeto sem precisar ler todo o documento. | 5 | 2 |
+| 🎗  9 | Média | Como Visualizador, quero visualizar a página da norma com seu escopo e caso exista suas notas, para entender corretamente a aplicação da norma no meu projeto sem precisar ler todo o documento. | 5 | 2 |
 | 🎗  10 | Média |Como Visualizador, quero enviar uma solicitação, relacionada a uma norma, para que o Técnico ou Administrador possa avaliar e dar andamento ao pedido. | 5 | 3 |
 | 🎗  11 | Média |Como Checker, quero aprovar os pedidos de implementação de novas normas e notas para validar o conteúdo técnico antes que ele seja efetivamente cadastrado na plataforma. | 5 | 3 |
 | 🎗  12 | Média | Como Administrador, quero atualizar uma norma com sua revisão mais recente, para garantir que a equipe utilize sempre a versão vigente. | 5 | 3 |
@@ -48,7 +48,7 @@ O desafio consiste em desenvolver uma plataforma web estruturada para centraliza
 | 🎗  14 | Média | Como Administrador, quero gerenciar o cadastro de usuários como atualizar dados, alterar permissões e desativar contas, para manter o controle e garantir a segurança do sistema. | 8 | 3 |
 
 ---
-gi
+
 ## 💻Tecnologias Utilizadas <a id="tecnologias-utilizadas"></a>
 
 **Front-end:**
@@ -101,8 +101,8 @@ gi
 
 | Sprint | Período | Documentação | Status | Vídeo |
 | :--- | :---: | :--- | :--- | :--- |
-| **SPRINT 1** | 16/03 - 05/04 | [Sprint 1 docs](docs/sprint1.md) | 🔛 Em andamento | [🎥 Assistir](https://youtu.be/VLJHqNIcwLM) |
-| **SPRINT 2** | 13/04 - 03/05 | Sprint 2 docs| 💤 Não iniciado | |
+| **SPRINT 1** | 16/03 - 05/04 | [Sprint 1 docs](docs/sprint1.md) | ✅ Concluido | [🎥 Assistir](https://youtu.be/VLJHqNIcwLM) |
+| **SPRINT 2** | 13/04 - 03/05 | [Sprint 2 docs](docs/sprint2.md) | 🔛 Em andamento | |
 | **SPRINT 3** | 11/05 - 31/05 | Sprint 3 docs| 💤 Não iniciado | |
 
 
