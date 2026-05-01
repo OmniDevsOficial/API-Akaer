@@ -56,6 +56,8 @@ model EtapaProjeto {
 model Norma {
   codigo           String       @id @db.VarChar(50)
   titulo           String       @db.VarChar(255)
+  descricao        String?      @db.Text
+  notas            String?      @db.Text
   orgao_emissor_id Int
   categoria_id     Int
   etapa_projeto_id Int?
@@ -67,6 +69,19 @@ model Norma {
   orgao_emissor OrgaoEmissor  @relation(fields: [orgao_emissor_id], references: [id])
   categoria     Categoria     @relation(fields: [categoria_id], references: [id])
   etapa_projeto EtapaProjeto? @relation(fields: [etapa_projeto_id], references: [id])
+  correlacoes     NormaCorrelacao[] @relation("NormaOrigem")
+  correlacionadas NormaCorrelacao[] @relation("NormaDestino")
 
   @@map("norma")
+}
+
+model NormaCorrelacao {
+  norma_codigo      String @db.VarChar(50)
+  correlacao_codigo String @db.VarChar(50)
+
+  norma      Norma @relation("NormaOrigem",  fields: [norma_codigo],      references: [codigo])
+  correlacao Norma @relation("NormaDestino", fields: [correlacao_codigo], references: [codigo])
+
+  @@id([norma_codigo, correlacao_codigo])
+  @@map("norma_correlacao")
 }

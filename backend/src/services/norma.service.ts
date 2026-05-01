@@ -38,23 +38,39 @@ export const createNormaService = async (data: any, filePath: string) => {
 
 export const updateNormaService = async (codigo: string, data: any) => {
   const existingNorma = await prisma.norma.findUnique({ where: { codigo } });
+  if (!existingNorma) throw new Error("Norma não encontrada");
 
-  if (!existingNorma) {
-    throw new Error("Norma não encontrada");
-  }
+  const updatedNorma = await prisma.$transaction(async (tx) => {
+    const norma = await tx.norma.update({
+      where: { codigo },
+      data: {
+        titulo:           data.titulo           ?? existingNorma.titulo,
+        descricao:        data.descricao        !== undefined ? data.descricao : existingNorma.descricao,
+        notas:            data.notas            !== undefined ? data.notas     : existingNorma.notas,
+        orgao_emissor_id: data.orgao_emissor_id ? Number(data.orgao_emissor_id) : existingNorma.orgao_emissor_id,
+        categoria_id:     data.categoria_id     ? Number(data.categoria_id)     : existingNorma.categoria_id,
+        etapa_projeto_id: data.etapa_projeto_id ? Number(data.etapa_projeto_id) : existingNorma.etapa_projeto_id,
+        revisao:          data.revisao          ?? existingNorma.revisao,
+        status:           data.status           ?? existingNorma.status,
+        data_publicacao:  data.data_publicacao  ? new Date(data.data_publicacao) : existingNorma.data_publicacao,
+        arquivo:          data.arquivo          ?? existingNorma.arquivo,
+      },
+    });
 
-  const updatedNorma = await prisma.norma.update({
-    where: { codigo },
-    data: {
-      titulo:           data.titulo           ?? existingNorma.titulo,
-      orgao_emissor_id: data.orgao_emissor_id ? Number(data.orgao_emissor_id) : existingNorma.orgao_emissor_id,
-      categoria_id:     data.categoria_id     ? Number(data.categoria_id)     : existingNorma.categoria_id,
-      etapa_projeto_id: data.etapa_projeto_id ? Number(data.etapa_projeto_id) : existingNorma.etapa_projeto_id,
-      revisao:          data.revisao          ?? existingNorma.revisao,
-      status:           data.status           ?? existingNorma.status,
-      data_publicacao:  data.data_publicacao  ? new Date(data.data_publicacao) : existingNorma.data_publicacao,
-      arquivo:          data.arquivo          ?? existingNorma.arquivo,
+    if (Array.isArray(data.correlacoes)) {
+      await tx.normaCorrelacao.deleteMany({ where: { norma_codigo: codigo } });
+
+      if (data.correlacoes.length > 0) {
+        await tx.normaCorrelacao.createMany({
+          data: data.correlacoes.map((c: string) => ({
+            norma_codigo:      codigo,
+            correlacao_codigo: c,
+          })),
+        });
+      }
     }
+
+    return norma;
   });
 
   return updatedNorma;
