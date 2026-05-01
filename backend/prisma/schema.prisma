@@ -9,6 +9,7 @@ datasource db {
 
 enum Role {
   ADMIN
+  TECNICO
   VISUALIZADOR
 }
 
@@ -66,7 +67,9 @@ model Norma {
   escopo           String?
   palavras_chave   Json?
 
-  notas NormaNota[]
+  notas                  NormaNota[]
+  normas_relacionadas    NormaRelacionada[] @relation("NormaRelacionadasOrigem")
+  relacionada_por        NormaRelacionada[] @relation("NormaRelacionadasDestino")
 
   orgao_emissor OrgaoEmissor  @relation(fields: [orgao_emissor_id], references: [id])
   categoria     Categoria     @relation(fields: [categoria_id], references: [id])
@@ -85,4 +88,17 @@ model NormaNota {
 
   @@index([norma_codigo])
   @@map("norma_notas")
+}
+
+model NormaRelacionada {
+  norma_codigo       String @db.VarChar(50)
+  relacionada_codigo String @db.VarChar(50)
+  ordem              Int    @default(0) @db.SmallInt
+
+  norma       Norma @relation("NormaRelacionadasOrigem", fields: [norma_codigo], references: [codigo])
+  relacionada Norma @relation("NormaRelacionadasDestino", fields: [relacionada_codigo], references: [codigo])
+
+  @@id([norma_codigo, relacionada_codigo])
+  @@index([relacionada_codigo])
+  @@map("norma_relacionada")
 }
