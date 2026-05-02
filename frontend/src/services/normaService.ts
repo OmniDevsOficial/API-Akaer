@@ -1,6 +1,30 @@
 import api from "@/services/api";
 import type { FiltrosSelecionados } from "@/components/FilterAside/FilterAside";
 
+// retorna do GET /normas/:codigo
+export interface NormaDetalhes {
+    codigo: string;
+    titulo: string;
+    status: string;
+    revisao: string | null;
+    escopo: string | null;
+    palavras_chave: string[] | null;
+    orgao_emissor: { id: number; nome: string } | null;
+    categoria: { id: number; nome: string } | null;
+    etapa_projeto: { id: number; nome: string } | null;
+    arquivo: string | null;
+    data_publicacao: string;
+    notas: { id: number; texto: string; ordem: number }[];
+}
+
+/**
+ * Endpoint: GET /normas/:codigo
+ */
+export const getNormaDetalhes = async (codigo: string): Promise<NormaDetalhes> => {
+    const response = await api.get<NormaDetalhes>(`/normas/${encodeURIComponent(codigo)}`);
+    return response.data;
+};
+
 export interface Norma {
     id: number;
     codigo: string;
@@ -49,10 +73,10 @@ export async function listarNormas({
     const params: Record<string, unknown> = {
         page,
         texto: texto || undefined,
-        orgao:     filtros?.orgaos,
+        orgao: filtros?.orgaos,
         categoria: filtros?.categorias,
-        etapa:     filtros?.etapas,
-        status:    filtros?.status,
+        etapa: filtros?.etapas,
+        status: filtros?.status,
     };
 
     const response = await api.get<NormasLeituraResponse>("/normas/listar", {

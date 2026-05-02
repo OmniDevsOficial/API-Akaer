@@ -1,13 +1,26 @@
 import { useEffect, useState } from "react";
-import { TfiPencilAlt, TfiWorld } from "react-icons/tfi";
-import { FaRegFilePdf } from "react-icons/fa6";
+import { FileText, Pencil, Globe, Eye } from "lucide-react";
+// import api from "@/services/api";
 import { getUserRole } from '../utils/auth';
-import { Button } from "./ui/button";
 import PdfViewerModal from "./pdf-viewer-modal";
-import { listarNormas, type Norma } from "@/services/normaService";
 import type { FiltrosSelecionados } from "@/components/FilterAside/FilterAside";
+import { useNavigate } from "react-router-dom";
+import { listarNormas } from "@/services/normaService";
 
-interface NormaSelecionadaPdf {
+export interface Norma { 
+    id: number;
+    codigo: string;
+    titulo: string;
+    arquivo?: string;
+    revisao?: string | null;
+    orgao_emissor?: { nome: string };
+    orgao_emissor_id?: { nome: string };
+    categoria?: { nome: string };
+    categoria_id?: { nome: string };
+    status: string;
+}
+
+export interface NormaSelecionadaPdf {
     codigo?: string;
     titulo?: string;
     status?: string;
@@ -15,9 +28,11 @@ interface NormaSelecionadaPdf {
     categoria?: string;
     revisao?: string | null;
     arquivo?: string | null;
+    escopo?: string;
+    palavrasChave?: string[];
 }
 
-interface TabelaNormasProps {
+export interface TabelaNormasProps {
     refreshTrigger?: number;
     searchText?: string;
     filtros?: FiltrosSelecionados;
@@ -30,19 +45,23 @@ const statusColorClass = (status: string) => {
         : 'bg-gray-400';
 };
 
+
 export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filtros }: TabelaNormasProps) {
 
     const role = getUserRole();
     const isAdmin = role?.toLowerCase() === 'admin';
+    const navigate = useNavigate();
     const [normas, setNormas] = useState<Norma[]>([]);
     const [totalNormas, setTotalNormas] = useState(0);
     const [carregando, setCarregando] = useState(true);
     const [pdfModalAberto, setPdfModalAberto] = useState(false);
     const [normaSelecionadaPdf, setNormaSelecionadaPdf] = useState<NormaSelecionadaPdf | null>(null);
 
+
     useEffect(() => {
         const carregarNormas = async () => {
             setCarregando(true);
+
             try {
                 const data = await listarNormas({
                     page: 1,
@@ -122,7 +141,11 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                             </td>
                         </tr>
                     ) : normas.map(norma => (
-                        <tr key={norma.id} className="border-b border-font-border last:border-none hover:bg-gray-50 transition-colors">
+                        <tr
+                            key={norma.id}
+                            onClick={() => navigate(`/normas/ver/${encodeURIComponent(norma.codigo)}`)}
+                            className="border-b border-font-border last:border-none hover:bg-red-50/60 transition-colors cursor-pointer"
+                        >
 
                             {/* Código — vermelho no design */}
                             <td className="px-6 py-4 text-sm text-red-akaer font-semibold whitespace-nowrap">
@@ -146,32 +169,52 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                                 </div>
                             </td>
 
-                            {/* Visualização do PDF */}
-                            <td className="py-4 px-6">
-                                <Button
-                                    size={'icon'}
-                                    onClick={() => abrirPdf(norma)}
-                                    title={norma.arquivo ? 'Visualizar PDF' : 'Norma sem PDF cadastrado'}
-                                    className="ml-6"
+                            {/* Visualizaçao do PDF */}
+                            <td className="px-10 py-4">
+                                <button
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        abrirPdf(norma);
+                                    }}
+                                    title={norma.arquivo ? 'Visualizar PDF' : 'Sem PDF cadastrado'}
+                                    className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
                                 >
-                                    <FaRegFilePdf className="ml-[4px]"/>
-                                </Button>
+                                    <FileText size={15} />
+                                    <span>PDF</span>
+                                </button>
                             </td>
 
-                            {/* Botões de ação */}
+                            {/* Botão de edição e visualização */}
                             {isAdmin && (
                                 <td className="px-6 py-4">
-                                    <div className="flex items-center gap-1 text-gray-700 hover:text-red-akaer transition-colors cursor-pointer">
-                                        <TfiPencilAlt className="p-1 text-2xl" />
-                                        <span className="text-sm">Editar</span>
-                                    </div>
+                                    <button className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
+                                        // ao clicar, navega para a página de edição e manda o título da norma
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            navigate(`/normas/editar`, {
+                                                state: { norma }
+                                            });
+                                        }}>
+                                        <Pencil size={15} />
+                                        <span>Editar</span>
+                                    </button>
+                                    <button className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
+                                        // ao clicar, navega para a página de visualização
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            navigate(`/normas/ver/${encodeURIComponent(norma.codigo)}`);
+                                        }}
+                                    >
+                                        <Eye size={15} />
+                                        <span>Detalhes</span>
+                                    </button>
                                 </td>
                             )}
 
                             {/* Visibilidade */}
-                            <td className="px-6 py-4 text-sm text-gray-700">
-                                <div className="flex items-center gap-1">
-                                    <TfiWorld />
+                            <td className="px-6 py-4">
+                                <div className="flex items-center gap-1.5 text-sm text-gray-700">
+                                    <Globe size={15} />
                                     <span>Público</span>
                                 </div>
                             </td>
