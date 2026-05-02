@@ -1,14 +1,13 @@
-import { useState } from 'react';
 import Header from '../../components/header';
 import { HeaderEditar } from '../../components/PasteEditar/headerEditar'
 import BodyEditar from '../../components/PasteEditar/bodyEditar'
 import Sidebar from '../../components/sidebar';
-import { getUserRole } from '../../utils/auth';
 
 export default function Editar() {
+    const handleApplyCampos = () => {
+        // Implementar lógica de aplicar campos
+    };
 
-    const role = getUserRole();
-    const isAdmin = role?.toLocaleLowerCase() === 'admin';
     return (
         <>
             <div className="min-h-screen bg-[#fbfbfb] flex flex-col font-dm">
@@ -20,7 +19,7 @@ export default function Editar() {
                     <Sidebar />
 
                     <main className="flex-1">
-                        <HeaderEditar />
+                        <HeaderEditar onApplyCampos={handleApplyCampos} />
 
                         <BodyEditar />
 

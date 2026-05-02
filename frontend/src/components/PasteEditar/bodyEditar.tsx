@@ -105,7 +105,7 @@ export default function BodyEditar() {
                                 <label className={labelClass}>ÓRGÃO EMISSOR</label>
                                 <select value={form.orgaoEmissorId} onChange={(e) => handleChange('orgaoEmissorId', e.target.value)} className={inputClass}>
                                     <option value="">Selecionar...</option>
-                                    {listaOrgao.map(o => <option key={o.id} value={o.id}>{o.nome}</option>)}
+                                    {listaOrgao.map(orgao => <option key={orgao.id} value={orgao.id}>{orgao.nome}</option>)}
                                 </select>
                             </div>
 
@@ -121,7 +121,7 @@ export default function BodyEditar() {
                                 <label className={labelClass}>CATEGORIA</label>
                                 <select value={form.categoriaId} onChange={(e) => handleChange('categoriaId', e.target.value)} className={inputClass}>
                                     <option value="">Selecionar...</option>
-                                    {listaCategoria.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
+                                    {listaCategoria.map(cat => <option key={cat.id} value={cat.id}>{cat.nome}</option>)}
                                 </select>
                             </div>
 
@@ -129,7 +129,7 @@ export default function BodyEditar() {
                                 <label className={labelClass}>ETAPA DO PROJETO</label>
                                 <select value={form.etapaProjetoId} onChange={(e) => handleChange('etapaProjetoId', e.target.value)} className={inputClass}>
                                     <option value="">Selecionar...</option>
-                                    {listaEtapaProjeto.map(e => <option key={e.id} value={e.id}>{e.nome}</option>)}
+                                    {listaEtapaProjeto.map(etapa => <option key={etapa.id} value={etapa.id}>{etapa.nome}</option>)}
                                 </select>
                             </div>
 
