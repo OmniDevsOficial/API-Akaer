@@ -1,23 +1,11 @@
 import { useEffect, useState } from "react";
-import { FileText, Pencil, Globe } from "lucide-react";
-import api from "@/services/api";
+import { TfiPencilAlt, TfiWorld } from "react-icons/tfi";
+import { FaRegFilePdf } from "react-icons/fa6";
 import { getUserRole } from '../utils/auth';
+import { Button } from "./ui/button";
 import PdfViewerModal from "./pdf-viewer-modal";
-import { getNormaDetalhes } from "@/services/normaService";
-import { type FiltrosSelecionados } from "./FilterAside/FilterAside";
-
-interface Norma {
-    id: number;
-    codigo: string;
-    titulo: string;
-    arquivo?: string;
-    revisao?: string | null;
-    orgao_emissor?: { nome: string };
-    orgao_emissor_id?: { nome: string };
-    categoria?: { nome: string };
-    categoria_id?: { nome: string };
-    status: string;
-}
+import { listarNormas, type Norma } from "@/services/normaService";
+import type { FiltrosSelecionados } from "@/components/FilterAside/FilterAside";
 
 interface NormaSelecionadaPdf {
     codigo?: string;
@@ -27,15 +15,6 @@ interface NormaSelecionadaPdf {
     categoria?: string;
     revisao?: string | null;
     arquivo?: string | null;
-    escopo?: string;
-    palavrasChave?: string[];
-}
-
-interface NormasLeituraResponse {
-    itens?: Norma[];
-    paginacao?: {
-        total?: number;
-    };
 }
 
 interface TabelaNormasProps {
@@ -60,26 +39,19 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
     const [carregando, setCarregando] = useState(true);
     const [pdfModalAberto, setPdfModalAberto] = useState(false);
     const [normaSelecionadaPdf, setNormaSelecionadaPdf] = useState<NormaSelecionadaPdf | null>(null);
-    const [carregandoDetalhes, setCarregandoDetalhes] = useState(false);
 
     useEffect(() => {
         const carregarNormas = async () => {
             setCarregando(true);
-            const textoBusca = searchText.trim();
-
             try {
-                const response = await api.get<NormasLeituraResponse>('/normas/listar', {
-                    params: {
-                        page: 1,
-                        texto:     textoBusca        || undefined,
-                        orgao:     filtros?.orgao     ?? undefined,
-                        categoria: filtros?.categoria ?? undefined,
-                        etapa:     filtros?.etapa     ?? undefined,
-                    },
+                const data = await listarNormas({
+                    page: 1,
+                    texto: searchText.trim(),
+                    filtros,
                 });
 
-                const itens = Array.isArray(response.data?.itens) ? response.data.itens : [];
-                const total = response.data?.paginacao?.total ?? itens.length;
+                const itens = Array.isArray(data?.itens) ? data.itens : [];
+                const total = data?.paginacao?.total ?? itens.length;
 
                 setNormas(itens);
                 setTotalNormas(total);
@@ -98,7 +70,7 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
     const quantidadeExibida = normas.length;
     const quantidadeTotal = totalNormas || quantidadeExibida;
 
-    const abrirPdf = async (norma: Norma) => {
+    const abrirPdf = (norma: Norma) => {
         setNormaSelecionadaPdf({
             codigo: norma.codigo,
             titulo: norma.titulo,
@@ -109,33 +81,13 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
             arquivo: norma.arquivo ?? null,
         });
         setPdfModalAberto(true);
-        setCarregandoDetalhes(true);
-
-        try {
-            const detalhes = await getNormaDetalhes(norma.codigo);
-
-            setNormaSelecionadaPdf({
-                codigo: detalhes.codigo,
-                titulo: detalhes.titulo,
-                status: detalhes.status,
-                orgaoEmissor: detalhes.orgao_emissor?.nome,
-                categoria: detalhes.categoria?.nome,
-                revisao: detalhes.revisao,
-                arquivo: detalhes.arquivo ?? null,
-                escopo: detalhes.escopo ?? undefined,
-                palavrasChave: detalhes.palavras_chave ?? undefined,
-            });
-        } catch (error) {
-            console.error('Erro ao buscar detalhes da norma:', error);
-        } finally {
-            setCarregandoDetalhes(false);
-        }
     };
 
     return (
         <div className="border border-font-border rounded-lg overflow-hidden">
             <table className="w-full">
 
+                {/* Header da Tabela */}
                 <thead>
                     <tr className="border-b border-font-border">
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">CÓDIGO</th>
@@ -155,26 +107,29 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                     </tr>
                 </thead>
 
+                {/* Linhas das normas */}
                 <tbody>
                     {carregando ? (
                         <tr>
-                            <td colSpan={isAdmin ? 8 : 7} className="px-6 py-6 text-sm text-gray-medium text-center">
+                            <td colSpan={isAdmin ? 7 : 6} className="px-6 py-6 text-sm text-gray-medium text-center">
                                 Carregando normas...
                             </td>
                         </tr>
                     ) : normas.length === 0 ? (
                         <tr>
-                            <td colSpan={isAdmin ? 8 : 7} className="px-6 py-6 text-sm text-gray-medium text-center">
+                            <td colSpan={isAdmin ? 7 : 6} className="px-6 py-6 text-sm text-gray-medium text-center">
                                 Nenhuma norma encontrada.
                             </td>
                         </tr>
                     ) : normas.map(norma => (
                         <tr key={norma.id} className="border-b border-font-border last:border-none hover:bg-gray-50 transition-colors">
 
+                            {/* Código — vermelho no design */}
                             <td className="px-6 py-4 text-sm text-red-akaer font-semibold whitespace-nowrap">
                                 {norma.codigo}
                             </td>
 
+                            {/* Título + descrição empilhados */}
                             <td className="px-6 py-4">
                                 <span className="block text-sm font-medium text-gray-900">{norma.titulo}</span>
                                 <span className="block text-xs text-gray-medium">Categoria: {norma.categoria?.nome || norma.categoria_id?.nome}</span>
@@ -183,6 +138,7 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                             <td className="px-6 py-4 text-sm text-gray-700">{norma.orgao_emissor?.nome || norma.orgao_emissor_id?.nome}</td>
                             <td className="px-6 py-4 text-sm text-gray-700">{norma.categoria?.nome || norma.categoria_id?.nome}</td>
 
+                            {/* Status com bolinha colorida */}
                             <td className="px-6 py-4">
                                 <div className="flex items-center gap-1">
                                     <span className={`w-2 h-2 rounded-full ${statusColorClass(norma.status)}`}></span>
@@ -190,32 +146,32 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                                 </div>
                             </td>
 
-                            {/* Visualizaçao do PDF */}
-                            <td className="px-10 py-4">
-                                <button
+                            {/* Visualização do PDF */}
+                            <td className="py-4 px-6">
+                                <Button
+                                    size={'icon'}
                                     onClick={() => abrirPdf(norma)}
-                                    disabled={carregandoDetalhes}
-                                    title={norma.arquivo ? 'Visualizar PDF' : 'Sem PDF cadastrado'}
-                                    className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
+                                    title={norma.arquivo ? 'Visualizar PDF' : 'Norma sem PDF cadastrado'}
+                                    className="ml-6"
                                 >
-                                    <FileText size={15} />
-                                    <span>PDF</span>
-                                </button>
+                                    <FaRegFilePdf className="ml-[4px]"/>
+                                </Button>
                             </td>
 
+                            {/* Botões de ação */}
                             {isAdmin && (
                                 <td className="px-6 py-4">
-                                    <button className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors">
-                                        <Pencil size={15} />
-                                        <span>Editar</span>
-                                    </button>
+                                    <div className="flex items-center gap-1 text-gray-700 hover:text-red-akaer transition-colors cursor-pointer">
+                                        <TfiPencilAlt className="p-1 text-2xl" />
+                                        <span className="text-sm">Editar</span>
+                                    </div>
                                 </td>
                             )}
 
                             {/* Visibilidade */}
-                            <td className="px-6 py-4">
-                                <div className="flex items-center gap-1.5 text-sm text-gray-700">
-                                    <Globe size={15} />
+                            <td className="px-6 py-4 text-sm text-gray-700">
+                                <div className="flex items-center gap-1">
+                                    <TfiWorld />
                                     <span>Público</span>
                                 </div>
                             </td>
@@ -225,6 +181,7 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                 </tbody>
             </table>
 
+            {/* Rodapé */}
             <div className="px-6 py-3 border-t border-font-border">
                 <span className="text-xs text-gray-medium">Exibindo {quantidadeExibida} de {quantidadeTotal} Normas</span>
             </div>

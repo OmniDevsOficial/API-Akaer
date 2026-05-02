@@ -9,9 +9,10 @@ type Props = {
 };
 
 export type FiltrosSelecionados = {
-  orgao?: number;
-  categoria?: number;
-  etapa?: number;
+  orgaos?: number[];
+  categorias?: number[];
+  etapas?: number[];
+  status?: string[];
 };
 
 type Opcao = {
@@ -19,15 +20,18 @@ type Opcao = {
   nome: string;
 };
 
+const STATUS_OPCOES = ["Ativa", "Obsoleta"];
+
 export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters }) => {
 
   const [orgaos, setOrgaos] = useState<Opcao[]>([]);
   const [categorias, setCategorias] = useState<Opcao[]>([]);
   const [etapas, setEtapas] = useState<Opcao[]>([]);
 
-  const [orgaoSelecionado, setOrgaoSelecionado] = useState<number | undefined>();
-  const [categoriaSelecionada, setCategoriaSelecionada] = useState<number | undefined>();
-  const [etapaSelecionada, setEtapaSelecionada] = useState<number | undefined>();
+  const [orgaosSelecionados, setOrgaosSelecionados] = useState<number[]>([]);
+  const [categoriasSelecionadas, setCategoriasSelecionadas] = useState<number[]>([]);
+  const [etapasSelecionadas, setEtapasSelecionadas] = useState<number[]>([]);
+  const [statusSelecionados, setStatusSelecionados] = useState<string[]>([]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -50,18 +54,35 @@ export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters }
     carregarOpcoes();
   }, [isOpen]);
 
-  // Função criada para limpar os estados dos filtros selecionados
+  const toggleNumerico = (
+    lista: number[],
+    setLista: React.Dispatch<React.SetStateAction<number[]>>,
+    id: number
+  ) => {
+    setLista(prev =>
+      prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id]
+    );
+  };
+
+  const toggleStatus = (valor: string) => {
+    setStatusSelecionados(prev =>
+      prev.includes(valor) ? prev.filter(v => v !== valor) : [...prev, valor]
+    );
+  };
+
   const limparFiltros = () => {
-    setOrgaoSelecionado(undefined);
-    setCategoriaSelecionada(undefined);
-    setEtapaSelecionada(undefined);
+    setOrgaosSelecionados([]);
+    setCategoriasSelecionadas([]);
+    setEtapasSelecionadas([]);
+    setStatusSelecionados([]);
   };
 
   const aplicarFiltros = () => {
     onApplyFilters({
-      orgao: orgaoSelecionado,
-      categoria: categoriaSelecionada,
-      etapa: etapaSelecionada,
+      orgaos: orgaosSelecionados.length > 0 ? orgaosSelecionados : undefined,
+      categorias: categoriasSelecionadas.length > 0 ? categoriasSelecionadas : undefined,
+      etapas: etapasSelecionadas.length > 0 ? etapasSelecionadas : undefined,
+      status: statusSelecionados.length > 0 ? statusSelecionados : undefined,
     });
     onClose();
   };
@@ -91,10 +112,8 @@ export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters }
               <label key={item.id} className="option">
                 <input
                   type="checkbox"
-                  checked={orgaoSelecionado === item.id}
-                  onChange={() => setOrgaoSelecionado(
-                    orgaoSelecionado === item.id ? undefined : item.id
-                  )}
+                  checked={orgaosSelecionados.includes(item.id)}
+                  onChange={() => toggleNumerico(orgaosSelecionados, setOrgaosSelecionados, item.id)}
                 />
                 <span>{item.nome}</span>
               </label>
@@ -108,10 +127,8 @@ export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters }
               <label key={item.id} className="option">
                 <input
                   type="checkbox"
-                  checked={categoriaSelecionada === item.id}
-                  onChange={() => setCategoriaSelecionada(
-                    categoriaSelecionada === item.id ? undefined : item.id
-                  )}
+                  checked={categoriasSelecionadas.includes(item.id)}
+                  onChange={() => toggleNumerico(categoriasSelecionadas, setCategoriasSelecionadas, item.id)}
                 />
                 <span>{item.nome}</span>
               </label>
@@ -125,12 +142,25 @@ export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters }
               <label key={item.id} className="option">
                 <input
                   type="checkbox"
-                  checked={etapaSelecionada === item.id}
-                  onChange={() => setEtapaSelecionada(
-                    etapaSelecionada === item.id ? undefined : item.id
-                  )}
+                  checked={etapasSelecionadas.includes(item.id)}
+                  onChange={() => toggleNumerico(etapasSelecionadas, setEtapasSelecionadas, item.id)}
                 />
                 <span>{item.nome}</span>
+              </label>
+            ))}
+          </div>
+
+          {/* STATUS */}
+          <div className="filter-section">
+            <span className="section-label">STATUS</span>
+            {STATUS_OPCOES.map((item) => (
+              <label key={item} className="option">
+                <input
+                  type="checkbox"
+                  checked={statusSelecionados.includes(item)}
+                  onChange={() => toggleStatus(item)}
+                />
+                <span>{item}</span>
               </label>
             ))}
           </div>

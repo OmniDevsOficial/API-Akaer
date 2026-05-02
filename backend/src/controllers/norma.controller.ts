@@ -46,23 +46,38 @@ export const updateNorma = async (req: Request, res: Response) => {
   }
 };
 
+// Converte um query param (string | string[] | undefined) em number[]
+const parseNumericArray = (value: unknown): number[] => {
+  if (!value) return [];
+  const arr = Array.isArray(value) ? value : [value];
+  return arr
+    .map((v) => Number(v))
+    .filter((n) => !isNaN(n) && n > 0);
+};
+
+// Converte um query param em string[]
+const parseStringArray = (value: unknown): string[] => {
+  if (!value) return [];
+  const arr = Array.isArray(value) ? value : [value];
+  return arr.map((v) => String(v).trim()).filter(Boolean);
+};
+
 export const searchNormas = async (req: Request, res: Response) => {
   try {
     const textoQuery = req.query.texto;
-    const pageQuery = req.query.page;
-    const orgaoQuery = req.query.orgao;
-    const categoriaQuery = req.query.categoria;
-    const etapaQuery = req.query.etapa;
+    const pageQuery  = req.query.page;
 
     const texto = typeof textoQuery === "string" ? textoQuery : "";
-    const orgao = typeof orgaoQuery === "string" ? Number(orgaoQuery) : undefined;
-    const categoria = typeof categoriaQuery === "string" ? Number(categoriaQuery) : undefined;
-    const etapa = typeof etapaQuery === "string" ? Number(etapaQuery) : undefined;
 
     const paginaRecebida = typeof pageQuery === "string" ? Number(pageQuery) : 1;
     const pagina = Number.isInteger(paginaRecebida) && paginaRecebida > 0 ? paginaRecebida : 1;
 
-    const normas = await searchNormasService(texto, pagina, orgao, categoria, etapa);
+    const orgaos     = parseNumericArray(req.query.orgao);
+    const categorias = parseNumericArray(req.query.categoria);
+    const etapas     = parseNumericArray(req.query.etapa);
+    const status     = parseStringArray(req.query.status);
+
+    const normas = await searchNormasService(texto, pagina, orgaos, categorias, etapas, status);
 
     return res.status(200).json(normas);
   } catch (error: any) {

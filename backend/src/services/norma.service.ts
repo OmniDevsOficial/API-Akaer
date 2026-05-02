@@ -150,9 +150,10 @@ export const updateNormaService = async (codigo: string, data: any) => {
 export const searchNormasService = async (
   texto: string,
   pagina: number,
-  orgao?: number,
-  categoria?: number,
-  etapa?: number
+  orgaos: number[]   = [],
+  categorias: number[] = [],
+  etapas: number[]   = [],
+  status: string[]   = []
 ) => {
   const LIMITE_POR_PAGINA = 8;
   const termo = texto.trim();
@@ -166,16 +167,20 @@ export const searchNormasService = async (
     ];
   }
 
-  if (orgao) {
-    whereClause.orgao_emissor_id = orgao;
+  if (orgaos.length > 0) {
+    whereClause.orgao_emissor_id = { in: orgaos };
   }
 
-  if (categoria) {
-    whereClause.categoria_id = categoria;
+  if (categorias.length > 0) {
+    whereClause.categoria_id = { in: categorias };
   }
 
-  if (etapa) {
-    whereClause.etapa_projeto_id = etapa;
+  if (etapas.length > 0) {
+    whereClause.etapa_projeto_id = { in: etapas };
+  }
+
+  if (status.length > 0) {
+    whereClause.status = { in: status };
   }
 
   const skip = (pagina - 1) * LIMITE_POR_PAGINA;
