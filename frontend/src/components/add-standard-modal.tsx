@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { FileUpload } from './ui/file-upload';
 import api from '@/services/api';
 import { NotasField } from './notes-field';
+import { NormasRelatedSelector } from '@/components/normas-related-selector';
 
 interface StandardModalProps {
     open: boolean;
@@ -32,11 +33,25 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
     const [listaCategoria, setListaCategoria] = useState<any[]>([]);
     const [listaEtapaProjeto, setListaEtapaProjeto] = useState<any[]>([]);
 
+    const [normasRelacionadas, setNormasRelacionadas] = useState<any[]>([]);
+    const [listaNormas, setListaNormas] = useState<any[]>([]);
+
+
+//MOCK NORMAS - REMOVER DEPOIS QUE A API ESTIVER FUNCIONANDO
+    const mockNormas = [
+    { id: 1, codigo: '90001', titulo: 'AIRWORTHINESS STANDARDS' },
+    { id: 2, codigo: 'RBAC 25', titulo: 'AERONAVEGABILIDADE' },
+    { id: 3, codigo: 'ISO 9001', titulo: 'GESTÃO DE QUALIDADE' },
+    { id: 4, codigo: 'RBAC 145', titulo: 'MANUTENÇÃO DE AERONAVES' },
+];
+
     useEffect(() => {
         const getFilterOptions = async () => {
             await api.get('/orgaos-emissores').then(res => setListaOrgao(res.data));
             await api.get('/categorias').then(res => setListaCategoria(res.data));
             await api.get('/etapas-projeto').then(res => setListaEtapaProjeto(res.data));
+             setListaNormas(mockNormas);
+           // await api.get('/normas').then(res => setListaNormas(res.data));
         }
 
         getFilterOptions();
@@ -349,6 +364,15 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
                                     {/* Notas */}
                                     <div className='col-span-2 my-6'>
                                         <NotasField label="NOTAS" />
+                                    </div>
+                                    
+                                    {/* Normas Relacionadas */}
+                                    <div className='col-span-2 my-6'>
+                                        <NormasRelatedSelector
+                                            normas={listaNormas}
+                                            selecionadas={normasRelacionadas}
+                                            onChange={setNormasRelacionadas}
+                                        />
                                     </div>
                                 </div>
                             </div>

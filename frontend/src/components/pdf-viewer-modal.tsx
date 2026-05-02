@@ -300,7 +300,7 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
 
                         {/* Detalhes da Norma */}
                         {!recolher && (
-                            <div className="p-5 h-full overflow-auto">
+                            <div className="p-5 h-full overflow-auto min-w-0 w-full max-w-full overflow-x-hidden">
                                 <h2 className="text-lg font-semibold text-red-akaer mb-6">Detalhes da Norma</h2>
 
                                 <div className="mb-8">
@@ -312,7 +312,7 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
 
                                 <div>
                                     <h3 className="text-sm font-semibold text-gray-700 mb-2">Palavras-chave</h3>
-                                    <div className="flex flex-wrap gap-2">
+                                    <div className="flex flex-wrap gap-2 w-full max-w-full">
                                         {norma?.palavrasChave?.length ? (
                                             norma.palavrasChave.map((p, i) => (
                                                 <span key={i} className="px-3 py-1 text-sm rounded-full bg-[#eef3ff]">{p}</span>
@@ -321,6 +321,28 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
                                             <span className="text-sm text-gray-500">Não informadas</span>
                                         )}
                                     </div>
+                                </div>
+                                <div className="mt-8">
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                                        Normas Relacionadas
+                                    </h3>
+
+                                    {norma?.normas_relacionadas?.length ? (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-full overflow-hidden">
+                                            {norma.normas_relacionadas.map((n: any) => (
+                                                <div
+                                                    key={n.id}
+                                                    className="px-3 py-1 text-sm rounded-full bg-[#eef3ff] cursor-pointer break-all w-full"
+                                                >
+                                                    {n.codigo}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <span className="text-sm text-gray-500">
+                                            Nenhuma norma relacionada
+                                        </span>
+                                    )}
                                 </div>
                             </div>
                         )}
