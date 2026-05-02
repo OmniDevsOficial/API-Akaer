@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { FileText, Pencil, Globe } from "lucide-react";
+import { FileText, Pencil, Globe, Eye } from "lucide-react";
 import api from "@/services/api";
 import { getUserRole } from '../utils/auth';
 import PdfViewerModal from "./pdf-viewer-modal";
 import { getNormaDetalhes } from "@/services/normaService";
 import { type FiltrosSelecionados } from "./FilterAside/FilterAside";
+import { useNavigate } from "react-router-dom";
 
-interface Norma {
+export interface Norma {
     id: number;
     codigo: string;
     titulo: string;
@@ -20,7 +20,7 @@ interface Norma {
     status: string;
 }
 
-interface NormaSelecionadaPdf {
+export interface NormaSelecionadaPdf {
     codigo?: string;
     titulo?: string;
     status?: string;
@@ -32,14 +32,14 @@ interface NormaSelecionadaPdf {
     palavrasChave?: string[];
 }
 
-interface NormasLeituraResponse {
+export interface NormasLeituraResponse {
     itens?: Norma[];
     paginacao?: {
         total?: number;
     };
 }
 
-interface TabelaNormasProps {
+export interface TabelaNormasProps {
     refreshTrigger?: number;
     searchText?: string;
     filtros?: FiltrosSelecionados;
@@ -51,6 +51,7 @@ const statusColorClass = (status: string) => {
         ? 'bg-green-500'
         : 'bg-gray-400';
 };
+
 
 export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filtros }: TabelaNormasProps) {
 
@@ -73,10 +74,10 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                 const response = await api.get<NormasLeituraResponse>('/normas/listar', {
                     params: {
                         page: 1,
-                        texto:     textoBusca        || undefined,
-                        orgao:     filtros?.orgao     ?? undefined,
+                        texto: textoBusca || undefined,
+                        orgao: filtros?.orgao ?? undefined,
                         categoria: filtros?.categoria ?? undefined,
-                        etapa:     filtros?.etapa     ?? undefined,
+                        etapa: filtros?.etapa ?? undefined,
                     },
                 });
 
@@ -212,14 +213,29 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                                 </button>
                             </td>
 
+                            {/* Botão de edição e visualização */}
                             {isAdmin && (
                                 <td className="px-6 py-4">
-                                    <button
-                                        onClick={(event) => event.stopPropagation()}
-                                        className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
-                                    >
+                                    <button className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
+                                        // ao clicar, navega para a página de edição e manda o título da norma
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            navigate(`/normas/editar`, {
+                                            state: { norma }
+                                            });
+                                        }}>
                                         <Pencil size={15} />
                                         <span>Editar</span>
+                                    </button>
+                                    <button className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
+                                        // ao clicar, navega para a página de visualização
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            navigate(`/normas/ver/${encodeURIComponent(norma.codigo)}`);
+                                        }}
+                                    >
+                                        <Eye size={15} />
+                                        <span>Detalhes</span>
                                     </button>
                                 </td>
                             )}
