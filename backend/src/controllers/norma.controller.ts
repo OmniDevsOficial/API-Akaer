@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { createNormaService, searchNormasService, updateNormaService, getNormaDocumentoService, getNormaByCodeService } from "../services/norma.service";
-import { getNormasRelacionadasService, addNormaRelacionadaService, removeNormaRelacionadaService } from "../services/norma-relacionada.service";
+import { getNormasRelacionadasIdsService, addNormaRelacionadaService, removeNormaRelacionadaService } from "../services/norma-relacionada.service";
 import fs from "fs";
 
 export const createNorma = async (req: Request, res: Response) => {
@@ -126,7 +126,7 @@ export const getNormasRelacionadas = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Código da norma inválido" });
     }
 
-    const normasRelacionadas = await getNormasRelacionadasService(codigo);
+    const normasRelacionadas = await getNormasRelacionadasIdsService(codigo);
 
     return res.status(200).json(normasRelacionadas);
   } catch (error: any) {

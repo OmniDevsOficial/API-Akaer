@@ -50,28 +50,20 @@ export const getNormasRelacionadasIdsService = async (normaCodigo: string) => {
   const registros = await prisma.normaRelacionada.findMany({
     where: { norma_codigo: normaCodigo },
     orderBy: { ordem: "asc" },
-    select: { relacionada_codigo: true },
-  });
-
-  return registros.map((registro) => registro.relacionada_codigo);
-};
-
-export const getNormasRelacionadasService = async (normaCodigo: string) => {
-  const registros = await prisma.normaRelacionada.findMany({
-    where: { norma_codigo: normaCodigo },
-    orderBy: { ordem: "asc" },
-    include: {
+    select: {
+      relacionada_codigo: true,
       relacionada: {
-        include: {
-          orgao_emissor: true,
-          categoria: true,
-          etapa_projeto: true,
+        select: {
+          titulo: true
         }
       }
     }
   });
 
-  return registros.map((registro) => registro.relacionada);
+  return registros.map((registro) => ({
+    codigo: registro.relacionada_codigo,
+    titulo: registro.relacionada?.titulo
+  }));
 };
 
 export const addNormaRelacionadaService = async (normaCodigo: string, relacionadaCodigo: string) => {
