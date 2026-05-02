@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { createNormaService, searchNormasService, updateNormaService, getNormaDocumentoService, getNormaByCodeService } from "../services/norma.service";
+import { getNormasRelacionadasIdsService, addNormaRelacionadaService, removeNormaRelacionadaService } from "../services/norma-relacionada.service";
 import fs from "fs";
 
 export const createNorma = async (req: Request, res: Response) => {
@@ -113,6 +114,63 @@ export const getNormaByCode = async (req: Request, res: Response) => {
       return res.status(404).json({ error: error.message });
     }
 
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+export const getNormasRelacionadas = async (req: Request, res: Response) => {
+  try {
+    const { codigo } = req.params;
+
+    if (!codigo || typeof codigo !== "string") {
+      return res.status(400).json({ error: "Código da norma inválido" });
+    }
+
+    const normasRelacionadas = await getNormasRelacionadasIdsService(codigo);
+
+    return res.status(200).json(normasRelacionadas);
+  } catch (error: any) {
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+export const addNormaRelacionada = async (req: Request, res: Response) => {
+  try {
+    const { codigo } = req.params;
+    const { relacionadaCodigo } = req.body;
+
+    if (!codigo || typeof codigo !== "string") {
+      return res.status(400).json({ error: "Código da norma origem inválido" });
+    }
+
+    if (!relacionadaCodigo || typeof relacionadaCodigo !== "string") {
+      return res.status(400).json({ error: "Código da norma relacionada inválido" });
+    }
+
+    const relacionadas = await addNormaRelacionadaService(codigo, relacionadaCodigo);
+
+    return res.status(201).json(relacionadas);
+  } catch (error: any) {
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+export const removeNormaRelacionada = async (req: Request, res: Response) => {
+  try {
+    const { codigo, relacionadaCodigo } = req.params;
+
+    if (!codigo || typeof codigo !== "string") {
+      return res.status(400).json({ error: "Código da norma origem inválido" });
+    }
+
+    if (!relacionadaCodigo || typeof relacionadaCodigo !== "string") {
+      return res.status(400).json({ error: "Código da norma relacionada inválido" });
+    }
+
+    const relacionadas = await removeNormaRelacionadaService(codigo, relacionadaCodigo);
+
+    return res.status(200).json(relacionadas);
+  } catch (error: any) {
     return res.status(400).json({ error: error.message });
   }
 };
