@@ -213,7 +213,7 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                                     <button className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
                                         // ao clicar, navega para a página de edição e manda o título da norma
                                         onClick={() => navigate(`/normas/editar`, {
-                                            state: { titulo: norma.titulo }
+                                            state: { norma }
                                         })}>
                                         <Pencil size={15} />
                                         <span>Editar</span>

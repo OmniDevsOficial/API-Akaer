@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Header from '../../components/header';
-import { HeaderEditar } from '../../components/header_editar'
+import { HeaderEditar } from '../../components/PasteEditar/headerEditar'
+import BodyEditar from '../../components/PasteEditar/bodyEditar'
 import Sidebar from '../../components/sidebar';
 import { getUserRole } from '../../utils/auth';
 
@@ -21,8 +22,7 @@ export default function Editar() {
                     <main className="flex-1">
                         <HeaderEditar />
 
-                        <h2 className="text-red-akaer font-bold text-sm tracking-widest mb-2">GERENCIAMENTO</h2>
-
+                        <BodyEditar />
 
                     </main>
                 </div>
