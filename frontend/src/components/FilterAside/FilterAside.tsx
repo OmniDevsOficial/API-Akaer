@@ -55,7 +55,6 @@ export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters }
   }, [isOpen]);
 
   const toggleNumerico = (
-    lista: number[],
     setLista: React.Dispatch<React.SetStateAction<number[]>>,
     id: number
   ) => {
@@ -113,7 +112,7 @@ export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters }
                 <input
                   type="checkbox"
                   checked={orgaosSelecionados.includes(item.id)}
-                  onChange={() => toggleNumerico(orgaosSelecionados, setOrgaosSelecionados, item.id)}
+                  onChange={() => toggleNumerico(setOrgaosSelecionados, item.id)}
                 />
                 <span>{item.nome}</span>
               </label>
@@ -128,7 +127,7 @@ export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters }
                 <input
                   type="checkbox"
                   checked={categoriasSelecionadas.includes(item.id)}
-                  onChange={() => toggleNumerico(categoriasSelecionadas, setCategoriasSelecionadas, item.id)}
+                  onChange={() => toggleNumerico(setCategoriasSelecionadas, item.id)}
                 />
                 <span>{item.nome}</span>
               </label>
@@ -143,7 +142,7 @@ export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters }
                 <input
                   type="checkbox"
                   checked={etapasSelecionadas.includes(item.id)}
-                  onChange={() => toggleNumerico(etapasSelecionadas, setEtapasSelecionadas, item.id)}
+                  onChange={() => toggleNumerico(setEtapasSelecionadas, item.id)}
                 />
                 <span>{item.nome}</span>
               </label>
