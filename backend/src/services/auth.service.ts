@@ -8,10 +8,10 @@ export const loginService = async (email: string, password: string) => {
   validatePassword(password);
 
   const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) throw new Error("Usuário não encontrado");
+  if (!user) throw new Error("Usuário ou senha incorretos");
 
   const validPassword = await comparePassword(password, user.password);
-  if (!validPassword) throw new Error("Senha inválida");
+  if (!validPassword) throw new Error("Usuário ou senha incorretos");
 
   const token = jwt.sign(
     { id: user.id, role: user.role },
