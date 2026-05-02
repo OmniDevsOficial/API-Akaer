@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FileText, Pencil, Globe } from "lucide-react";
 import api from "@/services/api";
 import { getUserRole } from '../utils/auth';
@@ -55,6 +56,7 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
 
     const role = getUserRole();
     const isAdmin = role?.toLowerCase() === 'admin';
+    const navigate = useNavigate();
     const [normas, setNormas] = useState<Norma[]>([]);
     const [totalNormas, setTotalNormas] = useState(0);
     const [carregando, setCarregando] = useState(true);
@@ -169,7 +171,11 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                             </td>
                         </tr>
                     ) : normas.map(norma => (
-                        <tr key={norma.id} className="border-b border-font-border last:border-none hover:bg-gray-50 transition-colors">
+                        <tr
+                            key={norma.id}
+                            onClick={() => navigate(`/normas/ver/${encodeURIComponent(norma.codigo)}`)}
+                            className="border-b border-font-border last:border-none hover:bg-red-50/60 transition-colors cursor-pointer"
+                        >
 
                             <td className="px-6 py-4 text-sm text-red-akaer font-semibold whitespace-nowrap">
                                 {norma.codigo}
@@ -193,7 +199,10 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                             {/* Visualizaçao do PDF */}
                             <td className="px-10 py-4">
                                 <button
-                                    onClick={() => abrirPdf(norma)}
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        abrirPdf(norma);
+                                    }}
                                     disabled={carregandoDetalhes}
                                     title={norma.arquivo ? 'Visualizar PDF' : 'Sem PDF cadastrado'}
                                     className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
@@ -205,7 +214,10 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
 
                             {isAdmin && (
                                 <td className="px-6 py-4">
-                                    <button className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors">
+                                    <button
+                                        onClick={(event) => event.stopPropagation()}
+                                        className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
+                                    >
                                         <Pencil size={15} />
                                         <span>Editar</span>
                                     </button>
