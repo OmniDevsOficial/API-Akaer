@@ -136,6 +136,11 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
     const adicionarPalavraChave = () => {
         if (!palavraChave.trim()) return;
 
+        if (palavrasChave.includes(palavraChave.trim())) {
+            alert('Palavra-chave já inserida');
+            return;
+        }
+
         setPalavrasChave(prev => [...prev, palavraChave.trim()]);
         setPalavraChave('');
     };
