@@ -43,6 +43,7 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
     const [notas, setNotas] = useState<string[]>([]);
     const [notaInput, setNotaInput] = useState("");
 
+
     const [correlacoes, setCorrelacoes] = useState<any[]>([]);
     const [buscaCorrelacao, setBuscaCorrelacao] = useState("");
 
@@ -287,77 +288,77 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                         </div>
 
                         {/* DETALHES E CATEGORIZAÇÃO */}
-                        
+
                     </div><div className={sectionClass}>
+                        <div className={sectionHeaderClass}>
+                            <FileText size={14} />
+                            DETALHES E CATEGORIZAÇÃO
+                        </div>
+
+                        <div className="col-span-2">
+                            <label className={labelClass}>ESCOPO</label>
+                            <textarea
+                                value={form.escopo}
+                                onChange={(e) => handleChange("escopo", e.target.value)}
+                                className={`${inputClass} min-h-[100px] resize-y`}
+                            />
+                        </div>
+                        <div className={sectionClass}>
                             <div className={sectionHeaderClass}>
                                 <FileText size={14} />
-                                DETALHES E CATEGORIZAÇÃO
+                                TAGS / PALAVRAS-CHAVE
                             </div>
 
-                            <div className="col-span-2">
-                                <label className={labelClass}>ESCOPO</label>
-                                <textarea
-                                    value={form.escopo}
-                                    onChange={(e) => handleChange("escopo", e.target.value)}
-                                    className={`${inputClass} min-h-[100px] resize-y`}
+                            {/* PALAVRAS-CHAVE */}
+                            <div className="mb-3">
+                                {palavrasChave.length > 0 ? (
+                                    <div className="flex flex-wrap gap-2">
+                                        {palavrasChave.map((palavra, index) => (
+                                            <span
+                                                key={`${palavra}-${index}`}
+                                                className="flex items-center gap-1 bg-gray-100 border border-font-border px-2 py-1 rounded text-xs text-gray-700"
+                                            >
+                                                {palavra}
+                                                <X
+                                                    size={12}
+                                                    className="cursor-pointer hover:text-red-500"
+                                                    onClick={() => removerPalavra(index)}
+                                                />
+                                            </span>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className={"rounded-md border border-font-border bg-[#FAF9F7] px-3 py-2 text-sm text-gray-400"}>
+                                        Nenhuma palavra-chave cadastrada
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={palavraInput}
+                                    onChange={(e) => setPalavraInput(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            e.preventDefault();
+                                            adicionarPalavra();
+                                        }
+                                    }}
+                                    placeholder="Adicionar nova palavra..."
+                                    className={inputClass}
                                 />
-                            </div>
-                            <div className={sectionClass}>
-                                <div className={sectionHeaderClass}>
-                                    <FileText size={14} />
-                                    TAGS / PALAVRAS-CHAVE
-                                </div>
 
-                                {/* PALAVRAS-CHAVE */}
-                                <div className="mb-3">
-                                    {palavrasChave.length > 0 ? (
-                                        <div className="flex flex-wrap gap-2">
-                                            {palavrasChave.map((palavra, index) => (
-                                                <span
-                                                    key={`${palavra}-${index}`}
-                                                    className="flex items-center gap-1 bg-gray-100 border border-font-border px-2 py-1 rounded text-xs text-gray-700"
-                                                >
-                                                    {palavra}
-                                                    <X
-                                                        size={12}
-                                                        className="cursor-pointer hover:text-red-500"
-                                                        onClick={() => removerPalavra(index)}
-                                                    />
-                                                </span>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="rounded-md border border-dashed border-font-border bg-[#FAF9F7] px-3 py-2 text-sm text-gray-400">
-                                            Nenhuma palavra-chave cadastrada
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="flex gap-2">
-                                    <input
-                                        type="text"
-                                        value={palavraInput}
-                                        onChange={(e) => setPalavraInput(e.target.value)}
-                                        onKeyDown={(e) => {
-                                            if (e.key === "Enter") {
-                                                e.preventDefault();
-                                                adicionarPalavra();
-                                            }
-                                        }}
-                                        placeholder="Adicionar nova palavra..."
-                                        className={inputClass}
-                                    />
-
-                                    <button
-                                        type="button"
-                                        onClick={adicionarPalavra}
-                                        className="bg-gray-800 text-white px-4 rounded-md text-sm"
-                                    >
-                                        Adicionar
-                                    </button>
-                                </div>
+                                <button
+                                    type="button"
+                                    onClick={adicionarPalavra}
+                                    className="bg-gray-800 text-white px-4 rounded-md text-sm cursor-pointer"
+                                >
+                                    Adicionar
+                                </button>
                             </div>
                         </div>
+                    </div>
                 </div>
 
                 {/* COLUNA DA DIREITA */}
@@ -495,7 +496,7 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                             <button
                                 type="button"
                                 onClick={adicionarNota}
-                                className="bg-gray-800 text-white px-4 rounded-md text-sm"
+                                className="bg-gray-800 text-white px-4 rounded-md text-sm cursor-pointer"
                             >
                                 Adicionar
                             </button>

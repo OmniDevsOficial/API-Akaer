@@ -1,0 +1,108 @@
+import { useState, useRef, useEffect } from "react";
+import api from "@/services/api";
+
+interface Norma {
+    titulo: string;
+    codigo: string;
+}
+
+interface Props {
+    selecionadas: Norma[];
+    onChange: (normas: Norma[]) => void;
+}
+
+export function NormasRelatedSelector({ selecionadas, onChange }: Props) {
+    const [busca, setBusca] = useState("");
+    const [normas, setNormas] = useState<Norma[]>([]);
+    const [aberto, setAberto] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const buscarNormas = async () => {
+            try {
+                const response = await api.get('/normas/listar', {
+                    params: { texto: busca.trim() || undefined, page: 1 }
+                });
+                setNormas(response.data?.itens || []);
+            } catch (error) {
+                console.error('Erro ao buscar normas:', error);
+            }
+        };
+
+        if (aberto) {
+            buscarNormas();
+        }
+    }, [busca, aberto]);
+
+    useEffect(() => {
+        function handleClickOutside(event: any) {
+            if (ref.current && !ref.current.contains(event.target)) {
+                setAberto(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const adicionar = (norma: Norma) => {
+        if (selecionadas.some(n => n.codigo === norma.codigo)) return;
+        onChange([...selecionadas, norma]);
+        setBusca("");
+        setAberto(false);
+    };
+
+    const remover = (codigo: string) => {
+        onChange(selecionadas.filter(n => n.codigo !== codigo));
+    };
+
+    return (
+        <div className='flex flex-col text-start gap-1'>
+
+            <div ref={ref} className="bg-gray-100/80 border rounded p-2 pt-0.5 relative">
+
+                {/* Selecionadas */}
+                <div className="flex flex-wrap gap-2 mb-2">
+                    {selecionadas.map(n => (
+                        <div key={n.codigo} className="px-2 py-1 rounded bg-red-50 text-red-akaer text-sm flex items-center gap-2">
+                            {n.codigo}
+                            <button type="button" onClick={() => remover(n.codigo)} className="text-red-akaer hover:text-red-akaer/80">x</button>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Input */}
+                <input
+                    className="bg-transparent outline-none w-full"
+                    placeholder="Buscar normas para correlacionar"
+                    value={busca}
+                    onChange={(e) => setBusca(e.target.value)}
+                    onFocus={() => setAberto(true)}
+                />
+
+
+            </div>
+            {/* Coloca o Dropdown fora do campo de correlação */}
+            <div ref={ref}>
+                {/* Dropdown */}
+                {aberto && (
+                    <div className=" border rounded bg-white max-h-40 overflow-y-auto">
+                        {normas.length > 0 ? (
+                            normas.map(n => (
+                                <div key={n.codigo}
+                                    className="p-2 hover:bg-gray-100 cursor-pointer text-sm"
+                                    onClick={() => adicionar(n)}
+                                >
+                                    {n.codigo} - {n.titulo}
+                                </div>
+                            ))
+                        ) : (
+                            <div className="p-2 text-sm text-gray-400">
+                                Nenhuma norma encontrada
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};

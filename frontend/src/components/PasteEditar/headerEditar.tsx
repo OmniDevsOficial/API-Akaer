@@ -52,7 +52,9 @@ export const HeaderEditar: React.FC<Props> = ({ onSalvar }) => {
                         {"<"} Voltar
                     </button>
 
-                    <span className="text-[#B5B0AB]">Normas</span>
+                    <span 
+                    onClick={() => navigate(-1)}
+                    className="text-[#B5B0AB] cursor-pointer hover:text-black/60 transition-colors">Normas</span>
                     <span className="text-[#B5B0AB]">{">"}</span>
                     <span>{titulo || "Editar norma"}</span>
                 </div>
@@ -62,7 +64,7 @@ export const HeaderEditar: React.FC<Props> = ({ onSalvar }) => {
                         type="button"
                         onClick={() => navigate(-1)}
                         disabled={salvando}
-                        className="flex items-center text-sm text-[#6A6460] border border-font-border rounded-lg cursor-pointer py-2 px-2.5 disabled:opacity-60"
+                        className="flex items-center text-sm text-[#6A6460] border border-font-border rounded-lg cursor-pointer py-2 px-2.5 hover:bg-[#6A6460]/3 disabled:opacity-60"
                     >
                         Descartar
                     </button>
