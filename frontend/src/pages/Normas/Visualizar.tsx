@@ -24,7 +24,6 @@ import {
     BreadcrumbSeparator,
 } from "../../components/ui/breadcrumb";
 import { getNormaDetalhes, type NormaDetalhes } from "../../services/normaService";
-import { NormasRelatedSelector } from '@/components/normas-related-selector';
 
 
 interface NormaModalInfo {
@@ -37,7 +36,6 @@ interface NormaModalInfo {
     escopo?: string;
     palavrasChave?: string[];
     normaRelacionada?: string[];
-
 }
 
 const NORMA_CODIGO_PDF = "523542";
@@ -359,20 +357,27 @@ export default function Visualizar() {
                                 </section>
 
                                 {/* CORRELAÇÕES */}
-                                <section className={sectionClass}>
-                                    <header className={sectionHeaderClass}>
-                                        <FileText size={14} />
-                                        CORRELAÇÕES
-                                    </header>
-                                    <div className='grid grid-col-2 items-center justify-between py-2 border-b border-font-border last:border-none'>
-                                        <div className='col-span-2'>
-                                            <NormasRelatedSelector
-                                                selecionadas={normasRelacionada}
-                                                onChange={setNormasRelacionada}
-                                            />
-                                        </div>
-                                    </div>
-                                </section>
+<section className={sectionClass}>
+    <header className={sectionHeaderClass}>
+        <FileText size={14} />
+        CORRELAÇÕES
+    </header>
+
+    <div className="flex flex-wrap gap-2">
+        {normasRelacionada.length > 0 ? (
+            normasRelacionada.map((n) => (
+                <span
+                    key={n.codigo}
+                    className="px-3 py-1 rounded-full bg-red-50 text-sm text-red-akaer flex items-center gap-1"
+                >
+                    {n.codigo} — {n.titulo}
+                </span>
+            ))
+        ) : (
+            <span className="text-sm text-gray-400">Nenhuma correlação cadastrada</span>
+        )}
+    </div>
+</section>
 
                                 {normaMock.notas.length > 0 && (
                                     <section className="rounded-xl border border-font-border bg-white overflow-hidden">
