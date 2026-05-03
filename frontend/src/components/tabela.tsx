@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 // 1. Adicionar getNormaDetalhes ao import existente[cite: 2]
 import { listarNormas, getNormaDetalhes } from "@/services/normaService";
 
-export interface Norma { 
+export interface Norma {
     id: number;
     codigo: string;
     titulo: string;
@@ -31,6 +31,7 @@ export interface NormaSelecionadaPdf {
     arquivo?: string | null;
     escopo?: string;
     palavrasChave?: string[];
+    normaRelacionada?: { codigo: string; titulo?: string | null }[];
 }
 
 export interface TabelaNormasProps {
@@ -111,6 +112,7 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                 ...anterior,
                 escopo: detalhes.escopo ?? undefined,
                 palavrasChave: detalhes.palavras_chave ?? undefined,
+                normaRelacionada: detalhes.normas_relacionadas_ids ?? undefined,
             }));
         } catch (erro) {
             console.error("Erro ao buscar detalhes da norma para o painel:", erro);
