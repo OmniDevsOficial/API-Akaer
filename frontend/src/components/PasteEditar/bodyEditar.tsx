@@ -5,7 +5,6 @@ import {
     useImperativeHandle,
     forwardRef,
 } from "react";
-import { NormasRelatedSelector } from '@/components/normas-related-selector';
 import { useLocation } from "react-router-dom";
 import { Globe, FileText, X, Loader2 } from "lucide-react";
 import { atualizarNorma, getNormaDetalhes } from "@/services/normaService";
@@ -45,7 +44,6 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
     const [notaInput, setNotaInput] = useState("");
 
 
-    const [normasRelacionada, setNormasRelacionada] = useState<any[]>([]);
     const [correlacoes, setCorrelacoes] = useState<any[]>([]);
     const [buscaCorrelacao, setBuscaCorrelacao] = useState("");
 
