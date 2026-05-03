@@ -121,6 +121,8 @@ export default function Visualizar() {
     }, [codigo]);
 
     const dataFormatada = formatarData(norma?.data_publicacao);
+    const normasRelacionadas = norma?.normas_relacionadas_ids ?? [];
+    const notas = norma?.notas ?? [];
 
     const normaModal = norma
         ? {
@@ -240,7 +242,7 @@ export default function Visualizar() {
                                                     ))
                                                 ) : (
                                                     <span className="text-sm text-gray-400">
-                                                        Não informadas
+                                                        Nenhuma palavra-chave cadastrada
                                                     </span>
                                                 )}
                                             </div>
@@ -282,10 +284,30 @@ export default function Visualizar() {
                                         </button>
                                     </Section>
 
-                                    {norma.notas.length > 0 && (
-                                        <Section icon={<StickyNote size={14} />} title="Notas">
+                                    <Section icon={<FileText size={14} />} title="Correlações">
+                                        <div className="flex flex-wrap gap-2">
+                                            {normasRelacionadas.length > 0 ? (
+                                                normasRelacionadas.map((relacionada) => (
+                                                    <span
+                                                        key={relacionada.codigo}
+                                                        className="px-3 py-1 rounded-full bg-red-50 text-sm text-red-akaer flex items-center gap-1"
+                                                    >
+                                                        {relacionada.codigo}
+                                                        {relacionada.titulo ? ` — ${relacionada.titulo}` : ""}
+                                                    </span>
+                                                ))
+                                            ) : (
+                                                <span className="text-sm text-gray-400">
+                                                    Nenhuma correlação cadastrada
+                                                </span>
+                                            )}
+                                        </div>
+                                    </Section>
+
+                                    <Section icon={<StickyNote size={14} />} title="Notas">
+                                        {notas.length > 0 ? (
                                             <div className="flex flex-col gap-3">
-                                                {norma.notas.map((nota, index) => (
+                                                {notas.map((nota, index) => (
                                                     <div
                                                         key={nota.id ?? index}
                                                         className="rounded-lg border border-gray-200 bg-gray-50/60 p-3"
@@ -300,8 +322,12 @@ export default function Visualizar() {
                                                     </div>
                                                 ))}
                                             </div>
-                                        </Section>
-                                    )}
+                                        ) : (
+                                            <span className="text-sm text-gray-400">
+                                                Nenhuma nota cadastrada
+                                            </span>
+                                        )}
+                                    </Section>
                                 </div>
                             </div>
                         )}

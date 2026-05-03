@@ -15,6 +15,7 @@ export interface NormaDetalhes {
     arquivo: string | null;
     data_publicacao: string;
     notas: { id: number; texto: string; ordem: number }[];
+    normas_relacionadas_ids?: { codigo: string; titulo?: string | null }[];
 }
 
 export interface AtualizarNormaPayload {
