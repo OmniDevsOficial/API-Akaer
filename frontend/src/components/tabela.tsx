@@ -5,7 +5,8 @@ import { getUserRole } from '../utils/auth';
 import PdfViewerModal from "./pdf-viewer-modal";
 import type { FiltrosSelecionados } from "@/components/FilterAside/FilterAside";
 import { useNavigate } from "react-router-dom";
-import { listarNormas } from "@/services/normaService";
+// 1. Adicionar getNormaDetalhes ao import existente[cite: 2]
+import { listarNormas, getNormaDetalhes } from "@/services/normaService";
 
 export interface Norma { 
     id: number;
@@ -89,7 +90,9 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
     const quantidadeExibida = normas.length;
     const quantidadeTotal = totalNormas || quantidadeExibida;
 
-    const abrirPdf = (norma: Norma) => {
+    // 2. Substituir a função abrirPdf por esta versão async[cite: 2]
+    const abrirPdf = async (norma: Norma) => {
+        // Monta os campos que já temos da listagem imediatamente[cite: 2]
         setNormaSelecionadaPdf({
             codigo: norma.codigo,
             titulo: norma.titulo,
@@ -100,6 +103,18 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
             arquivo: norma.arquivo ?? null,
         });
         setPdfModalAberto(true);
+
+        // Busca os detalhes completos (escopo + palavras_chave) em paralelo[cite: 2]
+        try {
+            const detalhes = await getNormaDetalhes(norma.codigo);
+            setNormaSelecionadaPdf((anterior) => ({
+                ...anterior,
+                escopo: detalhes.escopo ?? undefined,
+                palavrasChave: detalhes.palavras_chave ?? undefined,
+            }));
+        } catch (erro) {
+            console.error("Erro ao buscar detalhes da norma para o painel:", erro);
+        }
     };
 
     return (
@@ -130,13 +145,13 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                 <tbody>
                     {carregando ? (
                         <tr>
-                            <td colSpan={isAdmin ? 7 : 6} className="px-6 py-6 text-sm text-gray-medium text-center">
+                            <td colSpan={isAdmin ? 8 : 7} className="px-6 py-6 text-sm text-gray-medium text-center">
                                 Carregando normas...
                             </td>
                         </tr>
                     ) : normas.length === 0 ? (
                         <tr>
-                            <td colSpan={isAdmin ? 7 : 6} className="px-6 py-6 text-sm text-gray-medium text-center">
+                            <td colSpan={isAdmin ? 8 : 7} className="px-6 py-6 text-sm text-gray-medium text-center">
                                 Nenhuma norma encontrada.
                             </td>
                         </tr>
@@ -188,7 +203,6 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                             {isAdmin && (
                                 <td className="px-6 py-4">
                                     <button className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
-                                        // ao clicar, navega para a página de edição e manda o título da norma
                                         onClick={(event) => {
                                             event.stopPropagation();
                                             navigate(`/normas/editar`, {
@@ -199,7 +213,6 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                                         <span>Editar</span>
                                     </button>
                                     <button className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
-                                        // ao clicar, navega para a página de visualização
                                         onClick={(event) => {
                                             event.stopPropagation();
                                             navigate(`/normas/ver/${encodeURIComponent(norma.codigo)}`);

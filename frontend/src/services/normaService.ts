@@ -17,12 +17,28 @@ export interface NormaDetalhes {
     notas: { id: number; texto: string; ordem: number }[];
 }
 
-/**
- * Endpoint: GET /normas/:codigo
- */
+export interface AtualizarNormaPayload {
+    titulo?: string;
+    orgao_emissor_id?: string;
+    categoria_id?: string;
+    etapa_projeto_id?: string;
+    revisao?: string;
+    status?: string;
+    escopo?: string;
+    palavras_chave?: string[];
+    notas?: string[];
+}
+
 export const getNormaDetalhes = async (codigo: string): Promise<NormaDetalhes> => {
     const response = await api.get<NormaDetalhes>(`/normas/${encodeURIComponent(codigo)}`);
     return response.data;
+};
+
+export const atualizarNorma = async (
+    codigo: string,
+    payload: AtualizarNormaPayload
+): Promise<void> => {
+    await api.put(`/normas/${encodeURIComponent(codigo)}`, payload);
 };
 
 export interface Norma {
@@ -51,8 +67,6 @@ interface ListarNormasParams {
     filtros?: FiltrosSelecionados;
 }
 
-// Serializa arrays como ?orgao=1&orgao=2 (sem colchetes)
-// para que o Express leia como string[] em req.query
 const serializarParams = (params: Record<string, unknown>): string => {
     return Object.entries(params)
         .flatMap(([key, value]) => {
