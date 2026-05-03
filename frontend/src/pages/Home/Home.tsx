@@ -18,6 +18,10 @@ export default function Home() {
     const [buscaNorma, setBuscaNorma] = useState('');
     const [filtrosSelecionados, setFiltrosSelecionados] = useState<FiltrosSelecionados>({});
 
+    const filtrosAtivos = Object.values(filtrosSelecionados).some(
+        (v) => Array.isArray(v) && v.length > 0
+    );
+
     const handleCadastroSucesso = () => {
         setRecarregarTabela((anterior) => anterior + 1);
     };
@@ -56,6 +60,7 @@ export default function Home() {
                             busca={buscaNorma}
                             onBuscaChange={setBuscaNorma}
                             onOpenFilters={() => setFiltroModalOpen(true)}
+                            filtrosAtivos={filtrosAtivos}
                         />
 
                         <FilterAside

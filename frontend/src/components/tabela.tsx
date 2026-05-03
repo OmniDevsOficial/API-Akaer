@@ -132,13 +132,7 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">CATEGORIA</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">STATUS</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">DOCUMENTO</th>
-
-                        {isAdmin && (
-                            <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">
-                                AÇÕES
-                            </th>
-                        )}
-
+                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">AÇÕES</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">VISIB.</th>
                     </tr>
                 </thead>
@@ -193,7 +187,7 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                                         event.stopPropagation();
                                         abrirPdf(norma);
                                     }}
-                                    title={norma.arquivo ? 'Visualizar PDF' : 'Sem PDF cadastrado'}
+                                    title={'Visualizar PDF'}
                                     className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
                                 >
                                     <FileText size={15} />
@@ -202,29 +196,29 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                             </td>
 
                             {/* Botão de edição e visualização */}
-                            {isAdmin && (
-                                <td className="px-6 py-4">
-                                    <button className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
-                                        onClick={(event) => {
-                                            event.stopPropagation();
-                                            navigate(`/normas/editar`, {
-                                                state: { norma }
-                                            });
-                                        }}>
-                                        <Pencil size={15} />
-                                        <span>Editar</span>
-                                    </button>
-                                    <button className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
-                                        onClick={(event) => {
-                                            event.stopPropagation();
-                                            navigate(`/normas/ver/${encodeURIComponent(norma.codigo)}`);
-                                        }}
-                                    >
-                                        <Eye size={15} />
-                                        <span>Detalhes</span>
-                                    </button>
-                                </td>
-                            )}
+
+                            <td className="px-6 py-4">
+                                {isAdmin && (<button className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        navigate(`/normas/editar`, {
+                                            state: { norma }
+                                        });
+                                    }}>
+                                    <Pencil size={15} />
+                                    <span>Editar</span>
+                                </button>)}
+                                <button className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        navigate(`/normas/ver/${encodeURIComponent(norma.codigo)}`);
+                                    }}
+                                >
+                                    <Eye size={15} />
+                                    <span>Detalhes</span>
+                                </button>
+                            </td>
+
 
                             {/* Visibilidade */}
                             <td className="px-6 py-4">

@@ -68,7 +68,7 @@ export function NormasRelatedSelector({ selecionadas, onChange, codigoAtual }: P
                 ))}
             </div>
 
-            <div ref={ref} className="bg-gray-100/80 border rounded p-2 pt-0.5 relative">
+            <div ref={ref} className="bg-gray-100/80 border rounded p-2 py-3 relative">
                 {/* Input */}
                 <input
                     className="bg-transparent outline-none w-full"

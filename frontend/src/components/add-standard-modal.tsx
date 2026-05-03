@@ -107,6 +107,7 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
         setPalavrasChave([]);
         setArquivoNorma(null);
         setCadastroConcluido(false);
+        setNormasRelacionadas([]);
     };
 
     const handleOpenChange = (nextOpen: boolean) => {
