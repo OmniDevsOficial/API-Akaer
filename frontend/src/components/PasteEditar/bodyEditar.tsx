@@ -15,6 +15,13 @@ export interface BodyEditarHandle {
     salvar: () => Promise<void>;
 }
 
+function obterNomeArquivo(arquivo?: string | null) {
+    if (!arquivo) return "";
+
+    const partes = arquivo.split(/[\\/]/);
+    return partes[partes.length - 1] || arquivo;
+}
+
 const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
     const normaBase = useLocation().state?.norma;
     const ArquivoPdf = useRef<HTMLInputElement>(null);
@@ -401,7 +408,7 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                                     <p className="text-sm font-medium">
                                         {arquivoNorma
                                             ? arquivoNorma.name
-                                            : form.arquivo || "Sem arquivo cadastrado"}
+                                            : obterNomeArquivo(form.arquivo) || "Sem arquivo cadastrado"}
                                     </p>
                                     <p className="text-xs text-gray-400">PDF</p>
                                 </div>
