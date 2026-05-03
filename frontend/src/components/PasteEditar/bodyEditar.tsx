@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useRef } from 'react';
 import { Globe, FileText, X } from 'lucide-react';
+import { NormasRelatedSelector } from '@/components/normas-related-selector';
 import api from '@/services/api';
 
 export default function BodyEditar() {
@@ -30,8 +31,8 @@ export default function BodyEditar() {
     const [notas, setNotas] = useState<string[]>(norma?.notas || []);
     const [notaInput, setNotaInput] = useState('');
 
-    const [correlacoes, setCorrelacoes] = useState<any[]>(norma?.correlacoes || []);
-    const [buscaCorrelacao, setBuscaCorrelacao] = useState('');
+
+    const [normasRelacionada, setNormasRelacionada] = useState<any[]>([]);
 
     useEffect(() => {
         const buscarOpcoes = async () => {
@@ -65,10 +66,6 @@ export default function BodyEditar() {
         if (!notaInput.trim()) return;
         setNotas(prev => [...prev, notaInput.trim()]);
         setNotaInput('');
-    };
-
-    const removerCorrelacao = (index: number) => {
-        setCorrelacoes(prev => prev.filter((_, i) => i !== index));
     };
 
     const inputClass = 'w-full border border-font-border rounded-md px-3 py-2 text-sm focus:outline-none bg-[#FAF9F7]';
@@ -238,26 +235,13 @@ export default function BodyEditar() {
                             <FileText size={14} />
                             CORRELAÇÕES
                         </header>
-
-                        <input
-                            value={buscaCorrelacao}
-                            onChange={(e) => setBuscaCorrelacao(e.target.value)}
-                            placeholder="Buscar normas para correlacionar"
-                            className={`${inputClass} mb-3`}
-                        />
-
-                        <div className='flex flex-col gap-2'>
-                            {correlacoes.map((c, i) => (
-                                <div key={i} className='flex items-center justify-between py-2 border-b border-font-border last:border-none'>
-                                    <div className='flex items-center gap-3'>
-                                        <span className='text-xs font-semibold text-red-akaer'>{c.codigo}</span>
-                                        <span className='text-xs text-gray-regular uppercase'>{c.titulo}</span>
-                                    </div>
-                                    <button onClick={() => removerCorrelacao(i)} className='text-gray-400 hover:text-red-akaer transition-colors'>
-                                        <X size={14} />
-                                    </button>
-                                </div>
-                            ))}
+                        <div className='grid grid-col-2 items-center justify-between py-2 border-b border-font-border last:border-none'>
+                            <div className='col-span-2'>
+                                <NormasRelatedSelector
+                                    selecionadas={normasRelacionada}
+                                    onChange={setNormasRelacionada}
+                                />
+                            </div>
                         </div>
                     </section>
 

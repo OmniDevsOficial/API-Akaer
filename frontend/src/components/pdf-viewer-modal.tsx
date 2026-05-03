@@ -22,6 +22,7 @@ interface PdfViewerModalProps {
         revisao?: string | null;
         escopo?: string;
         palavrasChave?: string[];
+        normaRelacionada?: string[];
     } | null;
 }
 
@@ -327,9 +328,9 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
                                         Normas Relacionadas
                                     </h3>
 
-                                    {norma?.normas_relacionadas?.length ? (
+                                    {norma?.normaRelacionada?.length ? (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-full overflow-hidden">
-                                            {norma.normas_relacionadas.map((n: any) => (
+                                            {norma.normaRelacionada.map((n: any) => (
                                                 <div
                                                     key={n.id}
                                                     className="px-3 py-1 text-sm rounded-full bg-[#eef3ff] cursor-pointer break-all w-full"
