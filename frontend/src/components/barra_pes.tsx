@@ -26,17 +26,17 @@ export default function Barra_pesquisa({ busca, onBuscaChange, onOpenFilters }: 
             <div>
                 <button
                     onClick={onOpenFilters}
-                    className="flex gap-2 items-center text-sm text-gray-medium border border-font-border rounded-md py-2 px-3 cursor-pointer"
+                    className="flex gap-2 items-center text-sm text-gray-medium border border-font-border rounded-md py-2 px-3 cursor-pointer hover:bg-red-50/60 transition-colors"
                 >
                     <IoMdSearch className='text-lg' />
-                    <div className="h-3 w-px bg-font-border "></div>
+                    <div className="h-3 w-px bg-font-border"></div>
                     <span>Filtros</span>
                 </button>
             </div>
 
             {/* Botão de Ordenar */}
             <div>
-                <button className="flex gap-2 items-center text-sm text-gray-medium border border-font-border rounded-md py-2 px-3">
+                <button className="flex gap-2 items-center text-sm text-gray-medium border border-font-border rounded-md py-2 px-3 cursor-pointer hover:bg-red-50/60 transition-colors">
                     <BiSortAlt2 className="text-lg" />
                     <div className="h-3 w-px bg-font-border"></div>
                     <span>Ordenar</span>

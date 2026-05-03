@@ -1,59 +1,99 @@
-import { useLocation } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { FaCheck } from "react-icons/fa6";
+import { Loader2 } from "lucide-react";
 
-type props = {
-    onApplyCampos: (campos: CamposSelecionados) => void;
-}
+type Props = {
+    onSalvar: () => Promise<void>;
+};
 
-export type CamposSelecionados = {
-}
-export const HeaderEditar: React.FC<props> = ({ onApplyCampos }) => {
+export const HeaderEditar: React.FC<Props> = ({ onSalvar }) => {
     const navigate = useNavigate();
     const location = useLocation();
+    const titulo = location.state?.norma?.titulo;
 
-    const titulo = location.state?.norma.titulo; // pega o título que veio da tabela
+    const [salvando, setSalvando] = useState(false);
+    const [feedback, setFeedback] = useState<{ tipo: "sucesso" | "erro"; msg: string } | null>(null);
 
-    const aplicarFiltros = () => {
-        onApplyCampos({
-            /* orgao: orgaoSelecionado,
-            categoria: categoriaSelecionada,
-            etapa: etapaSelecionada, */
-        });
-    };
+    const handleSalvar = async () => {
+        setSalvando(true);
+        setFeedback(null);
 
-    const limparFiltros = () => {
-        /* setOrgaoSelecionado(undefined);
-        setCategoriaSelecionada(undefined);
-        setEtapaSelecionada(undefined); */
+        try {
+            await onSalvar();
+            setFeedback({
+                tipo: "sucesso",
+                msg: "Norma atualizada com sucesso!",
+            });
+        } catch (err: any) {
+            const msg =
+                err?.response?.data?.error ||
+                err?.response?.data?.message ||
+                err?.message ||
+                "Erro ao salvar. Tente novamente.";
+
+            setFeedback({
+                tipo: "erro",
+                msg,
+            });
+        } finally {
+            setSalvando(false);
+        }
     };
 
     return (
-        <header className="h-16 p-8 bg-white border-b border-font-border flex items-center justify-between">
+        <header className="bg-white border-b border-font-border">
+            <div className="h-16 px-8 flex items-center justify-between">
+                <div className="flex gap-4 items-center text-sm">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="border border-[#E8E4DF] py-1.5 px-2 rounded-md text-[#6A6460] cursor-pointer"
+                    >
+                        {"<"} Voltar
+                    </button>
 
-            {/* Logo e título */}
-            <div className="flex gap-4 items-center text-sm">
-                <button onClick={() => navigate(-1)}
-                    className="border border-[#E8E4DF] py-1.5 px-2 rounded-md text-[#6A6460] cursor-pointer"> {'<'} Voltar</button>
-                <span className="text-[#B5B0AB]">Normas</span>
-                <span className="text-[#B5B0AB]">{'>'}</span>
-                <span>{titulo}</span>
-            </div>
-
-            {/* Botões */}
-            <div className="flex items-center gap-2">
-                {/* Descartar */}
-                <div className="flex items-center text-sm text-[#6A6460] border border-font-border rounded-lg cursor-pointer py-2 px-2.5">
-                    <button onClick={limparFiltros} className="cursor-pointer">Descartar</button>
-                </div>
-                {/* Confirmar */}
-                <div className="flex items-center bg-dark-title text-sm text-white rounded-lg cursor-pointer py-2 px-3">
-                    <button onClick={aplicarFiltros} className="flex items-center gap-1 cursor-pointer">
-                        <FaCheck />
-                        Salvar Alterações</button>
+                    <span 
+                    onClick={() => navigate(-1)}
+                    className="text-[#B5B0AB] cursor-pointer hover:text-black/60 transition-colors">Normas</span>
+                    <span className="text-[#B5B0AB]">{">"}</span>
+                    <span>{titulo || "Editar norma"}</span>
                 </div>
 
+                <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={() => navigate(-1)}
+                        disabled={salvando}
+                        className="flex items-center text-sm text-[#6A6460] border border-font-border rounded-lg cursor-pointer py-2 px-2.5 hover:bg-[#6A6460]/3 disabled:opacity-60"
+                    >
+                        Descartar
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={handleSalvar}
+                        disabled={salvando}
+                        className="flex items-center gap-1 bg-dark-title text-sm text-white rounded-lg py-2 px-3 disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed"
+                    >
+                        {salvando ? (
+                            <Loader2 size={14} className="animate-spin" />
+                        ) : (
+                            <FaCheck />
+                        )}
+                        Salvar Alterações
+                    </button>
+                </div>
             </div>
+
+            {feedback && (
+                <div
+                    className={`px-8 pb-2 text-xs font-medium ${
+                        feedback.tipo === "sucesso" ? "text-green-600" : "text-red-500"
+                    }`}
+                >
+                    {feedback.msg}
+                </div>
+            )}
         </header>
     );
-}
+};
