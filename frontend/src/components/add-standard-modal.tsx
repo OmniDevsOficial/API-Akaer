@@ -13,6 +13,11 @@ interface StandardModalProps {
     onSuccess: () => void;
 }
 
+interface NotaCadastro {
+    id: number;
+    texto: string;
+}
+
 function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps) {
     const [titulo, setTitulo] = useState('');
     const [orgaoEmissor, setOrgaoEmissor] = useState('');
@@ -25,6 +30,7 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
     const [escopo, setEscopo] = useState('');
     const [palavraChave, setPalavraChave] = useState('');
     const [palavrasChave, setPalavrasChave] = useState<string[]>([]);
+    const [notas, setNotas] = useState<NotaCadastro[]>([]);
     const [arquivoNorma, setArquivoNorma] = useState<File | null>(null);
     const [cadastroConcluido, setCadastroConcluido] = useState(false);
 
@@ -55,6 +61,13 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
             return;
         }
 
+        const notasFormatadas = notas
+            .map((nota, index) => ({
+                texto: nota.texto.trim(),
+                ordem: index,
+            }))
+            .filter((nota) => nota.texto !== "");
+
         const payload = {
             codigo,
             titulo,
@@ -67,6 +80,10 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
             escopo,
             // 2. CONSERTO DAS PALAVRAS-CHAVE: Envia como JSON válido
             palavras_chave: palavrasChave.length > 0 ? JSON.stringify(palavrasChave) : undefined,
+            notas: notasFormatadas.length > 0 ? JSON.stringify(notasFormatadas) : undefined,
+            normas_relacionadas_ids: normasRelacionadas.length > 0
+                ? JSON.stringify(normasRelacionadas.map((norma) => norma.codigo))
+                : undefined,
         };
 
         const formData = new FormData();
@@ -105,6 +122,8 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
         setEscopo('');
         setPalavraChave('');
         setPalavrasChave([]);
+        setNotas([]);
+        setNormasRelacionadas([]);
         setArquivoNorma(null);
         setCadastroConcluido(false);
     };
@@ -352,7 +371,7 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
 
                                     {/* Notas */}
                                     <div className='col-span-2 my-6'>
-                                        <NotasField label="NOTAS" />
+                                        <NotasField label="NOTAS" value={notas} onChange={setNotas} />
                                     </div>
 
                                     {/* Normas Relacionadas */}

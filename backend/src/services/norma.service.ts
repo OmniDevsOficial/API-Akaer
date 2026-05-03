@@ -46,6 +46,7 @@ export const createNormaService = async (data: any, filePath: string) => {
     escopo,
     notas,
     palavras_chave,
+    normas_relacionadas_ids,
   } = data;
 
   if (!codigo || !titulo || !orgao_emissor_id || !categoria_id || !data_publicacao) {
@@ -64,6 +65,7 @@ export const createNormaService = async (data: any, filePath: string) => {
   const dataPublicacao = parseBrDate(String(data_publicacao), "data_publicacao");
   const notasNormalizadas = parseNormaNotasInput(notas);
   const palavrasChaveJson = parseJsonInput(palavras_chave, "palavras_chave");
+  const normasRelacionadasIds = parseNormasRelacionadasInput(normas_relacionadas_ids);
   
   const norma = await prisma.norma.create({
     data: {
@@ -83,6 +85,10 @@ export const createNormaService = async (data: any, filePath: string) => {
 
   if (notasNormalizadas.length) {
     await createNormaNotasService(codigo, notasNormalizadas);
+  }
+
+  if (normasRelacionadasIds.length) {
+    await replaceNormasRelacionadasService(codigo, normasRelacionadasIds);
   }
 
   return norma;
