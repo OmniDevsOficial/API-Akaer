@@ -22,7 +22,7 @@ interface PdfViewerModalProps {
         revisao?: string | null;
         escopo?: string;
         palavrasChave?: string[];
-        normaRelacionada?: string[];
+        normaRelacionada?: { codigo: string; titulo?: string | null }[];
     } | null;
 }
 
@@ -316,7 +316,7 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
                                     <div className="flex flex-wrap gap-2 w-full max-w-full">
                                         {norma?.palavrasChave?.length ? (
                                             norma.palavrasChave.map((p, i) => (
-                                                <span key={i} className="px-3 py-1 text-sm rounded-full bg-[#eef3ff]">{p}</span>
+                                                <span key={i} className="px-3 py-1 text-sm rounded-xl bg-[#eef3ff]">{p}</span>
                                             ))
                                         ) : (
                                             <span className="text-sm text-gray-500">Não informadas</span>
@@ -332,11 +332,9 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-full overflow-hidden">
                                             {norma.normaRelacionada.map((n: any) => (
                                                 <div
-                                                    key={n.id}
-                                                    className="px-3 py-1 text-sm rounded-full bg-[#eef3ff] cursor-pointer break-all w-full"
-                                                >
-                                                    {n.codigo}
-                                                </div>
+                                                    key={n.codigo}
+                                                    className="px-3 py-1 text-sm rounded-xl bg-[#eef3ff] cursor-pointer break-all w-full"
+                                                >{n.codigo} - {n.titulo || ''} </div>
                                             ))}
                                         </div>
                                     ) : (
@@ -363,12 +361,7 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
                     </div>
                 </div>
 
-
-
             </DialogContent>
         </Dialog>
-
-
-
     );
 }

@@ -7,6 +7,7 @@ import {
 } from "react";
 import { useLocation } from "react-router-dom";
 import { Globe, FileText, X, Loader2 } from "lucide-react";
+import { NormasRelatedSelector } from '@/components/normas-related-selector';
 import { atualizarNorma, getNormaDetalhes } from "@/services/normaService";
 import api from "@/services/api";
 
@@ -43,9 +44,8 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
     const [notas, setNotas] = useState<string[]>([]);
     const [notaInput, setNotaInput] = useState("");
 
-
     const [correlacoes, setCorrelacoes] = useState<any[]>([]);
-    const [buscaCorrelacao, setBuscaCorrelacao] = useState("");
+    const [dadosIniciais, setDadosIniciais] = useState<any>(null);
 
     useEffect(() => {
         if (!normaBase?.codigo) {
@@ -68,31 +68,35 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                 setListaCategoria(categorias.data);
                 setListaEtapaProjeto(etapas.data);
 
-                setForm({
+                const novoForm = {
                     titulo: detalhes.titulo || "",
                     codigo: detalhes.codigo || "",
-                    orgaoEmissorId:
-                        detalhes.orgao_emissor?.id?.toString() ||
-                        (detalhes as any).orgao_emissor_id?.toString() ||
-                        "",
+                    orgaoEmissorId: detalhes.orgao_emissor?.id?.toString() || "",
                     status: detalhes.status || "Ativa",
-                    categoriaId:
-                        detalhes.categoria?.id?.toString() ||
-                        (detalhes as any).categoria_id?.toString() ||
-                        "",
-                    etapaProjetoId:
-                        detalhes.etapa_projeto?.id?.toString() ||
-                        (detalhes as any).etapa_projeto_id?.toString() ||
-                        "",
+                    categoriaId: detalhes.categoria?.id?.toString() || "",
+                    etapaProjetoId: detalhes.etapa_projeto?.id?.toString() || "",
                     revisao: detalhes.revisao || "",
                     escopo: detalhes.escopo || "",
                     dataPublicacao: detalhes.data_publicacao || "",
                     arquivo: detalhes.arquivo || "",
-                });
+                };
 
-                setPalavrasChave(detalhes.palavras_chave || []);
-                setNotas((detalhes.notas || []).map((nota: any) => nota.texto));
-                setCorrelacoes((detalhes as any).normas_relacionadas_ids || []);
+                const novasPalavras = detalhes.palavras_chave || [];
+                const novasNotas = (detalhes.notas || []).map((nota: any) => nota.texto);
+                const novasCorrelacoes = detalhes.normas_relacionadas_ids || [];
+
+                setForm(novoForm);
+                setPalavrasChave(novasPalavras);
+                setNotas(novasNotas);
+                setCorrelacoes(novasCorrelacoes);
+
+                // salva depois de tudo estar preenchido
+                setDadosIniciais({
+                    form: novoForm,
+                    palavrasChave: novasPalavras,
+                    notas: novasNotas,
+                    correlacoes: novasCorrelacoes,
+                });
             } catch (err) {
                 console.error("Erro ao carregar dados da norma:", err);
             } finally {
@@ -105,9 +109,20 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
 
     useImperativeHandle(ref, () => ({
         salvar: async () => {
+            const semAlteracao =
+                JSON.stringify(form) === JSON.stringify(dadosIniciais?.form) &&
+                JSON.stringify(palavrasChave) === JSON.stringify(dadosIniciais?.palavrasChave) &&
+                JSON.stringify(notas) === JSON.stringify(dadosIniciais?.notas) &&
+                JSON.stringify(correlacoes) === JSON.stringify(dadosIniciais?.correlacoes);
+            console.log(dadosIniciais)
+            if (semAlteracao) {
+                throw new Error("Nenhuma alteração foi feita.");
+            }
             if (!form.codigo) {
                 throw new Error("Código da norma não encontrado para atualização.");
             }
+
+
 
             const payload = {
                 titulo: form.titulo,
@@ -119,6 +134,7 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                 escopo: form.escopo || undefined,
                 palavras_chave: palavrasChave,
                 notas,
+                normas_relacionadas_ids: correlacoes.map((c: any) => c.codigo),
             };
 
             await atualizarNorma(form.codigo, payload);
@@ -151,20 +167,14 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
         setNotas((prev) => prev.filter((_, i) => i !== index));
     };
 
-    const removerCorrelacao = (index: number) => {
-        setCorrelacoes((prev) => prev.filter((_, i) => i !== index));
-    };
-
     const dataFormatada = form.dataPublicacao
         ? new Date(form.dataPublicacao).toLocaleDateString("pt-BR")
         : "—";
 
-    const inputClass =
-        "w-full border border-font-border rounded-md px-3 py-2 text-sm focus:outline-none bg-[#FAF9F7]";
+    const inputClass = "w-full border border-font-border rounded-md px-3 py-2 text-sm focus:outline-none bg-[#FAF9F7]";
     const labelClass = "text-xs text-gray-400 tracking-widest block mb-1";
     const sectionClass = "border border-font-border rounded-md p-4";
-    const sectionHeaderClass =
-        "flex items-center gap-2 border-b border-font-border pb-3 mb-4 text-xs font-semibold tracking-widest text-gray-regular";
+    const sectionHeaderClass = "flex items-center gap-2 border-b border-font-border pb-3 mb-4 text-xs font-semibold tracking-widest text-gray-regular";
 
     if (carregando) {
         return (
@@ -286,10 +296,11 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        {/* DETALHES E CATEGORIZAÇÃO */}
+                    {/* DETALHES E CATEGORIZAÇÃO */}
 
-                    </div><div className={sectionClass}>
+                    <div className={sectionClass}>
                         <div className={sectionHeaderClass}>
                             <FileText size={14} />
                             DETALHES E CATEGORIZAÇÃO
@@ -303,10 +314,14 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                                 className={`${inputClass} min-h-[100px] resize-y`}
                             />
                         </div>
-                        <div className={sectionClass}>
+
+                    </div>
+
+                    <div className={sectionClass}>
+                        <div className='mt-3'>
                             <div className={sectionHeaderClass}>
                                 <FileText size={14} />
-                                TAGS / PALAVRAS-CHAVE
+                                PALAVRAS-CHAVE
                             </div>
 
                             {/* PALAVRAS-CHAVE */}
@@ -316,7 +331,7 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                                         {palavrasChave.map((palavra, index) => (
                                             <span
                                                 key={`${palavra}-${index}`}
-                                                className="flex items-center gap-1 bg-gray-100 border border-font-border px-2 py-1 rounded text-xs text-gray-700"
+                                                className="flex items-center gap-1 bg-[#FAF9F7] text-dark-title border border-font-border px-2 py-1 rounded text-sm"
                                             >
                                                 {palavra}
                                                 <X
@@ -412,38 +427,11 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                             CORRELAÇÕES
                         </div>
 
-                        <input
-                            value={buscaCorrelacao}
-                            onChange={(e) => setBuscaCorrelacao(e.target.value)}
-                            placeholder="Buscar normas para correlacionar"
-                            className={`${inputClass} mb-3`}
+                        <NormasRelatedSelector
+                            selecionadas={correlacoes}
+                            onChange={setCorrelacoes}
+                            codigoAtual={form.codigo}
                         />
-
-                        {correlacoes.length > 0 ? (
-                            <div className="flex flex-wrap gap-2">
-                                {correlacoes.map((correlacao, index) => (
-                                    <span
-                                        key={correlacao.codigo ?? index}
-                                        className="px-3 py-1 rounded-full bg-red-50 text-sm text-red-akaer flex items-center gap-1"
-                                    >
-                                        {correlacao.codigo}
-                                        {correlacao.titulo ? ` — ${correlacao.titulo}` : ""}
-
-                                        <button
-                                            type="button"
-                                            onClick={() => removerCorrelacao(index)}
-                                            className="ml-1 text-red-akaer hover:opacity-70"
-                                        >
-                                            <X size={12} />
-                                        </button>
-                                    </span>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className={`${inputClass} text-gray-400`}>
-                                Nenhuma correlação cadastrada
-                            </div>
-                        )}
                     </div>
 
                     {/* NOTAS */}

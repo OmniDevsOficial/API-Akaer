@@ -9,9 +9,10 @@ interface Norma {
 interface Props {
     selecionadas: Norma[];
     onChange: (normas: Norma[]) => void;
+    codigoAtual?: string;
 }
 
-export function NormasRelatedSelector({ selecionadas, onChange }: Props) {
+export function NormasRelatedSelector({ selecionadas, onChange, codigoAtual }: Props) {
     const [busca, setBusca] = useState("");
     const [normas, setNormas] = useState<Norma[]>([]);
     const [aberto, setAberto] = useState(false);
@@ -23,7 +24,7 @@ export function NormasRelatedSelector({ selecionadas, onChange }: Props) {
                 const response = await api.get('/normas/listar', {
                     params: { texto: busca.trim() || undefined, page: 1 }
                 });
-                setNormas(response.data?.itens || []);
+                setNormas((response.data?.itens || []).filter((n: any) => n.codigo !== codigoAtual));
             } catch (error) {
                 console.error('Erro ao buscar normas:', error);
             }
@@ -57,19 +58,17 @@ export function NormasRelatedSelector({ selecionadas, onChange }: Props) {
 
     return (
         <div className='flex flex-col text-start gap-1'>
+            {/* Selecionadas */}
+            <div className="flex flex-wrap gap-2 mb-2">
+                {selecionadas.map(n => (
+                    <div key={n.codigo} className="flex items-center gap-2 px-2 py-1 rounded bg-[#FAF9F7] text-dark-title text-sm border border-font-border rounded-sm">
+                        {n.codigo} - {n.titulo}
+                        <button type="button" onClick={() => remover(n.codigo)} className="text-dark-title hover:text-dark-title/80">x</button>
+                    </div>
+                ))}
+            </div>
 
             <div ref={ref} className="bg-gray-100/80 border rounded p-2 pt-0.5 relative">
-
-                {/* Selecionadas */}
-                <div className="flex flex-wrap gap-2 mb-2">
-                    {selecionadas.map(n => (
-                        <div key={n.codigo} className="px-2 py-1 rounded bg-red-50 text-red-akaer text-sm flex items-center gap-2">
-                            {n.codigo}
-                            <button type="button" onClick={() => remover(n.codigo)} className="text-red-akaer hover:text-red-akaer/80">x</button>
-                        </div>
-                    ))}
-                </div>
-
                 {/* Input */}
                 <input
                     className="bg-transparent outline-none w-full"
@@ -78,9 +77,8 @@ export function NormasRelatedSelector({ selecionadas, onChange }: Props) {
                     onChange={(e) => setBusca(e.target.value)}
                     onFocus={() => setAberto(true)}
                 />
-
-
             </div>
+
             {/* Coloca o Dropdown fora do campo de correlação */}
             <div ref={ref}>
                 {/* Dropdown */}

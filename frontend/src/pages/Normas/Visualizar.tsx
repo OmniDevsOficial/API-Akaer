@@ -65,9 +65,8 @@ function ReadOnlyField({ label, value, icon }: ReadOnlyFieldProps) {
                 )}
 
                 <input
-                    className={`bg-gray-100/80 border rounded h-10 pr-2 text-gray-700 ${
-                        icon ? "pl-8" : "px-2"
-                    }`}
+                    className={`bg-gray-100/80 border rounded h-10 pr-2 text-gray-700 ${icon ? "pl-8" : "px-2"
+                        }`}
                     value={value || "Não informado"}
                     readOnly
                 />
@@ -121,7 +120,7 @@ export default function Visualizar() {
     }, [codigo]);
 
     const dataFormatada = formatarData(norma?.data_publicacao);
-    const normasRelacionadas = norma?.normas_relacionadas_ids ?? [];
+    const normasRelacionada = norma?.normas_relacionadas_ids ?? [];
     const notas = norma?.notas ?? [];
 
     const normaModal = norma
@@ -134,6 +133,7 @@ export default function Visualizar() {
             revisao: norma.revisao,
             escopo: norma.escopo ?? undefined,
             palavrasChave: norma.palavras_chave ?? undefined,
+            normaRelacionada: norma.normas_relacionadas_ids ?? undefined,
         }
         : null;
 
@@ -286,14 +286,14 @@ export default function Visualizar() {
 
                                     <Section icon={<FileText size={14} />} title="Correlações">
                                         <div className="flex flex-wrap gap-2">
-                                            {normasRelacionadas.length > 0 ? (
-                                                normasRelacionadas.map((relacionada) => (
+                                            {normasRelacionada.length > 0 ? (
+                                                normasRelacionada.map((n: any) => (
                                                     <span
-                                                        key={relacionada.codigo}
+                                                        key={n.codigo}
                                                         className="px-3 py-1 rounded-full bg-red-50 text-sm text-red-akaer flex items-center gap-1"
                                                     >
-                                                        {relacionada.codigo}
-                                                        {relacionada.titulo ? ` — ${relacionada.titulo}` : ""}
+                                                        {n.codigo}
+                                                        {n.titulo ? ` — ${n.titulo}` : ""}
                                                     </span>
                                                 ))
                                             ) : (
