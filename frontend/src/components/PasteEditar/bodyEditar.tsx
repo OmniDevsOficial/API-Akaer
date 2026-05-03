@@ -154,6 +154,11 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
 
     const adicionarPalavra = () => {
         if (!palavraInput.trim()) return;
+        
+        if (palavrasChave.includes(palavraInput.trim())) {
+            alert('Palavra-chave já inserida');
+            return;
+        }
 
         setPalavrasChave((prev) => [...prev, palavraInput.trim()]);
         setPalavraInput("");

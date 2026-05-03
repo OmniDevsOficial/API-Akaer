@@ -85,7 +85,7 @@ export function NormasRelatedSelector({ selecionadas, onChange, codigoAtual }: P
             </div>
 
             <div ref={ref} className="relative">
-                <div className="bg-gray-100/80 border rounded p-2 pt-0.5">
+                <div className="bg-gray-100/80 border rounded p-2 py-3">
                     <input
                         className="bg-transparent outline-none w-full"
                         placeholder="Buscar normas para correlacionar"

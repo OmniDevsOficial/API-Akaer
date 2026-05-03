@@ -10,9 +10,10 @@ interface BarraPesquisaProps {
     busca: string;
     onBuscaChange: (value: string) => void;
     onOpenFilters: () => void;
+    filtrosAtivos: boolean
 }
 
-export default function Barra_pesquisa({ busca, onBuscaChange, onOpenFilters }: BarraPesquisaProps) {
+export default function Barra_pesquisa({ busca, onBuscaChange, onOpenFilters, filtrosAtivos }: BarraPesquisaProps) {
     return (
         <div className="flex items-center gap-4 my-6">
             {/* Barra de Pesquisa */}
@@ -26,10 +27,14 @@ export default function Barra_pesquisa({ busca, onBuscaChange, onOpenFilters }: 
             <div>
                 <button
                     onClick={onOpenFilters}
-                    className="flex gap-2 items-center text-sm text-gray-medium border border-font-border rounded-md py-2 px-3 cursor-pointer hover:bg-red-50/60 transition-colors"
+                    className={`flex gap-2 items-center text-sm border rounded-md py-2 px-3 cursor-pointer transition-colors ${
+                        filtrosAtivos 
+                        ? "bg-[#F5D5D0] text-red-akaer/85 border-red-akaer/85"
+                        : "text-gray-medium border-font-border hover:bg-red-50/60"
+                    }`}
                 >
                     <IoMdSearch className='text-lg' />
-                    <div className="h-3 w-px bg-font-border"></div>
+                    <div className={`h-3 w-px ${filtrosAtivos ? "bg-red-akaer/85" : "bg-font-border"}`}></div>
                     <span>Filtros</span>
                 </button>
             </div>
