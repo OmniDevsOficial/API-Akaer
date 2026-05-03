@@ -7,8 +7,8 @@ import {
 } from "react";
 import { useLocation } from "react-router-dom";
 import { Globe, FileText, X, Loader2 } from "lucide-react";
-import api from "@/services/api";
 import { atualizarNorma, getNormaDetalhes } from "@/services/normaService";
+import api from "@/services/api";
 
 export interface BodyEditarHandle {
     salvar: () => Promise<void>;
@@ -175,324 +175,332 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
     }
 
     return (
-        <div className="flex flex-col gap-6 p-6 overflow-y-auto max-h-[calc(100vh-200px)]">
-            {/* INFORMAÇÕES BÁSICAS */}
-            <div className={sectionClass}>
-                <div className={sectionHeaderClass}>
-                    <Globe size={14} />
-                    INFORMAÇÕES BÁSICAS
-                </div>
+        <div className="min-h-screen bg-white p-8 font-dm">
+            <div className="grid grid-cols-[1fr_400px] gap-6">
+                {/* INFORMAÇÕES BÁSICAS */}
+                <div className="flex flex-col gap-6">
 
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="col-span-2">
-                        <label className={labelClass}>TÍTULO</label>
-                        <input
-                            type="text"
-                            value={form.titulo}
-                            onChange={(e) => handleChange("titulo", e.target.value)}
-                            className={inputClass}
-                        />
-                    </div>
-
-                    <div>
-                        <label className={labelClass}>CÓDIGO DA NORMA</label>
-                        <input
-                            type="text"
-                            value={form.codigo}
-                            disabled
-                            className={`${inputClass} opacity-60 cursor-not-allowed`}
-                        />
-                    </div>
-
-                    <div>
-                        <label className={labelClass}>ÓRGÃO EMISSOR</label>
-                        <select
-                            value={form.orgaoEmissorId}
-                            onChange={(e) => handleChange("orgaoEmissorId", e.target.value)}
-                            className={inputClass}
-                        >
-                            <option value="">Selecione...</option>
-                            {listaOrgao.map((orgao) => (
-                                <option key={orgao.id} value={orgao.id}>
-                                    {orgao.nome?.trim() || `Órgão ${orgao.id}`}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className={labelClass}>DATA DE PUBLICAÇÃO</label>
-                        <p className="text-sm text-gray-700">{dataFormatada}</p>
-                    </div>
-
-                    <div>
-                        <label className={labelClass}>REVISÃO</label>
-                        <input
-                            type="text"
-                            value={form.revisao}
-                            onChange={(e) => handleChange("revisao", e.target.value)}
-                            className={inputClass}
-                            maxLength={1}
-                        />
-                    </div>
-
-                    <div>
-                        <label className={labelClass}>STATUS</label>
-                        <select
-                            value={form.status}
-                            onChange={(e) => handleChange("status", e.target.value)}
-                            className={inputClass}
-                        >
-                            <option value="Ativa">Ativa</option>
-                            <option value="Obsoleta">Obsoleta</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            {/* DETALHES E CATEGORIZAÇÃO */}
-            <div className={sectionClass}>
-                <div className={sectionHeaderClass}>
-                    <FileText size={14} />
-                    DETALHES E CATEGORIZAÇÃO
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className={labelClass}>CATEGORIA</label>
-                        <select
-                            value={form.categoriaId}
-                            onChange={(e) => handleChange("categoriaId", e.target.value)}
-                            className={inputClass}
-                        >
-                            <option value="">Selecione...</option>
-                            {listaCategoria.map((categoria) => (
-                                <option key={categoria.id} value={categoria.id}>
-                                    {categoria.nome}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className={labelClass}>ETAPA DO PROJETO</label>
-                        <select
-                            value={form.etapaProjetoId}
-                            onChange={(e) => handleChange("etapaProjetoId", e.target.value)}
-                            className={inputClass}
-                        >
-                            <option value="">Selecione...</option>
-                            {listaEtapaProjeto.map((etapa) => (
-                                <option key={etapa.id} value={etapa.id}>
-                                    {etapa.nome}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div className="col-span-2">
-                        <label className={labelClass}>ESCOPO</label>
-                        <textarea
-                            value={form.escopo}
-                            onChange={(e) => handleChange("escopo", e.target.value)}
-                            className={`${inputClass} min-h-[100px] resize-y`}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            {/* ARQUIVO PDF */}
-            <div className={sectionClass}>
-                <div className={sectionHeaderClass}>
-                    <FileText size={14} />
-                    ARQUIVO PDF
-                </div>
-
-                <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-red-50 rounded-md">
-                            <FileText size={20} className="text-red-akaer" />
+                    <div className={sectionClass}>
+                        <div className={sectionHeaderClass}>
+                            <Globe size={14} />
+                            INFORMAÇÕES BÁSICAS
                         </div>
 
-                        <div>
-                            <p className="text-sm font-medium">
-                                {arquivoNorma
-                                    ? arquivoNorma.name
-                                    : form.arquivo || "Sem arquivo cadastrado"}
-                            </p>
-                            <p className="text-xs text-gray-400">PDF</p>
-                        </div>
-                    </div>
-
-                    <input
-                        ref={ArquivoPdf}
-                        type="file"
-                        accept=".pdf"
-                        className="hidden"
-                        onChange={(e) => setArquivoNorma(e.target.files?.[0] || null)}
-                    />
-
-                    <button
-                        type="button"
-                        onClick={() => ArquivoPdf.current?.click()}
-                        className="text-xs border border-font-border rounded-md px-3 py-1.5 text-gray-500 hover:bg-gray-50 transition-colors"
-                    >
-                        ↺ Substituir
-                    </button>
-                </div>
-            </div>
-
-            {/* CORRELAÇÕES */}
-            <div className={sectionClass}>
-                <div className={sectionHeaderClass}>
-                    <FileText size={14} />
-                    CORRELAÇÕES
-                </div>
-
-                <input
-                    value={buscaCorrelacao}
-                    onChange={(e) => setBuscaCorrelacao(e.target.value)}
-                    placeholder="Buscar normas para correlacionar"
-                    className={`${inputClass} mb-3`}
-                />
-
-                {correlacoes.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                        {correlacoes.map((correlacao, index) => (
-                            <span
-                                key={correlacao.codigo ?? index}
-                                className="px-3 py-1 rounded-full bg-red-50 text-sm text-red-akaer flex items-center gap-1"
-                            >
-                                {correlacao.codigo}
-                                {correlacao.titulo ? ` — ${correlacao.titulo}` : ""}
-
-                                <button
-                                    type="button"
-                                    onClick={() => removerCorrelacao(index)}
-                                    className="ml-1 text-red-akaer hover:opacity-70"
-                                >
-                                    <X size={12} />
-                                </button>
-                            </span>
-                        ))}
-                    </div>
-                ) : (
-                    <div className={`${inputClass} text-gray-400`}>
-                        Nenhuma correlação cadastrada
-                    </div>
-                )}
-            </div>
-
-            {/* PALAVRAS-CHAVE */}
-            <div className={sectionClass}>
-                <div className={sectionHeaderClass}>
-                    <FileText size={14} />
-                    TAGS / PALAVRAS-CHAVE
-                </div>
-
-                <div className="mb-3">
-                    {palavrasChave.length > 0 ? (
-                        <div className="flex flex-wrap gap-2">
-                            {palavrasChave.map((palavra, index) => (
-                                <span
-                                    key={`${palavra}-${index}`}
-                                    className="flex items-center gap-1 bg-gray-100 border border-font-border px-2 py-1 rounded text-xs text-gray-700"
-                                >
-                                    {palavra}
-                                    <X
-                                        size={12}
-                                        className="cursor-pointer hover:text-red-500"
-                                        onClick={() => removerPalavra(index)}
-                                    />
-                                </span>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="rounded-md border border-dashed border-font-border bg-[#FAF9F7] px-3 py-2 text-sm text-gray-400">
-                            Nenhuma palavra-chave cadastrada
-                        </div>
-                    )}
-                </div>
-
-                <div className="flex gap-2">
-                    <input
-                        type="text"
-                        value={palavraInput}
-                        onChange={(e) => setPalavraInput(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                                e.preventDefault();
-                                adicionarPalavra();
-                            }
-                        }}
-                        placeholder="Adicionar nova palavra..."
-                        className={inputClass}
-                    />
-
-                    <button
-                        type="button"
-                        onClick={adicionarPalavra}
-                        className="bg-gray-800 text-white px-4 rounded-md text-sm"
-                    >
-                        Adicionar
-                    </button>
-                </div>
-            </div>
-
-            {/* NOTAS */}
-            <div className={sectionClass}>
-                <div className={sectionHeaderClass}>
-                    <FileText size={14} />
-                    NOTAS
-                </div>
-
-                <div className="flex flex-col gap-2 mb-3">
-                    {notas.length > 0 ? (
-                        notas.map((nota, index) => (
-                            <div
-                                key={`${nota}-${index}`}
-                                className="flex items-start justify-between gap-2 bg-[#FAF9F7] border border-font-border rounded-sm p-2"
-                            >
-                                <p className="text-sm text-gray-regular flex-1">{nota}</p>
-
-                                <button
-                                    type="button"
-                                    onClick={() => removerNota(index)}
-                                    className="text-gray-400 hover:text-red-akaer transition-colors shrink-0 mt-0.5"
-                                >
-                                    <X size={12} />
-                                </button>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="col-span-2">
+                                <label className={labelClass}>TÍTULO</label>
+                                <input
+                                    type="text"
+                                    value={form.titulo}
+                                    onChange={(e) => handleChange("titulo", e.target.value)}
+                                    className={inputClass}
+                                />
                             </div>
-                        ))
-                    ) : (
-                        <div className="rounded-md border border-dashed border-font-border bg-[#FAF9F7] px-3 py-2 text-sm text-gray-400">
-                            Nenhuma nota cadastrada
+
+                            <div>
+                                <label className={labelClass}>CÓDIGO DA NORMA</label>
+                                <input
+                                    type="text"
+                                    value={form.codigo}
+                                    disabled
+                                    className={`${inputClass} opacity-60 cursor-not-allowed`}
+                                />
+                            </div>
+
+                            <div>
+                                <label className={labelClass}>ÓRGÃO EMISSOR</label>
+                                <select
+                                    value={form.orgaoEmissorId}
+                                    onChange={(e) => handleChange("orgaoEmissorId", e.target.value)}
+                                    className={inputClass}
+                                >
+                                    <option value="">Selecione...</option>
+                                    {listaOrgao.map((orgao) => (
+                                        <option key={orgao.id} value={orgao.id}>
+                                            {orgao.nome?.trim() || `Órgão ${orgao.id}`}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className={labelClass}>DATA DE PUBLICAÇÃO</label>
+                                <p className={inputClass}>{dataFormatada}</p>
+                            </div>
+
+                            <div>
+                                <label className={labelClass}>REVISÃO</label>
+                                <input
+                                    type="text"
+                                    value={form.revisao}
+                                    onChange={(e) => handleChange("revisao", e.target.value)}
+                                    className={inputClass}
+                                    maxLength={1}
+                                />
+                            </div>
+
+                            <div>
+                                <label className={labelClass}>STATUS</label>
+                                <select
+                                    value={form.status}
+                                    onChange={(e) => handleChange("status", e.target.value)}
+                                    className={inputClass}
+                                >
+                                    <option value="Ativa">Ativa</option>
+                                    <option value="Obsoleta">Obsoleta</option>
+                                </select>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className={labelClass}>CATEGORIA</label>
+                                    <select
+                                        value={form.categoriaId}
+                                        onChange={(e) => handleChange("categoriaId", e.target.value)}
+                                        className={inputClass}
+                                    >
+                                        <option value="">Selecione...</option>
+                                        {listaCategoria.map((categoria) => (
+                                            <option key={categoria.id} value={categoria.id}>
+                                                {categoria.nome}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className={labelClass}>ETAPA DO PROJETO</label>
+                                    <select
+                                        value={form.etapaProjetoId}
+                                        onChange={(e) => handleChange("etapaProjetoId", e.target.value)}
+                                        className={inputClass}
+                                    >
+                                        <option value="">Selecione...</option>
+                                        {listaEtapaProjeto.map((etapa) => (
+                                            <option key={etapa.id} value={etapa.id}>
+                                                {etapa.nome}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-                    )}
+
+                        {/* DETALHES E CATEGORIZAÇÃO */}
+                        
+                    </div><div className={sectionClass}>
+                            <div className={sectionHeaderClass}>
+                                <FileText size={14} />
+                                DETALHES E CATEGORIZAÇÃO
+                            </div>
+
+                            <div className="col-span-2">
+                                <label className={labelClass}>ESCOPO</label>
+                                <textarea
+                                    value={form.escopo}
+                                    onChange={(e) => handleChange("escopo", e.target.value)}
+                                    className={`${inputClass} min-h-[100px] resize-y`}
+                                />
+                            </div>
+                            <div className={sectionClass}>
+                                <div className={sectionHeaderClass}>
+                                    <FileText size={14} />
+                                    TAGS / PALAVRAS-CHAVE
+                                </div>
+
+                                {/* PALAVRAS-CHAVE */}
+                                <div className="mb-3">
+                                    {palavrasChave.length > 0 ? (
+                                        <div className="flex flex-wrap gap-2">
+                                            {palavrasChave.map((palavra, index) => (
+                                                <span
+                                                    key={`${palavra}-${index}`}
+                                                    className="flex items-center gap-1 bg-gray-100 border border-font-border px-2 py-1 rounded text-xs text-gray-700"
+                                                >
+                                                    {palavra}
+                                                    <X
+                                                        size={12}
+                                                        className="cursor-pointer hover:text-red-500"
+                                                        onClick={() => removerPalavra(index)}
+                                                    />
+                                                </span>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="rounded-md border border-dashed border-font-border bg-[#FAF9F7] px-3 py-2 text-sm text-gray-400">
+                                            Nenhuma palavra-chave cadastrada
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={palavraInput}
+                                        onChange={(e) => setPalavraInput(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                                e.preventDefault();
+                                                adicionarPalavra();
+                                            }
+                                        }}
+                                        placeholder="Adicionar nova palavra..."
+                                        className={inputClass}
+                                    />
+
+                                    <button
+                                        type="button"
+                                        onClick={adicionarPalavra}
+                                        className="bg-gray-800 text-white px-4 rounded-md text-sm"
+                                    >
+                                        Adicionar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                 </div>
 
-                <div className="flex gap-2">
-                    <input
-                        type="text"
-                        value={notaInput}
-                        onChange={(e) => setNotaInput(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                                e.preventDefault();
-                                adicionarNota();
-                            }
-                        }}
-                        placeholder="Escrever uma nota..."
-                        className={inputClass}
-                    />
+                {/* COLUNA DA DIREITA */}
+                <div className="flex flex-col gap-6">
 
-                    <button
-                        type="button"
-                        onClick={adicionarNota}
-                        className="bg-gray-800 text-white px-4 rounded-md text-sm"
-                    >
-                        Adicionar
-                    </button>
+                    {/* ARQUIVO PDF */}
+                    <div className={sectionClass}>
+                        <div className={sectionHeaderClass}>
+                            <FileText size={14} />
+                            ARQUIVO PDF
+                        </div>
+
+                        <div className="flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-red-50 rounded-md">
+                                    <FileText size={20} className="text-red-akaer" />
+                                </div>
+
+                                <div>
+                                    <p className="text-sm font-medium">
+                                        {arquivoNorma
+                                            ? arquivoNorma.name
+                                            : form.arquivo || "Sem arquivo cadastrado"}
+                                    </p>
+                                    <p className="text-xs text-gray-400">PDF</p>
+                                </div>
+                            </div>
+
+                            <input
+                                ref={ArquivoPdf}
+                                type="file"
+                                accept=".pdf"
+                                className="hidden"
+                                onChange={(e) => setArquivoNorma(e.target.files?.[0] || null)}
+                            />
+
+                            <button
+                                type="button"
+                                onClick={() => ArquivoPdf.current?.click()}
+                                className="text-xs border border-font-border rounded-md px-3 py-1.5 text-gray-500 hover:bg-gray-50 transition-colors"
+                            >
+                                ↺ Substituir
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* CORRELAÇÕES */}
+                    <div className={sectionClass}>
+                        <div className={sectionHeaderClass}>
+                            <FileText size={14} />
+                            CORRELAÇÕES
+                        </div>
+
+                        <input
+                            value={buscaCorrelacao}
+                            onChange={(e) => setBuscaCorrelacao(e.target.value)}
+                            placeholder="Buscar normas para correlacionar"
+                            className={`${inputClass} mb-3`}
+                        />
+
+                        {correlacoes.length > 0 ? (
+                            <div className="flex flex-wrap gap-2">
+                                {correlacoes.map((correlacao, index) => (
+                                    <span
+                                        key={correlacao.codigo ?? index}
+                                        className="px-3 py-1 rounded-full bg-red-50 text-sm text-red-akaer flex items-center gap-1"
+                                    >
+                                        {correlacao.codigo}
+                                        {correlacao.titulo ? ` — ${correlacao.titulo}` : ""}
+
+                                        <button
+                                            type="button"
+                                            onClick={() => removerCorrelacao(index)}
+                                            className="ml-1 text-red-akaer hover:opacity-70"
+                                        >
+                                            <X size={12} />
+                                        </button>
+                                    </span>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className={`${inputClass} text-gray-400`}>
+                                Nenhuma correlação cadastrada
+                            </div>
+                        )}
+                    </div>
+
+                    {/* NOTAS */}
+                    <div className={sectionClass}>
+                        <div className={sectionHeaderClass}>
+                            <FileText size={14} />
+                            NOTAS
+                        </div>
+
+                        <div className="flex flex-col gap-2 mb-3">
+                            {notas.length > 0 ? (
+                                notas.map((nota, index) => (
+                                    <div
+                                        key={`${nota}-${index}`}
+                                        className="flex items-start justify-between gap-2 bg-[#FAF9F7] border border-font-border rounded-sm p-2"
+                                    >
+                                        <p className="text-sm text-gray-regular flex-1">{nota}</p>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => removerNota(index)}
+                                            className="text-gray-400 hover:text-red-akaer transition-colors shrink-0 mt-0.5"
+                                        >
+                                            <X size={12} />
+                                        </button>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="rounded-md border border-dashed border-font-border bg-[#FAF9F7] px-3 py-2 text-sm text-gray-400">
+                                    Nenhuma nota cadastrada
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                value={notaInput}
+                                onChange={(e) => setNotaInput(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        e.preventDefault();
+                                        adicionarNota();
+                                    }
+                                }}
+                                placeholder="Escrever uma nota..."
+                                className={inputClass}
+                            />
+
+                            <button
+                                type="button"
+                                onClick={adicionarNota}
+                                className="bg-gray-800 text-white px-4 rounded-md text-sm"
+                            >
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
