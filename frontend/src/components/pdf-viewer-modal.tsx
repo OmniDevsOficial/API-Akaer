@@ -22,7 +22,7 @@ interface PdfViewerModalProps {
         revisao?: string | null;
         escopo?: string;
         palavrasChave?: string[];
-        normaRelacionada?: { codigo: string, titulo?: string }[];
+        normaRelacionada?: { codigo: string; titulo?: string | null }[];
     } | null;
 }
 
@@ -361,12 +361,7 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
                     </div>
                 </div>
 
-
-
             </DialogContent>
         </Dialog>
-
-
-
     );
 }

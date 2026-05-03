@@ -167,10 +167,6 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
         setNotas((prev) => prev.filter((_, i) => i !== index));
     };
 
-    const removerCorrelacao = (index: number) => {
-        setCorrelacoes((prev) => prev.filter((_, i) => i !== index));
-    };
-
     const dataFormatada = form.dataPublicacao
         ? new Date(form.dataPublicacao).toLocaleDateString("pt-BR")
         : "—";
