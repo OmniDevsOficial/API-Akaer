@@ -80,6 +80,13 @@ function formatarData(data?: string | null) {
     return new Date(data).toLocaleDateString("pt-BR");
 }
 
+function obterNomeArquivo(arquivo?: string | null) {
+    if (!arquivo) return null;
+
+    const partes = arquivo.split(/[\\/]/);
+    return partes[partes.length - 1] || arquivo;
+}
+
 export default function Visualizar() {
     const { codigo } = useParams<{ codigo: string }>();
 
@@ -120,6 +127,7 @@ export default function Visualizar() {
     }, [codigo]);
 
     const dataFormatada = formatarData(norma?.data_publicacao);
+    const nomeArquivo = obterNomeArquivo(norma?.arquivo);
     const normasRelacionada = norma?.normas_relacionadas_ids ?? [];
     const notas = norma?.notas ?? [];
 
@@ -265,7 +273,7 @@ export default function Visualizar() {
 
                                                 <div className="flex-1">
                                                     <p className="text-sm font-semibold text-dark-title">
-                                                        {norma.arquivo ?? "Sem arquivo cadastrado"}
+                                                        {nomeArquivo ?? "Sem arquivo cadastrado"}
                                                     </p>
 
                                                     <div className="mt-3 flex flex-wrap gap-3 text-xs text-gray-500">
