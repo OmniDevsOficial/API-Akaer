@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FileText, Pencil, Globe, Eye } from "lucide-react";
+import { FileText, Pencil, Eye } from "lucide-react";
 // import api from "@/services/api";
 import { getUserRole } from '../utils/auth';
 import PdfViewerModal from "./pdf-viewer-modal";
@@ -133,7 +133,6 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">STATUS</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">DOCUMENTO</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">AÇÕES</th>
-                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">VISIB.</th>
                     </tr>
                 </thead>
 
@@ -217,15 +216,6 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                                     <Eye size={15} />
                                     <span>Detalhes</span>
                                 </button>
-                            </td>
-
-
-                            {/* Visibilidade */}
-                            <td className="px-6 py-4">
-                                <div className="flex items-center gap-1.5 text-sm text-gray-700">
-                                    <Globe size={15} />
-                                    <span>Público</span>
-                                </div>
                             </td>
 
                         </tr>
