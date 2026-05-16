@@ -101,7 +101,7 @@ export function NormasRelatedSelector({ selecionadas, onChange, codigoAtual }: P
                             normas.map(n => (
                                 <div
                                     key={n.codigo}
-                                    className="p-2 hover:bg-gray-100 cursor-pointer text-sm"
+                                    className={`${selecionadas.some(norma => norma.codigo === n.codigo) ? "bg-gray-100 cursor-not-allowed text-gray-600" : "hover:bg-gray-100 cursor-pointer"} p-2 text-sm`}
                                     onClick={() => adicionar(n)}
                                 >
                                     {n.codigo} - {n.titulo}
