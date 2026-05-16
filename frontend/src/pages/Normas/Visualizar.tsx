@@ -5,7 +5,6 @@ import {
     Calendar,
     ChevronLeft,
     FileText,
-    Globe,
     IdCard,
     Loader2,
     StickyNote,
@@ -23,6 +22,12 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "../../components/ui/breadcrumb";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "../../components/ui/tooltip";
 import { getNormaDetalhes, type NormaDetalhes } from "../../services/normaService";
 
 type SectionProps = {
@@ -128,6 +133,8 @@ export default function Visualizar() {
 
     const dataFormatada = formatarData(norma?.data_publicacao);
     const nomeArquivo = obterNomeArquivo(norma?.arquivo);
+    const nomeArquivoLabel = nomeArquivo ?? "Sem arquivo cadastrado";
+    const exibirTooltipArquivo = Boolean(nomeArquivo);
     const normasRelacionada = norma?.normas_relacionadas_ids ?? [];
     const notas = norma?.notas ?? [];
 
@@ -271,20 +278,30 @@ export default function Visualizar() {
                                                     <FileText size={18} />
                                                 </div>
 
-                                                <div className="flex-1">
-                                                    <p className="text-sm font-semibold text-dark-title">
-                                                        {nomeArquivo ?? "Sem arquivo cadastrado"}
-                                                    </p>
+                                                <div className="flex-1 min-w-0">
+                                                    {exibirTooltipArquivo ? (
+                                                        <TooltipProvider>
+                                                            <Tooltip>
+                                                                <TooltipTrigger asChild>
+                                                                    <p className="text-sm font-semibold text-dark-title truncate inline-block max-w-full">
+                                                                        {nomeArquivoLabel}
+                                                                    </p>
+                                                                </TooltipTrigger>
+                                                                <TooltipContent className="max-w-xs w-auto block whitespace-normal break-words text-left">
+                                                                    {nomeArquivo}
+                                                                </TooltipContent>
+                                                            </Tooltip>
+                                                        </TooltipProvider>
+                                                    ) : (
+                                                        <p className="text-sm font-semibold text-dark-title truncate inline-block max-w-full">
+                                                            {nomeArquivoLabel}
+                                                        </p>
+                                                    )}
 
                                                     <div className="mt-3 flex flex-wrap gap-3 text-xs text-gray-500">
                                                         <span className="flex items-center gap-1">
                                                             <Calendar size={12} />
                                                             {dataFormatada}
-                                                        </span>
-
-                                                        <span className="flex items-center gap-1">
-                                                            <Globe size={12} />
-                                                            Público
                                                         </span>
                                                     </div>
                                                 </div>

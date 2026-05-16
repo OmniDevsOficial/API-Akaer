@@ -10,6 +10,12 @@ import { Globe, FileText, X, Loader2 } from "lucide-react";
 import { NormasRelatedSelector } from '@/components/normas-related-selector';
 import { atualizarNorma, getNormaDetalhes } from "@/services/normaService";
 import api from "@/services/api";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "../ui/tooltip";
 
 export interface BodyEditarHandle {
     salvar: () => Promise<void>;
@@ -182,6 +188,9 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
     const dataFormatada = form.dataPublicacao
         ? new Date(form.dataPublicacao).toLocaleDateString("pt-BR")
         : "—";
+    const nomeArquivoAtual = arquivoNorma?.name ?? obterNomeArquivo(form.arquivo);
+    const nomeArquivoLabel = nomeArquivoAtual || "Sem arquivo cadastrado";
+    const exibirTooltipArquivo = Boolean(nomeArquivoAtual);
 
     const inputClass = "w-full border border-font-border rounded-md px-3 py-2 text-sm focus:outline-none bg-[#FAF9F7]";
     const labelClass = "text-xs text-gray-400 tracking-widest block mb-1";
@@ -404,14 +413,30 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                                     <FileText size={20} className="text-red-akaer" />
                                 </div>
 
-                                <div>
-                                    <p className="text-sm font-medium">
-                                        {arquivoNorma
-                                            ? arquivoNorma.name
-                                            : obterNomeArquivo(form.arquivo) || "Sem arquivo cadastrado"}
-                                    </p>
-                                    <p className="text-xs text-gray-400">PDF</p>
-                                </div>
+                                <TooltipProvider>
+                                    {exibirTooltipArquivo ? (
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <div className="max-w-52">
+                                                    <p className="text-sm font-medium truncate inline-block max-w-full">
+                                                        {nomeArquivoLabel}
+                                                    </p>
+                                                    <p className="text-xs text-gray-400">PDF</p>
+                                                </div>
+                                            </TooltipTrigger>
+                                            <TooltipContent className="max-w-xs w-auto block px-2 whitespace-normal break-words text-left">
+                                                {nomeArquivoAtual}
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    ) : (
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-medium truncate inline-block max-w-full">
+                                                {nomeArquivoLabel}
+                                            </p>
+                                            <p className="text-xs text-gray-400">PDF</p>
+                                        </div>
+                                    )}
+                                </TooltipProvider>
                             </div>
 
                             <input
