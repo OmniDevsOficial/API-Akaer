@@ -1,4 +1,4 @@
-import { useState, useRef, type KeyboardEvent } from "react";
+import { useState, useRef, useEffect, type KeyboardEvent } from "react";
 import { Pencil, Trash2, Check, X } from "lucide-react";
 
 interface Nota {
@@ -107,6 +107,12 @@ export function NotasField({
   };
 
   const hasNotas = notas.length > 0;
+
+  useEffect(() => {
+    if (hasNotas) {
+      inputRef.current?.focus();
+    }
+  }, [hasNotas]);
 
   return (
     <div className="flex flex-col text-start gap-1">
