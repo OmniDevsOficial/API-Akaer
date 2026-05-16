@@ -1,7 +1,15 @@
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaCheck } from "react-icons/fa6";
-import { Loader2 } from "lucide-react";
+import { ChevronLeft, Loader2 } from "lucide-react";
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "../../../components/ui/breadcrumb";
 
 type Props = {
     onSalvar: () => Promise<void>;
@@ -10,7 +18,7 @@ type Props = {
 export const HeaderEditar: React.FC<Props> = ({ onSalvar }) => {
     const navigate = useNavigate();
     const location = useLocation();
-    const titulo = location.state?.norma?.titulo;
+    const codigo = location.state?.norma?.codigo;
 
     const [salvando, setSalvando] = useState(false);
     const [feedback, setFeedback] = useState<{ tipo: "sucesso" | "erro"; msg: string } | null>(null);
@@ -21,10 +29,7 @@ export const HeaderEditar: React.FC<Props> = ({ onSalvar }) => {
 
         try {
             await onSalvar();
-            setFeedback({
-                tipo: "sucesso",
-                msg: "Norma atualizada com sucesso!",
-            });
+            setFeedback({ tipo: "sucesso", msg: "Norma atualizada com sucesso!" });
         } catch (err: any) {
             const msg =
                 err?.response?.data?.error ||
@@ -32,10 +37,7 @@ export const HeaderEditar: React.FC<Props> = ({ onSalvar }) => {
                 err?.message ||
                 "Erro ao salvar. Tente novamente.";
 
-            setFeedback({
-                tipo: "erro",
-                msg,
-            });
+            setFeedback({ tipo: "erro", msg });
         } finally {
             setSalvando(false);
         }
@@ -43,28 +45,46 @@ export const HeaderEditar: React.FC<Props> = ({ onSalvar }) => {
 
     return (
         <header className="bg-white border-b border-font-border">
-            <div className="h-16 px-8 flex items-center justify-between">
-                <div className="flex gap-4 items-center text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-4 px-7 py-5">
+                {/* Breadcrumb */}
+                <div className="flex items-center gap-4">
                     <button
                         onClick={() => navigate(-1)}
-                        className="border border-[#E8E4DF] py-1.5 px-2 rounded-md text-[#6A6460] cursor-pointer"
+                        className="inline-flex items-center gap-2 rounded-md border border-font-border px-3 py-1.5 text-xs font-semibold text-gray-500 hover:text-dark-title"
                     >
-                        {"<"} Voltar
+                        <ChevronLeft size={14} />
+                        Voltar
                     </button>
 
-                    <span 
-                    onClick={() => navigate(-1)}
-                    className="text-[#B5B0AB] cursor-pointer hover:text-black/60 transition-colors">Normas</span>
-                    <span className="text-[#B5B0AB]">{">"}</span>
-                    <span>{titulo || "Editar norma"}</span>
+                    <Breadcrumb>
+                        <BreadcrumbList>
+                            <BreadcrumbItem>
+                                <BreadcrumbLink asChild>
+                                    <Link to="/home">Normas</Link>
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                            <BreadcrumbItem>
+                                <BreadcrumbPage className="flex items-center gap-2">
+                                    Edição de Norma
+                                    {codigo && (
+                                        <span className="inline-flex items-center rounded-full border border-font-border bg-[#FAF9F7] px-2 py-0.5 text-xs font-medium text-gray-600">
+                                            {codigo}
+                                        </span>
+                                    )}
+                                </BreadcrumbPage>
+                            </BreadcrumbItem>
+                        </BreadcrumbList>
+                    </Breadcrumb>
                 </div>
 
+                {/* Ações */}
                 <div className="flex items-center gap-2">
                     <button
                         type="button"
                         onClick={() => navigate(-1)}
                         disabled={salvando}
-                        className="flex items-center text-sm text-[#6A6460] border border-font-border rounded-lg cursor-pointer py-2 px-2.5 hover:bg-[#6A6460]/3 disabled:opacity-60"
+                        className="flex items-center text-sm text-[#6A6460] border border-font-border rounded-lg cursor-pointer py-2 px-2.5 hover:bg-[#6A6460]/5 disabled:opacity-60"
                     >
                         Descartar
                     </button>
@@ -87,7 +107,7 @@ export const HeaderEditar: React.FC<Props> = ({ onSalvar }) => {
 
             {feedback && (
                 <div
-                    className={`px-8 pb-2 text-xs font-medium ${
+                    className={`px-7 pb-3 text-xs font-medium ${
                         feedback.tipo === "sucesso" ? "text-green-600" : "text-red-500"
                     }`}
                 >
