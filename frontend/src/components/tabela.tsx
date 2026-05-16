@@ -199,7 +199,7 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                                 {isAdmin && (<button className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
                                     onClick={(event) => {
                                         event.stopPropagation();
-                                        navigate(`/normas/editar`, {
+                                        navigate(`/normas/editar/${encodeURIComponent(norma.codigo)}`, {
                                             state: { norma }
                                         });
                                     }}>

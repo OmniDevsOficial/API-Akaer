@@ -6,10 +6,11 @@ import {
     forwardRef,
 } from "react";
 import { useLocation } from "react-router-dom";
-import { Globe, FileText, X, Loader2 } from "lucide-react";
+import { BookOpenCheck, FileText, IdCard, StickyNote, Tag, X, Loader2 } from "lucide-react";
 import { NormasRelatedSelector } from '@/components/normas-related-selector';
 import { atualizarNorma, getNormaDetalhes } from "@/services/normaService";
 import api from "@/services/api";
+import PdfViewerModal from "@/components/pdf-viewer-modal";
 import {
     Tooltip,
     TooltipContent,
@@ -23,7 +24,6 @@ export interface BodyEditarHandle {
 
 function obterNomeArquivo(arquivo?: string | null) {
     if (!arquivo) return "";
-
     const partes = arquivo.split(/[\\/]/);
     return partes[partes.length - 1] || arquivo;
 }
@@ -37,6 +37,7 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
     const [listaEtapaProjeto, setListaEtapaProjeto] = useState<any[]>([]);
     const [arquivoNorma, setArquivoNorma] = useState<File | null>(null);
     const [carregando, setCarregando] = useState(true);
+    const [pdfModalOpen, setPdfModalOpen] = useState(false);
 
     const [form, setForm] = useState({
         titulo: normaBase?.titulo || "",
@@ -127,15 +128,13 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                 JSON.stringify(palavrasChave) === JSON.stringify(dadosIniciais?.palavrasChave) &&
                 JSON.stringify(notas) === JSON.stringify(dadosIniciais?.notas) &&
                 JSON.stringify(correlacoes) === JSON.stringify(dadosIniciais?.correlacoes);
-            console.log(dadosIniciais)
+            console.log(dadosIniciais);
             if (semAlteracao) {
                 throw new Error("Nenhuma alteração foi feita.");
             }
             if (!form.codigo) {
                 throw new Error("Código da norma não encontrado para atualização.");
             }
-
-
 
             const payload = {
                 titulo: form.titulo,
@@ -160,12 +159,10 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
 
     const adicionarPalavra = () => {
         if (!palavraInput.trim()) return;
-        
         if (palavrasChave.includes(palavraInput.trim())) {
-            alert('Palavra-chave já inserida');
+            alert("Palavra-chave já inserida");
             return;
         }
-
         setPalavrasChave((prev) => [...prev, palavraInput.trim()]);
         setPalavraInput("");
     };
@@ -176,7 +173,6 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
 
     const adicionarNota = () => {
         if (!notaInput.trim()) return;
-
         setNotas((prev) => [...prev, notaInput.trim()]);
         setNotaInput("");
     };
@@ -194,8 +190,9 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
 
     const inputClass = "w-full border border-font-border rounded-md px-3 py-2 text-sm focus:outline-none bg-[#FAF9F7]";
     const labelClass = "text-xs text-gray-400 tracking-widest block mb-1";
-    const sectionClass = "border border-font-border rounded-md p-4";
-    const sectionHeaderClass = "flex items-center gap-2 border-b border-font-border pb-3 mb-4 text-xs font-semibold tracking-widest text-gray-regular";
+    const sectionClass = "rounded-xl border border-font-border bg-white overflow-hidden";
+    const sectionHeaderClass = "flex items-center gap-2 border-b border-font-border bg-white px-6 py-4 text-xs font-semibold uppercase tracking-widest text-gray-500";
+    const sectionBodyClass = "p-6";
 
     if (carregando) {
         return (
@@ -207,83 +204,90 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
     }
 
     return (
-        <div className="min-h-screen bg-white p-8 font-dm">
+        <>
+        <div className="min-h-screen bg-[#fbfbfb] p-8 font-dm">
             <div className="grid grid-cols-[1fr_400px] gap-6">
-                {/* INFORMAÇÕES BÁSICAS */}
+
+                {/* COLUNA ESQUERDA */}
                 <div className="flex flex-col gap-6">
 
+                    {/* IDENTIFICAÇÃO */}
                     <div className={sectionClass}>
                         <div className={sectionHeaderClass}>
-                            <Globe size={14} />
-                            INFORMAÇÕES BÁSICAS
+                            <IdCard size={14} />
+                            IDENTIFICAÇÃO
                         </div>
+                        <div className={sectionBodyClass}>
+                            <div className="grid grid-cols-3 gap-4">
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="col-span-2">
-                                <label className={labelClass}>TÍTULO</label>
-                                <input
-                                    type="text"
-                                    value={form.titulo}
-                                    onChange={(e) => handleChange("titulo", e.target.value)}
-                                    className={inputClass}
-                                />
-                            </div>
+                                {/* Linha 1 — Título */}
+                                <div className="col-span-3">
+                                    <label className={labelClass}>TÍTULO</label>
+                                    <input
+                                        type="text"
+                                        value={form.titulo}
+                                        onChange={(e) => handleChange("titulo", e.target.value)}
+                                        className={inputClass}
+                                    />
+                                </div>
 
-                            <div>
-                                <label className={labelClass}>CÓDIGO DA NORMA</label>
-                                <input
-                                    type="text"
-                                    value={form.codigo}
-                                    disabled
-                                    className={`${inputClass} opacity-60 cursor-not-allowed`}
-                                />
-                            </div>
+                                {/* Linha 2 — Código */}
+                                <div className="col-span-3">
+                                    <label className={labelClass}>CÓDIGO DA NORMA</label>
+                                    <input
+                                        type="text"
+                                        value={form.codigo}
+                                        disabled
+                                        className={`${inputClass} opacity-60 cursor-not-allowed`}
+                                    />
+                                </div>
 
-                            <div>
-                                <label className={labelClass}>ÓRGÃO EMISSOR</label>
-                                <select
-                                    value={form.orgaoEmissorId}
-                                    onChange={(e) => handleChange("orgaoEmissorId", e.target.value)}
-                                    className={inputClass}
-                                >
-                                    <option value="">Selecione...</option>
-                                    {listaOrgao.map((orgao) => (
-                                        <option key={orgao.id} value={orgao.id}>
-                                            {orgao.nome?.trim() || `Órgão ${orgao.id}`}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
+                                {/* Linha 3 — Status + Revisão + Data de Publicação */}
+                                <div>
+                                    <label className={labelClass}>STATUS</label>
+                                    <select
+                                        value={form.status}
+                                        onChange={(e) => handleChange("status", e.target.value)}
+                                        className={inputClass}
+                                    >
+                                        <option value="Ativa">Ativa</option>
+                                        <option value="Obsoleta">Obsoleta</option>
+                                    </select>
+                                </div>
 
-                            <div>
-                                <label className={labelClass}>DATA DE PUBLICAÇÃO</label>
-                                <p className={inputClass}>{dataFormatada}</p>
-                            </div>
+                                <div>
+                                    <label className={labelClass}>REVISÃO</label>
+                                    <input
+                                        type="text"
+                                        value={form.revisao}
+                                        onChange={(e) => handleChange("revisao", e.target.value)}
+                                        className={inputClass}
+                                        maxLength={1}
+                                    />
+                                </div>
 
-                            <div>
-                                <label className={labelClass}>REVISÃO</label>
-                                <input
-                                    type="text"
-                                    value={form.revisao}
-                                    onChange={(e) => handleChange("revisao", e.target.value)}
-                                    className={inputClass}
-                                    maxLength={1}
-                                />
-                            </div>
+                                <div>
+                                    <label className={labelClass}>DATA DE PUBLICAÇÃO</label>
+                                    <p className={inputClass}>{dataFormatada}</p>
+                                </div>
 
-                            <div>
-                                <label className={labelClass}>STATUS</label>
-                                <select
-                                    value={form.status}
-                                    onChange={(e) => handleChange("status", e.target.value)}
-                                    className={inputClass}
-                                >
-                                    <option value="Ativa">Ativa</option>
-                                    <option value="Obsoleta">Obsoleta</option>
-                                </select>
-                            </div>
+                                {/* Linha 4 — Órgão Emissor + Categoria + Etapa do Projeto */}
+                                <div>
+                                    <label className={labelClass}>ÓRGÃO EMISSOR</label>
+                                    <select
+                                        value={form.orgaoEmissorId}
+                                        onChange={(e) => handleChange("orgaoEmissorId", e.target.value)}
+                                        className={inputClass}
+                                    >
+                                        <option value="">Selecione...</option>
+                                        {listaOrgao.map((orgao) => (
+                                            <option key={orgao.id} value={orgao.id}>
+                                                {orgao.nome?.trim() || `Órgão ${orgao.id}`}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
 
-                            <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className={labelClass}>CATEGORIA</label>
                                     <select
@@ -315,56 +319,54 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                                         ))}
                                     </select>
                                 </div>
+
                             </div>
                         </div>
                     </div>
 
-                    {/* DETALHES E CATEGORIZAÇÃO */}
-
+                    {/* ESCOPO */}
                     <div className={sectionClass}>
                         <div className={sectionHeaderClass}>
-                            <FileText size={14} />
-                            DETALHES E CATEGORIZAÇÃO
+                            <BookOpenCheck size={14} />
+                            ESCOPO
                         </div>
-
-                        <div className="col-span-2">
-                            <label className={labelClass}>ESCOPO</label>
+                        <div className={sectionBodyClass}>
+                            <label className={labelClass}>RESUMO DA NORMA</label>
                             <textarea
                                 value={form.escopo}
                                 onChange={(e) => handleChange("escopo", e.target.value)}
                                 className={`${inputClass} min-h-[100px] resize-y`}
                             />
                         </div>
-
                     </div>
 
+                    {/* PALAVRAS-CHAVE */}
                     <div className={sectionClass}>
-                        <div className='mt-3'>
-                            <div className={sectionHeaderClass}>
-                                <FileText size={14} />
-                                PALAVRAS-CHAVE
-                            </div>
-
-                            {/* PALAVRAS-CHAVE */}
+                        <div className={sectionHeaderClass}>
+                            <Tag size={14} />
+                            PALAVRAS-CHAVE
+                        </div>
+                        <div className={sectionBodyClass}>
                             <div className="mb-3">
                                 {palavrasChave.length > 0 ? (
                                     <div className="flex flex-wrap gap-2">
                                         {palavrasChave.map((palavra, index) => (
                                             <span
                                                 key={`${palavra}-${index}`}
-                                                className="flex items-center gap-1 bg-[#FAF9F7] text-dark-title border border-font-border px-2 py-1 rounded text-sm"
+                                                className="flex items-center gap-1 bg-red-50 text-red-akaer px-2 py-1 rounded-full text-sm"
                                             >
+                                                <Tag size={12} />
                                                 {palavra}
                                                 <X
                                                     size={12}
-                                                    className="cursor-pointer hover:text-red-500"
+                                                    className="cursor-pointer hover:opacity-60"
                                                     onClick={() => removerPalavra(index)}
                                                 />
                                             </span>
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className={"rounded-md border border-font-border bg-[#FAF9F7] px-3 py-2 text-sm text-gray-400"}>
+                                    <div className="rounded-md border border-font-border bg-[#FAF9F7] px-3 py-2 text-sm text-gray-400">
                                         Nenhuma palavra-chave cadastrada
                                     </div>
                                 )}
@@ -384,7 +386,6 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                                     placeholder="Adicionar nova palavra..."
                                     className={inputClass}
                                 />
-
                                 <button
                                     type="button"
                                     onClick={adicionarPalavra}
@@ -395,9 +396,10 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                             </div>
                         </div>
                     </div>
+
                 </div>
 
-                {/* COLUNA DA DIREITA */}
+                {/* COLUNA DIREITA */}
                 <div className="flex flex-col gap-6">
 
                     {/* ARQUIVO PDF */}
@@ -406,54 +408,65 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                             <FileText size={14} />
                             ARQUIVO PDF
                         </div>
+                        <div className="pr-6 py-3 pl-3">
+                            <div className="flex items-stretch gap-3">
+                                {/* Coluna Ver PDF — ocupa todo espaço disponível */}
+                                <button
+                                    type="button"
+                                    onClick={() => setPdfModalOpen(true)}
+                                    disabled={!form.arquivo && !arquivoNorma}
+                                    className="cursor-pointer min-w-0 flex-1 rounded-lg border border-transparent p-4 text-left transition hover:border-red-akaer/40 hover:bg-[#fbfbfb] hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    <div className="flex items-start gap-3 min-w-0">
+                                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-red-akaer/30 bg-red-50 text-red-akaer">
+                                            <FileText size={18} />
+                                        </div>
 
-                        <div className="flex items-center justify-between gap-4">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-red-50 rounded-md">
-                                    <FileText size={20} className="text-red-akaer" />
-                                </div>
-
-                                <TooltipProvider>
-                                    {exibirTooltipArquivo ? (
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <div className="max-w-52">
-                                                    <p className="text-sm font-medium truncate inline-block max-w-full">
+                                        <TooltipProvider>
+                                            {exibirTooltipArquivo ? (
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div className="min-w-0 overflow-hidden">
+                                                            <p className="text-sm font-semibold text-dark-title truncate">
+                                                                {nomeArquivoLabel}
+                                                            </p>
+                                                            <p className="text-xs text-gray-400">PDF</p>
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent className="max-w-xs w-auto block px-2 whitespace-normal break-words text-left">
+                                                        {nomeArquivoAtual}
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            ) : (
+                                                <div className="min-w-0 overflow-hidden">
+                                                    <p className="text-sm font-semibold text-dark-title truncate">
                                                         {nomeArquivoLabel}
                                                     </p>
                                                     <p className="text-xs text-gray-400">PDF</p>
                                                 </div>
-                                            </TooltipTrigger>
-                                            <TooltipContent className="max-w-xs w-auto block px-2 whitespace-normal break-words text-left">
-                                                {nomeArquivoAtual}
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    ) : (
-                                        <div className="min-w-0">
-                                            <p className="text-sm font-medium truncate inline-block max-w-full">
-                                                {nomeArquivoLabel}
-                                            </p>
-                                            <p className="text-xs text-gray-400">PDF</p>
-                                        </div>
-                                    )}
-                                </TooltipProvider>
+                                            )}
+                                        </TooltipProvider>
+                                    </div>
+                                </button>
+
+                                {/* Coluna Substituir — largura natural do botão */}
+                                <div className="flex items-center shrink-0">
+                                    <input
+                                        ref={ArquivoPdf}
+                                        type="file"
+                                        accept=".pdf"
+                                        className="hidden"
+                                        onChange={(e) => setArquivoNorma(e.target.files?.[0] || null)}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => ArquivoPdf.current?.click()}
+                                        className="text-xs border border-font-border rounded-md px-3 py-1.5 text-gray-500 hover:bg-gray-50 transition-colors whitespace-nowrap"
+                                    >
+                                        ↺ Substituir
+                                    </button>
+                                </div>
                             </div>
-
-                            <input
-                                ref={ArquivoPdf}
-                                type="file"
-                                accept=".pdf"
-                                className="hidden"
-                                onChange={(e) => setArquivoNorma(e.target.files?.[0] || null)}
-                            />
-
-                            <button
-                                type="button"
-                                onClick={() => ArquivoPdf.current?.click()}
-                                className="text-xs border border-font-border rounded-md px-3 py-1.5 text-gray-500 hover:bg-gray-50 transition-colors"
-                            >
-                                ↺ Substituir
-                            </button>
                         </div>
                     </div>
 
@@ -463,73 +476,99 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                             <FileText size={14} />
                             CORRELAÇÕES
                         </div>
-
-                        <NormasRelatedSelector
-                            selecionadas={correlacoes}
-                            onChange={setCorrelacoes}
-                            codigoAtual={form.codigo}
-                        />
+                        <div className={sectionBodyClass}>
+                            <NormasRelatedSelector
+                                selecionadas={correlacoes}
+                                onChange={setCorrelacoes}
+                                codigoAtual={form.codigo}
+                                usePortal
+                            />
+                        </div>
                     </div>
 
                     {/* NOTAS */}
                     <div className={sectionClass}>
                         <div className={sectionHeaderClass}>
-                            <FileText size={14} />
+                            <StickyNote size={14} />
                             NOTAS
                         </div>
-
-                        <div className="flex flex-col gap-2 mb-3">
-                            {notas.length > 0 ? (
-                                notas.map((nota, index) => (
-                                    <div
-                                        key={`${nota}-${index}`}
-                                        className="flex items-start justify-between gap-2 bg-[#FAF9F7] border border-font-border rounded-sm p-2"
-                                    >
-                                        <p className="text-sm text-gray-regular flex-1">{nota}</p>
-
-                                        <button
-                                            type="button"
-                                            onClick={() => removerNota(index)}
-                                            className="text-gray-400 hover:text-red-akaer transition-colors shrink-0 mt-0.5"
+                        <div className={sectionBodyClass}>
+                            <div className="flex flex-col gap-2 mb-3">
+                                {notas.length > 0 ? (
+                                    notas.map((nota, index) => (
+                                        <div
+                                            key={`${nota}-${index}`}
+                                            className="flex items-start justify-between gap-2 rounded-lg border border-gray-200 bg-gray-50/60 p-3"
                                         >
-                                            <X size={12} />
-                                        </button>
+                                            <div>
+                                                <span className="text-[11px] font-semibold text-gray-400">
+                                                    Nota {index + 1}
+                                                </span>
+                                                <p className="mt-1 text-sm text-gray-700 leading-relaxed">{nota}</p>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => removerNota(index)}
+                                                className="text-gray-400 hover:text-red-akaer transition-colors shrink-0 mt-0.5"
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="rounded-md border border-dashed border-font-border bg-[#FAF9F7] px-3 py-2 text-sm text-gray-400">
+                                        Nenhuma nota cadastrada
                                     </div>
-                                ))
-                            ) : (
-                                <div className="rounded-md border border-dashed border-font-border bg-[#FAF9F7] px-3 py-2 text-sm text-gray-400">
-                                    Nenhuma nota cadastrada
-                                </div>
-                            )}
-                        </div>
+                                )}
+                            </div>
 
-                        <div className="flex gap-2">
-                            <input
-                                type="text"
-                                value={notaInput}
-                                onChange={(e) => setNotaInput(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                        e.preventDefault();
-                                        adicionarNota();
-                                    }
-                                }}
-                                placeholder="Escrever uma nota..."
-                                className={inputClass}
-                            />
-
-                            <button
-                                type="button"
-                                onClick={adicionarNota}
-                                className="bg-gray-800 text-white px-4 rounded-md text-sm cursor-pointer"
-                            >
-                                Adicionar
-                            </button>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={notaInput}
+                                    onChange={(e) => setNotaInput(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            e.preventDefault();
+                                            adicionarNota();
+                                        }
+                                    }}
+                                    placeholder="Escrever uma nota..."
+                                    className={inputClass}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={adicionarNota}
+                                    className="bg-gray-800 text-white px-4 rounded-md text-sm cursor-pointer"
+                                >
+                                    Adicionar
+                                </button>
+                            </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
+
+        <PdfViewerModal
+            open={pdfModalOpen}
+            onOpenChange={setPdfModalOpen}
+            norma={{
+                codigo: form.codigo,
+                titulo: form.titulo,
+                status: form.status,
+                revisao: form.revisao || undefined,
+                escopo: form.escopo || undefined,
+                orgaoEmissor: listaOrgao.find(o => o.id?.toString() === form.orgaoEmissorId)?.nome || undefined,
+                categoria: listaCategoria.find(c => c.id?.toString() === form.categoriaId)?.nome || undefined,
+                palavrasChave: palavrasChave.length > 0 ? palavrasChave : undefined,
+                normaRelacionada: correlacoes.length > 0
+                    ? correlacoes.map((c: any) => ({ codigo: c.codigo, titulo: c.titulo ?? null }))
+                    : undefined,
+            }}
+        />
+        </>
     );
 });
 

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import api from "@/services/api";
 
 interface Norma {
@@ -10,13 +11,49 @@ interface Props {
     selecionadas: Norma[];
     onChange: (normas: Norma[]) => void;
     codigoAtual?: string;
+    /** Usa createPortal para escapar de contextos com overflow:hidden (ex: página Editar). Padrão: false. */
+    usePortal?: boolean;
 }
 
-export function NormasRelatedSelector({ selecionadas, onChange, codigoAtual }: Props) {
+export function NormasRelatedSelector({ selecionadas, onChange, codigoAtual, usePortal = false }: Props) {
     const [busca, setBusca] = useState("");
     const [normas, setNormas] = useState<Norma[]>([]);
     const [aberto, setAberto] = useState(false);
-    const ref = useRef<HTMLDivElement>(null);
+    const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
+
+    const wrapperRef = useRef<HTMLDivElement>(null);
+    const inputWrapperRef = useRef<HTMLDivElement>(null);
+
+    // Calcula posição e direção (baixo ou cima) baseado no espaço disponível na viewport
+    const calcularPosicao = () => {
+        if (!inputWrapperRef.current) return;
+
+        const rect = inputWrapperRef.current.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const DROPDOWN_HEIGHT = 160; // max-h-40 = 10rem = 160px
+        const GAP = 4; // mt-1
+
+        const spaceBelow = viewportHeight - rect.bottom;
+        const openAcima = spaceBelow < DROPDOWN_HEIGHT + GAP;
+
+        if (openAcima) {
+            setDropdownStyle({
+                position: "fixed",
+                top: rect.top - DROPDOWN_HEIGHT - GAP,
+                left: rect.left,
+                width: rect.width,
+                zIndex: 9999,
+            });
+        } else {
+            setDropdownStyle({
+                position: "fixed",
+                top: rect.bottom + GAP,
+                left: rect.left,
+                width: rect.width,
+                zIndex: 9999,
+            });
+        }
+    };
 
     useEffect(() => {
         const buscarNormas = async () => {
@@ -40,9 +77,15 @@ export function NormasRelatedSelector({ selecionadas, onChange, codigoAtual }: P
         }
     }, [busca, aberto, codigoAtual]);
 
+    // Fecha ao clicar fora (tanto do wrapper quanto do dropdown no portal)
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
-            if (ref.current && !ref.current.contains(event.target as Node)) {
+            const target = event.target as Node;
+            if (
+                wrapperRef.current &&
+                !wrapperRef.current.contains(target) &&
+                !(document.getElementById("normas-selector-dropdown")?.contains(target))
+            ) {
                 setAberto(false);
             }
         }
@@ -50,6 +93,24 @@ export function NormasRelatedSelector({ selecionadas, onChange, codigoAtual }: P
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
+
+    // Recalcula posição ao rolar ou redimensionar
+    useEffect(() => {
+        if (!aberto) return;
+
+        const update = () => calcularPosicao();
+        window.addEventListener("scroll", update, true);
+        window.addEventListener("resize", update);
+        return () => {
+            window.removeEventListener("scroll", update, true);
+            window.removeEventListener("resize", update);
+        };
+    }, [aberto]);
+
+    const handleFocus = () => {
+        calcularPosicao();
+        setAberto(true);
+    };
 
     const adicionar = (norma: Norma) => {
         if (selecionadas.some(n => n.codigo === norma.codigo)) return;
@@ -64,7 +125,7 @@ export function NormasRelatedSelector({ selecionadas, onChange, codigoAtual }: P
     };
 
     return (
-        <div className='flex flex-col text-start gap-1'>
+        <div className='flex flex-col text-start gap-1' ref={wrapperRef}>
             {/* Selecionadas */}
             <div className="flex flex-wrap gap-2 mb-2">
                 {selecionadas.map(n => (
@@ -84,25 +145,29 @@ export function NormasRelatedSelector({ selecionadas, onChange, codigoAtual }: P
                 ))}
             </div>
 
-            <div ref={ref} className="relative">
+            <div ref={inputWrapperRef} className="relative">
                 <div className="bg-gray-100/80 border rounded p-2 py-3">
                     <input
                         className="bg-transparent outline-none w-full"
                         placeholder="Buscar normas para correlacionar"
                         value={busca}
                         onChange={(e) => setBusca(e.target.value)}
-                        onFocus={() => setAberto(true)}
+                        onFocus={handleFocus}
                     />
                 </div>
 
-                {aberto && (
+                {/* Dropdown inline (modal e outros contextos sem overflow:hidden) */}
+                {!usePortal && aberto && (
                     <div className="absolute z-50 mt-1 w-full border rounded bg-white max-h-40 overflow-y-auto shadow-sm">
                         {normas.length > 0 ? (
                             normas.map(n => (
                                 <div
                                     key={n.codigo}
                                     className={`${selecionadas.some(norma => norma.codigo === n.codigo) ? "bg-gray-100 cursor-not-allowed text-gray-600" : "hover:bg-gray-100 cursor-pointer"} p-2 text-sm`}
-                                    onClick={() => adicionar(n)}
+                                    onMouseDown={(e) => {
+                                        e.preventDefault();
+                                        adicionar(n);
+                                    }}
                                 >
                                     {n.codigo} - {n.titulo}
                                 </div>
@@ -115,6 +180,35 @@ export function NormasRelatedSelector({ selecionadas, onChange, codigoAtual }: P
                     </div>
                 )}
             </div>
+
+            {/* Dropdown via portal (Editar — escapa do overflow:hidden do card) */}
+            {usePortal && aberto && createPortal(
+                <div
+                    id="normas-selector-dropdown"
+                    style={dropdownStyle}
+                    className="border rounded bg-white max-h-40 overflow-y-auto shadow-md"
+                >
+                    {normas.length > 0 ? (
+                        normas.map(n => (
+                            <div
+                                key={n.codigo}
+                                className={`${selecionadas.some(norma => norma.codigo === n.codigo) ? "bg-gray-100 cursor-not-allowed text-gray-600" : "hover:bg-gray-100 cursor-pointer"} p-2 text-sm`}
+                                onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    adicionar(n);
+                                }}
+                            >
+                                {n.codigo} - {n.titulo}
+                            </div>
+                        ))
+                    ) : (
+                        <div className="p-2 text-sm text-gray-400">
+                            Nenhuma norma encontrada
+                        </div>
+                    )}
+                </div>,
+                document.body
+            )}
         </div>
     );
-};
+}

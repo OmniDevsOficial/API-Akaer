@@ -8,7 +8,7 @@ const routes = [
     {element: <LoginPage />, path: "/"},
     {element: <Home />, path: "/home"},
     {element: <Visualizar />, path: "/normas/ver/:codigo"},
-    {element: <Editar />, path: "/normas/editar"}
+    {element: <Editar />, path: "/normas/editar/:codigo"}
 ]
 
 const Router = () => {

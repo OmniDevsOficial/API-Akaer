@@ -58,7 +58,7 @@ function Section({ icon, title, children }: SectionProps) {
 function ReadOnlyField({ label, value, icon }: ReadOnlyFieldProps) {
     return (
         <div className="flex flex-col text-start gap-1">
-            <label className="text-lg text-gray-600 mb-0 leading-none">
+            <label className="text-xs text-gray-400 tracking-widest block mb-1">
                 {label}
             </label>
 
@@ -70,8 +70,7 @@ function ReadOnlyField({ label, value, icon }: ReadOnlyFieldProps) {
                 )}
 
                 <input
-                    className={`bg-gray-100/80 border rounded h-10 pr-2 text-gray-700 ${icon ? "pl-8" : "px-2"
-                        }`}
+                    className={`w-full border border-font-border rounded-md py-2 text-sm bg-[#FAF9F7] text-dark-title focus:outline-none ${icon ? "pl-8 pr-2" : "px-3"}`}
                     value={value || "Não informado"}
                     readOnly
                 />
@@ -160,7 +159,7 @@ export default function Visualizar() {
                 <Sidebar />
 
                 <div className="flex-1 flex flex-col">
-                    <div className="flex flex-wrap items-center gap-4 border-b border-font-border bg-white px-7 py-5">
+                    <div className="flex flex-wrap items-center gap-4 border-b border-font-border bg-white px-7 py-6">
                         <div className="flex items-center gap-4">
                             <Link
                                 to="/home"
@@ -179,14 +178,21 @@ export default function Visualizar() {
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator />
                                     <BreadcrumbItem>
-                                        <BreadcrumbPage>Visualização Detalhada</BreadcrumbPage>
+                                        <BreadcrumbPage className="flex items-center gap-2">
+                                            Visualização Detalhada
+                                            {norma?.codigo && (
+                                                <span className="inline-flex items-center rounded-full border border-font-border bg-[#FAF9F7] px-2 py-0.5 text-xs font-medium text-gray-600">
+                                                    {norma.codigo}
+                                                </span>
+                                            )}
+                                        </BreadcrumbPage>
                                     </BreadcrumbItem>
                                 </BreadcrumbList>
                             </Breadcrumb>
                         </div>
                     </div>
 
-                    <main className="flex-1 px-14 pb-10 pt-6">
+                    <main className="flex-1 px-8 pb-8 pt-2">
                         {carregando && (
                             <div className="flex items-center justify-center py-24 text-gray-400">
                                 <Loader2 className="animate-spin mr-2" size={20} />
@@ -207,60 +213,63 @@ export default function Visualizar() {
                         )}
 
                         {!carregando && !erro && norma && (
-                            <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_360px]">
+                            <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
                                 <div className="space-y-6">
                                     <Section icon={<IdCard size={14} />} title="Identificação">
-                                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                            <ReadOnlyField label="TÍTULO" value={norma.titulo} />
-                                            <ReadOnlyField label="CÓDIGO" value={norma.codigo} />
-                                            <ReadOnlyField label="ÓRGÃO EMISSOR" value={norma.orgao_emissor?.nome} />
+                                        <div className="grid grid-cols-3 gap-4">
+                                            {/* Linha 1 — Título */}
+                                            <div className="col-span-3">
+                                                <ReadOnlyField label="TÍTULO" value={norma.titulo} />
+                                            </div>
+                                            {/* Linha 2 — Código */}
+                                            <div className="col-span-3">
+                                                <ReadOnlyField label="CÓDIGO" value={norma.codigo} />
+                                            </div>
+                                            {/* Linha 3 — Status + Revisão + Data de Publicação */}
                                             <ReadOnlyField label="STATUS" value={norma.status} />
-                                            <ReadOnlyField label="CATEGORIA" value={norma.categoria?.nome} />
-                                            <ReadOnlyField label="ETAPA DO PROJETO" value={norma.etapa_projeto?.nome} />
+                                            <ReadOnlyField label="REVISÃO" value={norma.revisao ?? "—"} />
                                             <ReadOnlyField
                                                 label="DATA DE PUBLICAÇÃO"
                                                 value={dataFormatada}
                                                 icon={<Calendar size={14} />}
                                             />
-                                            <ReadOnlyField label="REVISÃO" value={norma.revisao ?? "—"} />
+                                            {/* Linha 4 — Órgão Emissor + Categoria + Etapa do Projeto */}
+                                            <ReadOnlyField label="ÓRGÃO EMISSOR" value={norma.orgao_emissor?.nome} />
+                                            <ReadOnlyField label="CATEGORIA" value={norma.categoria?.nome} />
+                                            <ReadOnlyField label="ETAPA DO PROJETO" value={norma.etapa_projeto?.nome} />
                                         </div>
                                     </Section>
 
                                     <Section icon={<BookOpenCheck size={14} />} title="Escopo">
                                         <div className="flex flex-col text-start gap-1">
-                                            <label className="text-lg text-gray-600 mb-0 leading-none">
+                                            <label className="text-xs text-gray-400 tracking-widest block mb-1">
                                                 RESUMO DA NORMA
                                             </label>
-
                                             <textarea
-                                                className="bg-gray-100/80 border rounded p-3 min-h-28 text-gray-700"
+                                                className="w-full border border-font-border rounded-md p-3 min-h-28 text-sm bg-[#FAF9F7] text-dark-title focus:outline-none resize-y"
                                                 value={norma.escopo ?? "Não informado"}
                                                 readOnly
                                             />
                                         </div>
+                                    </Section>
 
-                                        <div className="mt-5 flex flex-col text-start gap-1">
-                                            <label className="text-lg text-gray-600 mb-0 leading-none">
-                                                PALAVRAS-CHAVE
-                                            </label>
-
-                                            <div className="flex flex-wrap gap-2 border rounded p-3 bg-gray-100/60">
-                                                {norma.palavras_chave?.length ? (
-                                                    norma.palavras_chave.map((item, index) => (
-                                                        <span
-                                                            key={`${item}-${index}`}
-                                                            className="px-2 py-1 rounded-full bg-red-50 text-sm text-red-akaer flex items-center gap-1"
-                                                        >
-                                                            <Tag size={12} />
-                                                            {item}
-                                                        </span>
-                                                    ))
-                                                ) : (
-                                                    <span className="text-sm text-gray-400">
-                                                        Nenhuma palavra-chave cadastrada
+                                    <Section icon={<Tag size={14} />} title="Palavras-Chave">
+                                        <div className="flex flex-wrap gap-2">
+                                            {norma.palavras_chave?.length ? (
+                                                norma.palavras_chave.map((item, index) => (
+                                                    <span
+                                                        key={`${item}-${index}`}
+                                                        className="px-2 py-1 rounded-full bg-red-50 text-sm text-red-akaer flex items-center gap-1"
+                                                    >
+                                                        <Tag size={12} />
+                                                        {item}
                                                     </span>
-                                                )}
-                                            </div>
+                                                ))
+                                            ) : (
+                                                <span className="text-sm text-gray-400">
+                                                    Nenhuma palavra-chave cadastrada
+                                                </span>
+                                            )}
                                         </div>
                                     </Section>
                                 </div>
@@ -283,9 +292,12 @@ export default function Visualizar() {
                                                         <TooltipProvider>
                                                             <Tooltip>
                                                                 <TooltipTrigger asChild>
-                                                                    <p className="text-sm font-semibold text-dark-title truncate inline-block max-w-full">
-                                                                        {nomeArquivoLabel}
-                                                                    </p>
+                                                                    <div className="min-w-0">
+                                                                        <p className="text-sm font-semibold text-dark-title truncate inline-block max-w-full">
+                                                                            {nomeArquivoLabel}
+                                                                        </p>
+                                                                        <p className="text-xs text-gray-400">PDF</p>
+                                                                    </div>
                                                                 </TooltipTrigger>
                                                                 <TooltipContent className="max-w-xs w-auto block whitespace-normal break-words text-left">
                                                                     {nomeArquivo}
@@ -293,17 +305,14 @@ export default function Visualizar() {
                                                             </Tooltip>
                                                         </TooltipProvider>
                                                     ) : (
-                                                        <p className="text-sm font-semibold text-dark-title truncate inline-block max-w-full">
-                                                            {nomeArquivoLabel}
-                                                        </p>
+                                                        <div className="min-w-0">
+                                                            <p className="text-sm font-semibold text-dark-title truncate inline-block max-w-full">
+                                                                {nomeArquivoLabel}
+                                                            </p>
+                                                            <p className="text-xs text-gray-400">PDF</p>
+                                                        </div>
                                                     )}
 
-                                                    <div className="mt-3 flex flex-wrap gap-3 text-xs text-gray-500">
-                                                        <span className="flex items-center gap-1">
-                                                            <Calendar size={12} />
-                                                            {dataFormatada}
-                                                        </span>
-                                                    </div>
                                                 </div>
                                             </div>
                                         </button>
@@ -315,7 +324,7 @@ export default function Visualizar() {
                                                 normasRelacionada.map((n: any) => (
                                                     <span
                                                         key={n.codigo}
-                                                        className="px-3 py-1 rounded-full bg-red-50 text-sm text-red-akaer flex items-center gap-1"
+                                                        className="flex items-center gap-1 bg-[#FAF9F7] text-dark-title border border-font-border px-2 py-1 rounded text-sm"
                                                     >
                                                         {n.codigo}
                                                         {n.titulo ? ` — ${n.titulo}` : ""}
@@ -341,7 +350,7 @@ export default function Visualizar() {
                                                             Nota {index + 1}
                                                         </span>
 
-                                                        <p className="mt-1 text-sm text-gray-700 leading-relaxed">
+                                                        <p className="mt-1 text-sm text-dark-title leading-relaxed">
                                                             {nota.texto}
                                                         </p>
                                                     </div>
