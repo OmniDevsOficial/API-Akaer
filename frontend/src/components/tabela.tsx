@@ -165,6 +165,7 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                             {/* Título */}
                             <td className="px-6 py-4">
                                 <span className="block text-sm font-medium text-gray-900">{norma.titulo}</span>
+                                <span className="block text-xs text-gray-medium">Revisão atual: {norma.revisao}</span>
                             </td>
 
                             <td className="px-6 py-4 text-sm text-gray-700">{norma.orgao_emissor?.nome || norma.orgao_emissor_id?.nome}</td>
