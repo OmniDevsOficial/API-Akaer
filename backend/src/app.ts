@@ -4,6 +4,7 @@ import path from "path";
 import authRoutes from "./routes/auth.routes";
 import normaRoutes from "./routes/norma.routes";
 import optionsRoutes from "./routes/options.routes";
+import solicitacaoRoutes from "./routes/solicitacao.routes";
 
 const app = express();
 
@@ -12,6 +13,7 @@ app.use(express.json());
 app.use("/uploads", express.static(path.resolve(__dirname, "../uploads")));
 
 app.use("/api/auth", authRoutes);
+app.use("/api/solicitacoes", solicitacaoRoutes);
 app.use("/normas", normaRoutes);
 app.use("/", optionsRoutes);
 
