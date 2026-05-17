@@ -4,6 +4,8 @@ import { Dialog, DialogClose, DialogContent } from "@/components/ui/dialog";
 import { FaRegFilePdf, FaLock } from "react-icons/fa6";
 import { ChevronLeft, ChevronRight, Minus, Plus, X } from "lucide-react";
 import { useRecolher } from "../utils/functions";
+import { Link } from "react-router-dom";
+import Router from '../routes'
 
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -334,7 +336,9 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
                                                 <div
                                                     key={n.codigo}
                                                     className="px-3 py-1 text-sm rounded-xl bg-[#eef3ff] cursor-pointer break-all w-full"
-                                                >{n.codigo} - {n.titulo || ''} </div>
+                                                >
+                                                    <Link to={`/normas/ver/${n.codigo}`}>{n.codigo} - {n.titulo || ''} </Link>
+                                                </div>
                                             ))}
                                         </div>
                                     ) : (
