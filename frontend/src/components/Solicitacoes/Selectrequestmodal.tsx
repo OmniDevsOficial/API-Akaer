@@ -1,4 +1,5 @@
 import { ChevronRight } from 'lucide-react';
+import { Dialog, DialogContent } from '../ui/dialog';
 
 export type TipoSolicitacao = 'indicar_norma' | 'adicionar_nota' | 'reportar_erro';
 
@@ -34,20 +35,15 @@ export default function SelectRequestModal({
     if (!open) return null;
 
     return (
-        <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-            onClick={() => onOpenChange(false)}
-        >
-            <div
-                className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 flex flex-col overflow-hidden"
-                onClick={(e) => e.stopPropagation()}
-            >
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-sm p-0 gap-0 overflow-hidden rounded-2xl bg-white outline-none">
+
                 {/* Header */}
                 <div className="px-6 pt-6 pb-4 border-b border-gray-200">
                     <p className="text-red-akaer font-bold text-xs tracking-widest uppercase mb-1">
                         Solicitação
                     </p>
-                    <h2 className="text-2xl font-semibold text-dark-title leading-tight">
+                    <h2 className="text-xl font-semibold text-dark-title leading-tight">
                         Escolha o tipo de solicitação
                     </h2>
                 </div>
@@ -83,7 +79,7 @@ export default function SelectRequestModal({
                         Cancelar
                     </button>
                 </div>
-            </div>
-        </div>
+            </DialogContent>
+        </Dialog>
     );
 }

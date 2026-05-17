@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { FileText, Pencil, Eye } from "lucide-react";
-// import api from "@/services/api";
 import { getUserRole } from '../utils/auth';
-import PdfViewerModal from "./pdf-viewer-modal";
-import type { FiltrosSelecionados } from "@/components/FilterAside/FilterAside";
 import { useNavigate } from "react-router-dom";
-// 1. Adicionar getNormaDetalhes ao import existente[cite: 2]
 import { listarNormas, getNormaDetalhes } from "@/services/normaService";
+import type { FiltrosSelecionados } from "@/components/FilterAside/FilterAside";
+import PdfViewerModal from "./pdf-viewer-modal";
+// import api from "@/services/api";
+// 1. Adicionar getNormaDetalhes ao import existente[cite: 2]
 
 export interface Norma {
     id: number;

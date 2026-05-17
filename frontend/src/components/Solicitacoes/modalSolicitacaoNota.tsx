@@ -40,13 +40,13 @@ interface SolicitacaoNotaPayload {
     status: 'Pendente';
 }
 
-function ModalSolicitacaoNota({ open, onOpenChange, normas = [] }: ModalSolicitacaoNotaProps) {
+export function ModalSolicitacaoNota({ open, onOpenChange, normas = [] }: ModalSolicitacaoNotaProps) {
     const [form, setForm] = useState<FormState>({
         nomeSolicitante: '',
         normaId: '',
         conteudoSugerido: '',
     });
-    
+
     const [errors, setErrors] = useState<FormErrors>({});
     const [enviando, setEnviando] = useState(false);
     const [enviado, setEnviado] = useState(false);
@@ -125,7 +125,7 @@ function ModalSolicitacaoNota({ open, onOpenChange, normas = [] }: ModalSolicita
         if (!form.nomeSolicitante.trim()) novosErros.nomeSolicitante = 'Preenchimento obrigatório.';
         if (!form.normaId) novosErros.normaId = 'Preenchimento obrigatório.';
         if (!form.conteudoSugerido.trim()) novosErros.conteudoSugerido = 'Preenchimento obrigatório.';
-        
+
         setErrors(novosErros);
         return Object.keys(novosErros).length === 0;
     };
@@ -201,9 +201,8 @@ function ModalSolicitacaoNota({ open, onOpenChange, normas = [] }: ModalSolicita
                                         value={form.nomeSolicitante}
                                         onChange={handleChange}
                                         placeholder="Ex: Cesar Silva"
-                                        className={`bg-gray-100/80 border rounded h-10 px-3 text-sm outline-none focus:ring-1 focus:ring-gray-400 transition ${
-                                            errors.nomeSolicitante ? 'border-red-400' : 'border-font-border'
-                                        }`}
+                                        className={`bg-gray-100/80 border rounded h-10 px-3 text-sm outline-none focus:ring-1 focus:ring-gray-400 transition ${errors.nomeSolicitante ? 'border-red-400' : 'border-font-border'
+                                            }`}
                                     />
                                     {errors.nomeSolicitante && (
                                         <span className="text-xs text-red-akaer mt-0.5">{errors.nomeSolicitante}</span>
@@ -224,9 +223,8 @@ function ModalSolicitacaoNota({ open, onOpenChange, normas = [] }: ModalSolicita
                                             }}
                                             onFocus={() => setDropdownAberto(true)}
                                             placeholder="Buscar norma..."
-                                            className={`bg-gray-100/80 border rounded h-10 px-3 text-sm outline-none focus:ring-1 focus:ring-gray-400 transition w-full ${
-                                                errors.normaId ? 'border-red-400' : 'border-font-border'
-                                            }`}
+                                            className={`bg-gray-100/80 border rounded h-10 px-3 text-sm outline-none focus:ring-1 focus:ring-gray-400 transition w-full ${errors.normaId ? 'border-red-400' : 'border-font-border'
+                                                }`}
                                         />
                                         {dropdownAberto && (
                                             <div className="absolute z-50 mt-1 w-full border rounded bg-white max-h-40 overflow-y-auto shadow-sm">
@@ -260,9 +258,8 @@ function ModalSolicitacaoNota({ open, onOpenChange, normas = [] }: ModalSolicita
                                     onChange={handleChange}
                                     rows={5}
                                     placeholder="Ex: Insira Aqui Anotações Rápidas, Exceções Ou Detalhes Sobre A Norma..."
-                                    className={`bg-gray-100/80 border rounded p-3 text-sm outline-none focus:ring-1 focus:ring-gray-400 transition resize-none ${
-                                        errors.conteudoSugerido ? 'border-red-400' : 'border-font-border'
-                                    }`}
+                                    className={`bg-gray-100/80 border rounded p-3 text-sm outline-none focus:ring-1 focus:ring-gray-400 transition resize-none ${errors.conteudoSugerido ? 'border-red-400' : 'border-font-border'
+                                        }`}
                                 />
                                 {errors.conteudoSugerido && (
                                     <span className="text-xs text-red-akaer mt-0.5">{errors.conteudoSugerido}</span>
@@ -277,7 +274,9 @@ function ModalSolicitacaoNota({ open, onOpenChange, normas = [] }: ModalSolicita
                                 Campos com <span className="text-red-akaer">*</span> são obrigatórios
                             </div>
                             <div className="flex justify-end gap-2">
-                                <Button type="button" size="lg" variant="secondary" className="border border-gray-600/40 hover:bg-gray-200" onClick={() => handleOpenChange(false)} disabled={enviando}>
+                                <Button type="button" size="lg" variant="secondary"
+                                    onClick={() => handleOpenChange(false)} disabled={enviando}
+                                    className="text-sm text-gray-600 hover:text-dark-title border border-gray-200 rounded-md px-4 py-2 transition-colors cursor-pointer">
                                     Cancelar
                                 </Button>
                                 <Button type="submit" size="lg" className="hover:bg-black/80 bg-dark-title" disabled={enviando}>
@@ -301,5 +300,3 @@ function ModalSolicitacaoNota({ open, onOpenChange, normas = [] }: ModalSolicita
         </Dialog>
     );
 }
-
-export default ModalSolicitacaoNota;
