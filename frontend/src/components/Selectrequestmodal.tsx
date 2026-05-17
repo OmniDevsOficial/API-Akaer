@@ -78,7 +78,7 @@ export default function SelectRequestModal({
                 <div className="flex justify-end px-6 py-4 border-t border-gray-200">
                     <button
                         onClick={() => onOpenChange(false)}
-                        className="text-sm text-gray-600 hover:text-dark-title border border-gray-200 rounded-md px-4 py-2 transition-colors"
+                        className="text-sm text-gray-600 hover:text-dark-title border border-gray-200 rounded-md px-4 py-2 transition-colors cursor-pointer"
                     >
                         Cancelar
                     </button>

@@ -19,7 +19,7 @@ export default function Home() {
     const [buscaNorma, setBuscaNorma] = useState('');
     const [filtrosSelecionados, setFiltrosSelecionados] = useState<FiltrosSelecionados>({});
     const [selectRequestOpen, setSelectRequestOpen] = useState(false);
-    const [modoSolicitacao, setModoSolicitacao] = useState(false);
+    const [/* modoSolicitacao */, setModoSolicitacao] = useState(false);
 
     const filtrosAtivos = Object.values(filtrosSelecionados).some(
         (v) => Array.isArray(v) && v.length > 0
