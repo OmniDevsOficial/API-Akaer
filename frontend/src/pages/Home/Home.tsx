@@ -4,8 +4,9 @@ import Sidebar from '../../components/sidebar';
 import Barra_pesquisa from '../../components/barra_pes';
 import TabelaNormas from '../../components/tabela';
 import AddStandardModal from '@/components/add-standard-modal';
-import SelectRequestModal, { type TipoSolicitacao } from '../../components/Selectrequestmodal';
 import ReportErrorModal from '../../components/report-error-modal';
+import SelectRequestModal, { type TipoSolicitacao } from '../../components/Solicitacoes/Selectrequestmodal';
+import { ModalSolicitacaoNota } from '@/components/Solicitacoes/modalSolicitacaoNota';
 import { getUserRole } from '../../utils/auth';
 import { FilterAside, type FiltrosSelecionados } from '../../components/FilterAside/FilterAside';
 
@@ -20,8 +21,9 @@ export default function Home() {
     const [buscaNorma, setBuscaNorma] = useState('');
     const [filtrosSelecionados, setFiltrosSelecionados] = useState<FiltrosSelecionados>({});
     const [selectRequestOpen, setSelectRequestOpen] = useState(false);
-    const [modoSolicitacao, setModoSolicitacao] = useState(false);
+    const [/* modoSolicitacao */, setModoSolicitacao] = useState(false);
     const [erroModalOpen, setErroModalOpen] = useState(false);
+    const [modalSolicitacaoNota, setNotaModalOpen] = useState(false);
 
     const filtrosAtivos = Object.values(filtrosSelecionados).some(
         (v) => Array.isArray(v) && v.length > 0
@@ -40,7 +42,7 @@ export default function Home() {
                 setModalAberto(true);
                 break;
             case 'adicionar_nota':
-                // TODO: setNotaModalOpen(true);
+                setNotaModalOpen(true);
                 break;
             case 'reportar_erro':
                 setErroModalOpen(true);
@@ -96,6 +98,12 @@ export default function Home() {
                             <ReportErrorModal
                                 open={erroModalOpen}
                                 onOpenChange={setErroModalOpen}
+                            />
+
+                            <ModalSolicitacaoNota
+                                open={modalSolicitacaoNota}
+                                onOpenChange={() => setNotaModalOpen(false)}
+                                normas={[]}
                             />
                         </div>
 

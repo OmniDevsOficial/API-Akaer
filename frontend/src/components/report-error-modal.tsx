@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { Dialog, DialogContent } from './ui/dialog';
+import { Check } from 'lucide-react';
+
 
 interface ReportErrorModalProps {
     open: boolean;
@@ -69,14 +72,8 @@ export default function ReportErrorModal({
     };
 
     return (
-        <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-            onClick={handleClose}
-        >
-            <div
-                className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 flex flex-col overflow-hidden"
-                onClick={(e) => e.stopPropagation()}
-            >
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-sm p-0 gap-0 overflow-hidden rounded-2xl bg-white outline-none">
                 {/* Header */}
                 <div className="px-6 py-4 flex items-start justify-between border-b border-gray-200">
                     <div>
@@ -85,9 +82,6 @@ export default function ReportErrorModal({
                         </p>
                         <h2 className="font-semibold text-dark-title text-base">Norma aeronáutica</h2>
                     </div>
-                    <button onClick={handleClose} className="text-gray-400 hover:text-dark-title transition-colors mt-1">
-                        <X size={18} />
-                    </button>
                 </div>
 
                 {/* Body */}
@@ -137,7 +131,7 @@ export default function ReportErrorModal({
                             Detalhes do Erro <span className="text-red-akaer">*</span>
                         </label>
                         <textarea
-                            placeholder="Ex: Descreva Detalhadamente Aqui Sobre O Erro..."
+                            placeholder="Ex: Descreva detalhadamente sobre o erro aqui..."
                             value={form.detalhesErro}
                             onChange={(e) => handleChange('detalhesErro', e.target.value)}
                             rows={4}
@@ -151,23 +145,23 @@ export default function ReportErrorModal({
 
                 {/* Footer */}
                 <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200">
-                    <span className="text-xs text-gray-400">Campos com * são obrigatórios</span>
+                    <span className="text-xs text-gray-400">Campos com <span className="text-xs text-red-akaer">*</span> são obrigatórios</span>
                     <div className="flex gap-2">
                         <button
                             onClick={handleClose}
-                            className="text-sm text-gray-600 hover:text-dark-title border border-gray-200 rounded-md px-4 py-2 transition-colors"
+                            className="text-sm text-gray-600 hover:text-dark-title border border-gray-200 rounded-md px-4 py-2 transition-colors cursor-pointer"
                         >
                             Cancelar
                         </button>
                         <button
                             onClick={handleSubmit}
-                            className="text-sm font-semibold text-white bg-dark-title rounded-md px-4 py-2 hover:opacity-90 transition-opacity flex items-center gap-1"
+                            className="text-sm font-semibold text-white bg-dark-title rounded-md px-4  hover:opacity-90 transition-opacity flex items-center gap-1 cursor-pointer"
                         >
-                            ✓ Enviar
+                            <Check className="w-4 h-4 mr-1" /> Enviar
                         </button>
                     </div>
                 </div>
-            </div>
-        </div>
+            </DialogContent >
+        </Dialog >
     );
 }

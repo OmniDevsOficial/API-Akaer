@@ -3,9 +3,9 @@ import { Button } from './ui/button';
 import { Check } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { FileUpload } from './ui/file-upload';
-import api from '@/services/api';
 import { NotasField } from './notes-field';
 import { NormasRelatedSelector } from '@/components/normas-related-selector';
+import api from '@/services/api';
 
 interface StandardModalProps {
     open: boolean;

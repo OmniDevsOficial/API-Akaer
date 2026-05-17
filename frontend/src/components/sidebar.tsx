@@ -1,14 +1,16 @@
 // Importa a lib de icons do react
 import { IoReorderFour } from "react-icons/io5";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useRecolher } from "./recolher-aside";
+import { BsJournalText } from "react-icons/bs";
+import { useRecolher } from "../utils/functions";
 
 
 export default function Sidebar() {
-    const {recolher, alternar} = useRecolher();
+    const { recolher, alternar } = useRecolher();
 
     const itemSidebar = [
         { id: 1, nome: 'Normas', icone: <IoReorderFour className="text-lg" />, ativo: true },
+        { id: 2, nome: 'Solicitações', icone: <BsJournalText className="text-lg" />, ativo: false },
     ];
 
     return (
@@ -24,8 +26,8 @@ export default function Sidebar() {
             {/* Opções Aside */}
             {itemSidebar.map((item) => (
                 <button key={item.id}
-                    className={`flex items-center my-2 gap-2 px-3 py-2 text-left rounded-md w-full font-semibold transition-colors cursor-pointer
-                    ${item.ativo ? 'bg-[#73203A] text-white' : 'text-black hover:bg-[#73203a] hover:text-white'}
+                    className={`flex items-center my-2 gap-2 px-3 py-2 text-left rounded-md w-full font-semibold transition-colors duration-150 ease-in-out cursor-pointer
+                    ${item.ativo ? 'bg-[#73203A] text-white' : 'text-black hover:bg-gray-medium/20 hover:text-black'}
                     ${recolher ? "justify-center" : ""}`}
                     title={recolher ? item.nome : undefined}
                 >
