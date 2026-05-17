@@ -326,8 +326,10 @@ export default function Visualizar() {
                                                         key={n.codigo}
                                                         className="flex items-center gap-1 bg-[#FAF9F7] text-dark-title border border-font-border px-2 py-1 rounded text-sm"
                                                     >
-                                                        {n.codigo}
-                                                        {n.titulo ? ` — ${n.titulo}` : ""}
+                                                        <Link to={`/normas/ver/${n.codigo}`}>
+                                                            {n.codigo}
+                                                            {n.titulo ? ` — ${n.titulo}` : ""}
+                                                        </Link>
                                                     </span>
                                                 ))
                                             ) : (
@@ -366,14 +368,14 @@ export default function Visualizar() {
                             </div>
                         )}
                     </main>
-                </div>
-            </div>
+                </div >
+            </div >
 
             <PdfViewerModal
                 open={pdfModalOpen}
                 onOpenChange={setPdfModalOpen}
                 norma={normaModal}
             />
-        </div>
+        </div >
     );
 }

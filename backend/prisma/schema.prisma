@@ -9,8 +9,8 @@ datasource db {
 
 enum Role {
   ADMIN
-  TECNICO
   VISUALIZADOR
+  CHECKER
 }
 
 enum norma_status {
