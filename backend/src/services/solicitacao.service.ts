@@ -2,16 +2,18 @@ import prisma from "../prisma/client";
 
 export const criarSolicitacao = async (
   usuarioId: number,
-  tipo_solicitacao: string,
+  tipo_solicitacao: any,
   dados: any
 ) => {
-  //temporário (esperando o BD (prisma as any)) para evitar erro de tipagem no TypeScript.
-  const novaSolicitacao = await (prisma as any).solicitacao.create({
+  const norma_id = (tipo_solicitacao === "NOVA_NOTA" || tipo_solicitacao === "REPORTE_ERRO") ? dados.norma_id : null;
+
+  const novaSolicitacao = await prisma.solicitacaoNorma.create({
     data: {
-      tipo: tipo_solicitacao,
-      dados: dados,
+      tipo_solicitacao: tipo_solicitacao,
+      dados_propostos: dados,
       usuario_id: usuarioId,
-      status: "Pendente"
+      status: "Pendente",
+      norma_id: norma_id,
     }
   });
 
