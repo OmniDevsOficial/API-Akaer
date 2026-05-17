@@ -5,6 +5,7 @@ import Barra_pesquisa from '../../components/barra_pes';
 import TabelaNormas from '../../components/tabela';
 import AddStandardModal from '@/components/add-standard-modal';
 import SelectRequestModal, { type TipoSolicitacao } from '../../components/Selectrequestmodal';
+import ReportErrorModal from '../../components/report-error-modal';
 import { getUserRole } from '../../utils/auth';
 import { FilterAside, type FiltrosSelecionados } from '../../components/FilterAside/FilterAside';
 
@@ -20,6 +21,7 @@ export default function Home() {
     const [filtrosSelecionados, setFiltrosSelecionados] = useState<FiltrosSelecionados>({});
     const [selectRequestOpen, setSelectRequestOpen] = useState(false);
     const [modoSolicitacao, setModoSolicitacao] = useState(false);
+    const [erroModalOpen, setErroModalOpen] = useState(false);
 
     const filtrosAtivos = Object.values(filtrosSelecionados).some(
         (v) => Array.isArray(v) && v.length > 0
@@ -41,7 +43,7 @@ export default function Home() {
                 // TODO: setNotaModalOpen(true);
                 break;
             case 'reportar_erro':
-                // TODO: setErroModalOpen(true);
+                setErroModalOpen(true);
                 break;
         }
     };
@@ -89,6 +91,11 @@ export default function Home() {
                                 open={modalAberto}
                                 onOpenChange={handleModalOpenChange}
                                 onSuccess={handleCadastroSucesso}
+                            />
+
+                            <ReportErrorModal
+                                open={erroModalOpen}
+                                onOpenChange={setErroModalOpen}
                             />
                         </div>
 
