@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import Header from '../../components/header';
-import { HeaderEditar } from '../../components/PasteEditar/headerEditar';
-import BodyEditar, { type BodyEditarHandle } from '../../components/PasteEditar/bodyEditar';
+import { HeaderEditar } from './components/headerEditar';
+import BodyEditar, { type BodyEditarHandle } from './components/bodyEditar';
 import Sidebar from '../../components/sidebar';
 
 export default function Editar() {

@@ -1,7 +1,7 @@
 // Importa a lib de icons do react
 import { IoReorderFour } from "react-icons/io5";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useRecolher } from "./recolher-aside";
+import { useRecolher } from "../utils/functions";
 
 
 export default function Sidebar() {

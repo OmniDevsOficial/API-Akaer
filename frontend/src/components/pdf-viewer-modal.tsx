@@ -3,7 +3,7 @@ import { Document, Page, pdfjs } from "react-pdf";
 import { Dialog, DialogClose, DialogContent } from "@/components/ui/dialog";
 import { FaRegFilePdf, FaLock } from "react-icons/fa6";
 import { ChevronLeft, ChevronRight, Minus, Plus, X } from "lucide-react";
-import { useRecolher } from "./recolher-aside";
+import { useRecolher } from "../utils/functions";
 
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
