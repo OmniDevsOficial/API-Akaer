@@ -20,7 +20,7 @@ const handleUpload = (req: Request, res: Response, next: NextFunction) => {
 router.get("/listar", authMiddleware, searchNormas);
 router.get("/:codigo/documento", authMiddleware, getNormaDocumento);
 router.post("/create", authMiddleware, roleMiddleware(["ADMIN"]), handleUpload, createNorma);
-router.put("/:codigo", authMiddleware, roleMiddleware(["ADMIN"]), updateNorma);
+router.put("/:codigo", authMiddleware, roleMiddleware(["ADMIN"]), handleUpload, updateNorma);
 router.get("/:codigo", getNormaByCode);
 router.get("/:codigo/relacionadas", authMiddleware, getNormasRelacionadas);
 router.post("/:codigo/relacionadas", authMiddleware, roleMiddleware(["ADMIN", "TECNICO"]), addNormaRelacionada);

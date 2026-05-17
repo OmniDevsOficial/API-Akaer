@@ -34,10 +34,16 @@ export const updateNorma = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Código da norma inválido" });
     }
 
-    const norma = await updateNormaService(codigoParam, req.body);
+    const file = req.file;
+
+    const norma = await updateNormaService(codigoParam, req.body, file?.path);
 
     return res.status(200).json(norma);
   } catch (error: any) {
+    if (req.file?.path && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+
     if (error.message === "Norma não encontrada") {
       return res.status(404).json({ error: error.message });
     }
