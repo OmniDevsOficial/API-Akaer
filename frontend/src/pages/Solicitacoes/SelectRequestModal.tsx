@@ -1,5 +1,5 @@
 import { ChevronRight } from 'lucide-react';
-import { Dialog, DialogContent } from '@/components/ui/dialog.tsx';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 export type TipoSolicitacao = 'indicar_norma' | 'adicionar_nota' | 'reportar_erro';
 
