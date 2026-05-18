@@ -4,8 +4,9 @@ import Sidebar from '../../components/sidebar';
 import Barra_pesquisa from '../../components/barra_pes';
 import TabelaNormas from '../../components/tabela';
 import AddStandardModal from '@/components/add-standard-modal';
-import SelectRequestModal, { type TipoSolicitacao } from '../Solicitacoes/Selectrequestmodal';
-import { ModalSolicitacaoNota } from '../Solicitacoes/modalSolicitacaoNota';
+import ReportErrorModal from '../Solicitacoes/ReportErrorModal';
+import SelectRequestModal, { type TipoSolicitacao } from '../Solicitacoes/SelectRequestModal';
+import { ModalSolicitacaoNota } from '../Solicitacoes/ModalSolicitacaoNota';
 import { getUserRole } from '../../utils/auth';
 import { FilterAside, type FiltrosSelecionados } from '../../components/FilterAside/FilterAside';
 
@@ -21,6 +22,7 @@ export default function Home() {
     const [filtrosSelecionados, setFiltrosSelecionados] = useState<FiltrosSelecionados>({});
     const [selectRequestOpen, setSelectRequestOpen] = useState(false);
     const [/* modoSolicitacao */, setModoSolicitacao] = useState(false);
+    const [erroModalOpen, setErroModalOpen] = useState(false);
     const [modalSolicitacaoNota, setNotaModalOpen] = useState(false);
 
     const filtrosAtivos = Object.values(filtrosSelecionados).some(
@@ -43,7 +45,7 @@ export default function Home() {
                 setNotaModalOpen(true);
                 break;
             case 'reportar_erro':
-                // TODO: setErroModalOpen(true);
+                setErroModalOpen(true);
                 break;
         }
     };
@@ -92,12 +94,17 @@ export default function Home() {
                                 onOpenChange={handleModalOpenChange}
                                 onSuccess={handleCadastroSucesso}
                             />
+
+                            <ReportErrorModal
+                                open={erroModalOpen}
+                                onOpenChange={setErroModalOpen}
+                            />
+
                             <ModalSolicitacaoNota
                                 open={modalSolicitacaoNota}
                                 onOpenChange={() => setNotaModalOpen(false)}
                                 normas={[]}
                             />
-
                         </div>
 
                         <Barra_pesquisa

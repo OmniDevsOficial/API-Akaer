@@ -14,7 +14,7 @@ const LoginPage: React.FC = () => {
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      const response = await api.post('/api/auth/login', {
+      const response = await api.post('/auth/login', {
         email,
         password,
       });

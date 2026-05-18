@@ -23,7 +23,7 @@ router.post("/create", authMiddleware, roleMiddleware(["ADMIN"]), handleUpload, 
 router.put("/:codigo", authMiddleware, roleMiddleware(["ADMIN"]), updateNorma);
 router.get("/:codigo", getNormaByCode);
 router.get("/:codigo/relacionadas", authMiddleware, getNormasRelacionadas);
-router.post("/:codigo/relacionadas", authMiddleware, roleMiddleware(["ADMIN", "TECNICO"]), addNormaRelacionada);
-router.delete("/:codigo/relacionadas/:relacionadaCodigo", authMiddleware, roleMiddleware(["ADMIN", "TECNICO"]), removeNormaRelacionada);
+router.post("/:codigo/relacionadas", authMiddleware, roleMiddleware(["ADMIN", "CHECKER"]), addNormaRelacionada);
+router.delete("/:codigo/relacionadas/:relacionadaCodigo", authMiddleware, roleMiddleware(["ADMIN", "CHECKER"]), removeNormaRelacionada);
 
 export default router;

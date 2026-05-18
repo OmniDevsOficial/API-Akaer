@@ -9,8 +9,8 @@ datasource db {
 
 enum Role {
   ADMIN
-  TECNICO
   VISUALIZADOR
+  CHECKER
 }
 
 enum norma_status {
@@ -18,14 +18,29 @@ enum norma_status {
   Obsoleta
 }
 
+enum solicitacao_status {
+  Pendente
+  Reprovada
+  Aprovada
+  Concluida
+}
+
+enum tipo_solicitacao {
+  NOVA_NORMA
+  NOVA_NOTA
+  REPORTE_ERRO
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   nome      String   @db.VarChar(100)
   email     String   @unique @db.VarChar(225)
   password  String   @db.VarChar(255)
-  role      Role     @default(VISUALIZADOR)
+  role      Role     @default(CHECKER)
   ativo     Boolean  @default(true)
   criado_em DateTime @default(now())
+
+  solicitacoes SolicitacaoNorma[]
 
   @@map("users")
 }
@@ -67,9 +82,10 @@ model Norma {
   escopo           String?
   palavras_chave   Json?
 
-  notas                  NormaNota[]
-  normas_relacionadas    NormaRelacionada[] @relation("NormaRelacionadasOrigem")
-  relacionada_por        NormaRelacionada[] @relation("NormaRelacionadasDestino")
+  notas               NormaNota[]
+  normas_relacionadas NormaRelacionada[] @relation("NormaRelacionadasOrigem")
+  relacionada_por     NormaRelacionada[] @relation("NormaRelacionadasDestino")
+  solicitacoes        SolicitacaoNorma[]
 
   orgao_emissor OrgaoEmissor  @relation(fields: [orgao_emissor_id], references: [id])
   categoria     Categoria     @relation(fields: [categoria_id], references: [id])
@@ -101,4 +117,19 @@ model NormaRelacionada {
   @@id([norma_codigo, relacionada_codigo])
   @@index([relacionada_codigo])
   @@map("norma_relacionada")
+}
+
+model SolicitacaoNorma {
+  id               Int                @id @default(autoincrement())
+  status           solicitacao_status @default(Pendente)
+  tipo_solicitacao tipo_solicitacao
+  norma_id         String?            @db.VarChar(50)
+  dados_propostos  Json?
+  data_criacao     DateTime           @default(now())
+
+  usuario_id Int
+  usuario    User   @relation(fields: [usuario_id], references: [id])
+  norma      Norma? @relation(fields: [norma_id], references: [codigo])
+
+  @@map("solicitacoes_normas")
 }
