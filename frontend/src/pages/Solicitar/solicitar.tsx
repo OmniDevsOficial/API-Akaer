@@ -1,96 +1,75 @@
 import { useState } from 'react';
 import Header from '../../components/header';
 import Sidebar from '../../components/sidebar';
-import Barra_pesquisa from '../../components/barra_pes';
-import TabelaNormas from '../../components/tabela';
-import AddStandardModal from '@/components/add-standard-modal';
-import ReportErrorModal from '../../components/report-error-modal';
-import SelectRequestModal, { type TipoSolicitacao } from '../../components/Solicitacoes/Selectrequestmodal';
-import { ModalSolicitacaoNota } from '@/components/Solicitacoes/modalSolicitacaoNota';
-import { getUserRole } from '../../utils/auth';
+import BarraPesquisaSolicitar from './components/barra-pes-solicitar';
+import TabelaSolicitar from './components/tabela-solicitar';
 import { FilterAside, type FiltrosSelecionados } from '../../components/FilterAside/FilterAside';
 
+const status = [
+    { label: 'Pendentes', cor: 'bg-gray-500' },
+    { label: 'Aprovadas', cor: 'bg-orange-400' },
+    { label: 'Concluídas', cor: 'bg-green-500' },
+    { label: 'Reprovadas', cor: 'bg-red-akaer' },
+];
+
 export default function Solicitar() {
-
-    const role = getUserRole();
-    const isAdmin = role?.toLocaleLowerCase() === 'admin';
-
-    const [modalAberto, setModalAberto] = useState(false);
     const [filtroModalOpen, setFiltroModalOpen] = useState(false);
-    const [recarregarTabela, setRecarregarTabela] = useState(0);
+    const [recarregarTabela, /* setRecarregarTabela */] = useState(0);
     const [buscaNorma, setBuscaNorma] = useState('');
     const [filtrosSelecionados, setFiltrosSelecionados] = useState<FiltrosSelecionados>({});
-    const [selectRequestOpen, setSelectRequestOpen] = useState(false);
-    const [/* modoSolicitacao */, setModoSolicitacao] = useState(false);
-    const [erroModalOpen, setErroModalOpen] = useState(false);
-    const [modalSolicitacaoNota, setNotaModalOpen] = useState(false);
+    const [filtroStatus, setFiltroStatus] = useState('todas');
 
     const filtrosAtivos = Object.values(filtrosSelecionados).some(
-        (v) => Array.isArray(v) && v.length > 0
+        (valor) => Array.isArray(valor) && valor.length > 0
     );
 
-    const handleCadastroSucesso = () => {
-        setRecarregarTabela((anterior) => anterior + 1);
-    };
-
-    const handleSelectTipo = (tipo: TipoSolicitacao) => {
-        setSelectRequestOpen(false);
-
-        switch (tipo) {
-            case 'indicar_norma':
-                setModoSolicitacao(true);
-                setModalAberto(true);
-                break;
-            case 'adicionar_nota':
-                setNotaModalOpen(true);
-                break;
-            case 'reportar_erro':
-                setErroModalOpen(true);
-                break;
-        }
-    };
-
-    const handleModalOpenChange = (open: boolean) => {
-        setModalAberto(open);
-        if (!open) setModoSolicitacao(false);
-    };
-
     return (
-        <>
-            <div className="min-h-screen bg-[#fbfbfb] flex flex-col font-dm">
+        <div className="min-h-screen bg-[#fbfbfb] flex flex-col font-dm">
+            <Header />
 
-                <Header />
+            <div className="flex flex-1">
+                <Sidebar />
 
-                <div className="flex flex-1">
+                <main className="flex-1 p-8">
+                    <h2 className="text-red-akaer font-bold text-sm tracking-widest mb-2">GERENCIAMENTO</h2>
+                    <h1 className="text-3xl font-dm font-semibold text-dark-title">Solicitações</h1>
 
-                    <Sidebar />
+                    <div className="text-sm text-gray-medium flex justify-between gap-3 mt-2">
+                        <span>Avalie e gerencie as solicitações enviadas pelos usuários</span>
 
-                    <main className="flex-1 p-8">
-                        <h2 className="text-red-akaer font-bold text-sm tracking-widest mb-2">GERENCIAMENTO</h2>
+                        <div className="flex gap-4 items-center">
+                            {status.map(({ label, cor }) => (
+                                <div key={label} className="flex items-center gap-1.5">
+                                    <span className={`inline-block w-2 h-2 rounded-full ${cor}`} />
+                                    <span className='leading-none'>{label}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
 
-                        
+                    <FilterAside
+                        isOpen={filtroModalOpen}
+                        onClose={() => setFiltroModalOpen(false)}
+                        onApplyFilters={setFiltrosSelecionados}
+                    />
 
-                        <Barra_pesquisa
-                            busca={buscaNorma}
-                            onBuscaChange={setBuscaNorma}
-                            onOpenFilters={() => setFiltroModalOpen(true)}
-                            filtrosAtivos={filtrosAtivos}
-                        />
+                    <BarraPesquisaSolicitar
+                        busca={buscaNorma}
+                        onBuscaChange={setBuscaNorma}
+                        onOpenFilters={() => setFiltroModalOpen(true)}
+                        filtrosAtivos={filtrosAtivos}
+                        filtroStatus={filtroStatus}
+                        onFiltroStatusChange={setFiltroStatus}
+                    />
 
-                        <FilterAside
-                            isOpen={filtroModalOpen}
-                            onClose={() => setFiltroModalOpen(false)}
-                            onApplyFilters={setFiltrosSelecionados}
-                        />
-
-                        <TabelaNormas
-                            refreshTrigger={recarregarTabela}
-                            searchText={buscaNorma}
-                            filtros={filtrosSelecionados}
-                        />
-                    </main>
-                </div>
+                    <TabelaSolicitar
+                        refreshTrigger={recarregarTabela}
+                        searchText={buscaNorma}
+                        filtros={filtrosSelecionados}
+                        filtroStatus={filtroStatus}
+                    />
+                </main>
             </div>
-        </>
+        </div>
     );
 }

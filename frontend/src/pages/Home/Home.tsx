@@ -5,8 +5,8 @@ import Barra_pesquisa from '../../components/barra_pes';
 import TabelaNormas from '../../components/tabela';
 import AddStandardModal from '@/components/add-standard-modal';
 import ReportErrorModal from '../../components/report-error-modal';
-import SelectRequestModal, { type TipoSolicitacao } from '../../components/Solicitacoes/Selectrequestmodal';
-import { ModalSolicitacaoNota } from '@/components/Solicitacoes/modalSolicitacaoNota';
+import SelectRequestModal, { type TipoSolicitacao } from '../Solicitar/components/Selectrequestmodal';
+import { ModalSolicitacaoNota } from '../Solicitar/components/modalSolicitacaoNota';
 import { getUserRole } from '../../utils/auth';
 import { FilterAside, type FiltrosSelecionados } from '../../components/FilterAside/FilterAside';
 

@@ -174,8 +174,8 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                             {/* Status com bolinha colorida */}
                             <td className="px-6 py-4">
                                 <div className="flex items-center gap-1">
-                                    <span className={`w-2 h-2 rounded-full ${statusColorClass(norma.status)}`}></span>
-                                    <span className="text-sm text-gray-700">{norma.status}</span>
+                                    <span className={`inline-block w-2 h-2 rounded-full ${statusColorClass(norma.status)}`}></span>
+                                    <span className="leading-none text-sm text-gray-700">{norma.status}</span>
                                 </div>
                             </td>
 
