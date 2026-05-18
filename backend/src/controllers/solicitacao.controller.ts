@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { criarSolicitacao, listarSolicitacoes } from "../services/solicitacao.service";
+import { criarSolicitacao } from "../services/solicitacao.service";
 
 export const createSolicitacaoController = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -34,17 +34,5 @@ export const createSolicitacaoController = async (req: Request, res: Response): 
   } catch (error) {
     console.error("Erro ao criar a solicitação:", error);
     res.status(500).json({ error: "Erro interno do servidor ao registrar a solicitação." });
-  }
-};
-
-export const listSolicitacoesController = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const status = typeof req.query.status === "string" ? req.query.status : undefined;
-    const solicitacoes = await listarSolicitacoes(status);
-
-    res.status(200).json(solicitacoes);
-  } catch (error) {
-    console.error("Erro ao listar as solicitações:", error);
-    res.status(500).json({ error: "Erro interno do servidor ao listar as solicitações." });
   }
 };
