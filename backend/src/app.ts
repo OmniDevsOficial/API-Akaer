@@ -12,8 +12,8 @@ app.use(cors({ origin: ["http://localhost:5173","https://api-akaer.vercel.app"] 
 app.use(express.json());
 app.use("/uploads", express.static(path.resolve(__dirname, "../uploads")));
 
-app.use("/api/auth", authRoutes);
-app.use("/api/solicitacoes", solicitacaoRoutes);
+app.use("/auth", authRoutes);
+app.use("/solicitacoes", solicitacaoRoutes);
 app.use("/normas", normaRoutes);
 app.use("/", optionsRoutes);
 
