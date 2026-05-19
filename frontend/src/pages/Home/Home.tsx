@@ -4,9 +4,9 @@ import Sidebar from '../../components/sidebar';
 import Barra_pesquisa from '../../components/barra_pes';
 import TabelaNormas from '../../components/tabela';
 import AddStandardModal from '@/components/add-standard-modal';
-import ReportErrorModal from '../../components/report-error-modal';
-import SelectRequestModal, { type TipoSolicitacao } from '../../components/Solicitacoes/Selectrequestmodal';
-import { ModalSolicitacaoNota } from '@/components/Solicitacoes/modalSolicitacaoNota';
+import ReportErrorModal from '../Solicitacoes/ReportErrorModal';
+import SelectRequestModal, { type TipoSolicitacao } from '../Solicitacoes/SelectRequestModal';
+import { ModalSolicitacaoNota } from '../Solicitacoes/ModalSolicitacaoNota';
 import { getUserRole } from '../../utils/auth';
 import { FilterAside, type FiltrosSelecionados } from '../../components/FilterAside/FilterAside';
 
