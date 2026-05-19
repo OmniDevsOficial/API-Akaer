@@ -127,8 +127,9 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                 JSON.stringify(form) === JSON.stringify(dadosIniciais?.form) &&
                 JSON.stringify(palavrasChave) === JSON.stringify(dadosIniciais?.palavrasChave) &&
                 JSON.stringify(notas) === JSON.stringify(dadosIniciais?.notas) &&
-                JSON.stringify(correlacoes) === JSON.stringify(dadosIniciais?.correlacoes);
-            console.log(dadosIniciais);
+                JSON.stringify(correlacoes) === JSON.stringify(dadosIniciais?.correlacoes) &&
+                arquivoNorma === null;
+
             if (semAlteracao) {
                 throw new Error("Nenhuma alteração foi feita.");
             }
@@ -136,20 +137,20 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                 throw new Error("Código da norma não encontrado para atualização.");
             }
 
-            const payload = {
-                titulo: form.titulo,
-                orgao_emissor_id: form.orgaoEmissorId || undefined,
-                categoria_id: form.categoriaId || undefined,
-                etapa_projeto_id: form.etapaProjetoId || undefined,
-                revisao: form.revisao || undefined,
-                status: form.status,
-                escopo: form.escopo || undefined,
-                palavras_chave: palavrasChave,
-                notas,
-                normas_relacionadas_ids: correlacoes.map((c: any) => c.codigo),
-            };
+            const formData = new FormData();
+            if (arquivoNorma) formData.append("file", arquivoNorma);
+            if (form.titulo) formData.append("titulo", form.titulo);
+            if (form.orgaoEmissorId) formData.append("orgao_emissor_id", form.orgaoEmissorId);
+            if (form.categoriaId) formData.append("categoria_id", form.categoriaId);
+            if (form.etapaProjetoId) formData.append("etapa_projeto_id", form.etapaProjetoId);
+            if (form.revisao) formData.append("revisao", form.revisao);
+            if (form.status) formData.append("status", form.status);
+            if (form.escopo) formData.append("escopo", form.escopo);
+            formData.append("palavras_chave", JSON.stringify(palavrasChave));
+            formData.append("notas", JSON.stringify(notas));
+            formData.append("normas_relacionadas_ids", JSON.stringify(correlacoes.map((c: any) => c.codigo)));
 
-            await atualizarNorma(form.codigo, payload);
+            await atualizarNorma(form.codigo, formData);
         },
     }));
 
@@ -574,4 +575,4 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
 
 BodyEditar.displayName = "BodyEditar";
 
-export default BodyEditar;
+export default BodyEditar; 

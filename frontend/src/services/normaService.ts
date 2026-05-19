@@ -37,7 +37,7 @@ export const getNormaDetalhes = async (codigo: string): Promise<NormaDetalhes> =
 
 export const atualizarNorma = async (
     codigo: string,
-    payload: AtualizarNormaPayload
+    payload: FormData
 ): Promise<void> => {
     await api.put(`/normas/${encodeURIComponent(codigo)}`, payload);
 };
