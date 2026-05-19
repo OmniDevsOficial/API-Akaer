@@ -70,7 +70,8 @@ model EtapaProjeto {
 }
 
 model Norma {
-  codigo           String       @id @db.VarChar(50)
+  id               Int          @id @default(autoincrement())
+  codigo           String       @unique @db.VarChar(50)
   titulo           String       @db.VarChar(255)
   orgao_emissor_id Int
   categoria_id     Int

@@ -38,8 +38,12 @@ export default function Solicitar() {
                         <span>Avalie e gerencie as solicitações enviadas pelos usuários</span>
 
                         <div className="flex gap-4 items-center">
-                            {status.map(({ label, cor }) => (
+                            {status.map(({ label, cor }, index) => (
                                 <div key={label} className="flex items-center gap-1.5">
+                                    {index > 0 && (
+                                        <div className='w-[1.3px] h-4 bg-gray-medium/80' />
+                                    )}
+
                                     <span className={`inline-block w-2 h-2 rounded-full ${cor}`} />
                                     <span className='leading-none'>{label}</span>
                                 </div>
