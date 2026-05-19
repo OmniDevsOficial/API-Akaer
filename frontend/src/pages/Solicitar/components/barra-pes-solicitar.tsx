@@ -46,7 +46,7 @@ export default function BarraPesquisaSolicitar({
                 <input
                     type="text"
                     className="focus:outline-none focus:ring-0 w-full"
-                    placeholder="Buscar Normas, códigos ou palavra-chave..."
+                    placeholder="Buscar por tipo, criador ou cargo..."
                     value={busca}
                     onChange={(e) => onBuscaChange(e.target.value)}
                 />
