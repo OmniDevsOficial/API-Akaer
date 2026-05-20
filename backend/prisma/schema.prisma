@@ -36,11 +36,11 @@ model User {
   nome      String   @db.VarChar(100)
   email     String   @unique @db.VarChar(225)
   password  String   @db.VarChar(255)
-  role      Role     @default(VISUALIZADOR)
+  role      Role     @default(CHECKER)
   ativo     Boolean  @default(true)
   criado_em DateTime @default(now())
 
-  solicitacoes_normas SolicitacaoNorma[]
+  solicitacoes SolicitacaoNorma[]
 
   @@map("users")
 }
@@ -70,7 +70,8 @@ model EtapaProjeto {
 }
 
 model Norma {
-  codigo           String       @id @db.VarChar(50)
+  id               Int          @id @default(autoincrement())
+  codigo           String       @unique @db.VarChar(50)
   titulo           String       @db.VarChar(255)
   orgao_emissor_id Int
   categoria_id     Int
@@ -82,10 +83,10 @@ model Norma {
   escopo           String?
   palavras_chave   Json?
 
-  notas                  NormaNota[]
-  normas_relacionadas    NormaRelacionada[] @relation("NormaRelacionadasOrigem")
-  relacionada_por        NormaRelacionada[] @relation("NormaRelacionadasDestino")
-  solicitacoes_normas    SolicitacaoNorma[]
+  notas               NormaNota[]
+  normas_relacionadas NormaRelacionada[] @relation("NormaRelacionadasOrigem")
+  relacionada_por     NormaRelacionada[] @relation("NormaRelacionadasDestino")
+  solicitacoes        SolicitacaoNorma[]
 
   orgao_emissor OrgaoEmissor  @relation(fields: [orgao_emissor_id], references: [id])
   categoria     Categoria     @relation(fields: [categoria_id], references: [id])

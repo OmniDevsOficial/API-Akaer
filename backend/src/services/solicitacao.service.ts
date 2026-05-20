@@ -20,21 +20,18 @@ const STATUS_SOLICITACAO: SolicitacaoStatus[] = ["Pendente", "Reprovada", "Aprov
 
 export const criarSolicitacao = async (
   usuarioId: number,
-  tipoSolicitacao: TipoSolicitacao,
-  dados: DadosSolicitacao
+  tipo_solicitacao: any,
+  dados: any
 ) => {
-  const normaId =
-    typeof dados.norma_id === "string" && dados.norma_id.trim()
-      ? dados.norma_id.trim()
-      : null;
+  const norma_id = (tipo_solicitacao === "NOVA_NOTA" || tipo_solicitacao === "REPORTE_ERRO") ? dados.norma_id : null;
 
-  return prisma.solicitacaoNorma.create({
+  const novaSolicitacao = await prisma.solicitacaoNorma.create({
     data: {
-      tipo_solicitacao: tipoSolicitacao as any,
-      norma_id: normaId,
+      tipo_solicitacao: tipo_solicitacao,
       dados_propostos: dados,
       usuario_id: usuarioId,
-      status: "Pendente" as any
+      status: "Pendente",
+      norma_id: norma_id,
     }
   });
 };

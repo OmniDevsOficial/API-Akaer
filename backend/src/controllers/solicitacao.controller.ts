@@ -78,17 +78,15 @@ export const createSolicitacaoController = async (req: Request, res: Response): 
     const dadosNormalizados = normalizarDadosSolicitacao(tipo_solicitacao, dados);
 
     if (tipo_solicitacao === "NOVA_NORMA") {
-      const { titulo, arquivo, orgao_emissor, categoria } = dadosNormalizados;
-      if (!titulo || !arquivo || !orgao_emissor || !categoria) {
-        res.status(400).json({ error: "Para uma nova norma, os campos titulo, arquivo, orgao emissor e categoria são obrigatórios." });
+      const { solicitante, referencia, utilidade } = dados;
+      if (!solicitante || !referencia || !utilidade) {
+        res.status(400).json({ error: "Para uma nova norma, os campos solicitante, referencia e utilidade são obrigatórios." });
         return;
       }
     } else if (tipo_solicitacao === "NOVA_NOTA" || tipo_solicitacao === "REPORTE_ERRO") {
-      const normaId = getTextoCampo(dadosNormalizados.norma_id);
-      const descricao = getTextoCampo(dadosNormalizados.descricao);
-
-      if (!normaId || !descricao) {
-        res.status(400).json({ error: "Para uma nova nota ou relato de erro, o ID da norma e a descrição/texto são obrigatórios e não podem ser vazios." });
+      const { solicitante, norma_id, descricao } = dados;
+      if (!solicitante || !norma_id || !descricao) {
+        res.status(400).json({ error: "Para uma nova nota ou relato de erro, o ID da norma, nome do solicitante e a descrição/texto são obrigatórios e não podem ser vazios." });
         return;
       }
     }
