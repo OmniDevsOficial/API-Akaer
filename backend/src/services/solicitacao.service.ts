@@ -8,7 +8,6 @@ type SolicitacaoStatus = "Pendente" | "Reprovada" | "Aprovada" | "Concluida";
 type SolicitacaoListagem = {
   id: number;
   nome: string;
-  cargo: Role;
   role: Role;
   status: SolicitacaoStatus;
   tipo_solicitacao: TipoSolicitacao;
@@ -63,7 +62,6 @@ export const listarSolicitacoes = async (status?: string): Promise<SolicitacaoLi
   return solicitacoes.map((solicitacao) => ({
     id: solicitacao.id,
     nome: solicitacao.usuario.nome,
-    cargo: solicitacao.usuario.role,
     role: solicitacao.usuario.role,
     status: solicitacao.status as SolicitacaoStatus,
     tipo_solicitacao: solicitacao.tipo_solicitacao as TipoSolicitacao,
