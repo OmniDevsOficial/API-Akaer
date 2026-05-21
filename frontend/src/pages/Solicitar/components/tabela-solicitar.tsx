@@ -1,10 +1,21 @@
 import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
-import { getUserRole } from '@/utils/auth';
+import { getUserRole } from "@/utils/auth";
+import api from "@/services/api";
 /* import { useNavigate } from "react-router-dom"; */
 import type { FiltrosSelecionados } from "@/components/FilterAside/FilterAside";
 
-// INTEGRAÇÃO: reflete o contrato esperado do endpoint /solicitar
+// INTEGRAÇÃO: reflete o contrato esperado do endpoint /solicitacoes
+interface SolicitacaoApi {
+    id: number;
+    nome: string;
+    role: string;
+    status: string;
+    tipo_solicitacao: string;
+    norma_id: string | null;
+    data_criacao: string;
+}
+
 export interface Solicitacao {
     id: number;
     tipo: string;
@@ -14,13 +25,18 @@ export interface Solicitacao {
     data_criacao: string; // não sei se está vindo formatado, tem que conferir
 }
 
-// remover mock quando endpoint /solicitar estiver disponível para integração
-// Substituir por: const data = await api.get('/solicitar');
-const dado_moa: Solicitacao[] = [
-    { id: 1, tipo: 'Revisão', criador: 'João Silva', cargo: 'Engenheiro', status: 'Pendente', data_criacao: '2024-05-01T10:00:00Z' },
-    { id: 2, tipo: 'Cadastro', criador: 'Ana Souza', cargo: 'Analista', status: 'Aprovada', data_criacao: '2024-05-03T14:30:00Z' },
-    { id: 3, tipo: 'Cancelamento', criador: 'Pedro Lima', cargo: 'Técnico', status: 'Reprovada', data_criacao: '2024-05-06T09:00:00Z' },
-];
+const STATUS_PARAM_MAP: Record<string, string | undefined> = {
+    pendente: "Pendente",
+    aprovada: "Aprovada",
+    concluida: "Concluida",
+    reprovada: "Reprovada",
+};
+
+const TIPO_LABEL_MAP: Record<string, string> = {
+    NOVA_NORMA: "Nova norma",
+    NOVA_NOTA: "Nova nota",
+    REPORTE_ERRO: "Reporte de erro",
+};
 
 export interface TabelaSolicitarProps {
     refreshTrigger?: number;
@@ -39,7 +55,11 @@ const statusColorClass = (status: string) => {
     return corStatus[status.toLowerCase()] ?? 'bg-gray-300';
 };
 
-export default function TabelaSolicitar({ filtroStatus = 'todas', searchText = '', }: TabelaSolicitarProps) {
+export default function TabelaSolicitar({
+    filtroStatus = "todas",
+    searchText = "",
+    refreshTrigger,
+}: TabelaSolicitarProps) {
     const role = getUserRole();
     const isAdmin = role?.toLowerCase() === 'admin';
     /* const navigate = useNavigate(); */
@@ -47,13 +67,50 @@ export default function TabelaSolicitar({ filtroStatus = 'todas', searchText = '
     const [carregando, setCarregando] = useState(true);
 
     useEffect(() => {
-        setCarregando(true);
-        // substituir por chamada ao endpoint /solicitar
-        setTimeout(() => {
-            setSolicitacoes(dado_moa);
-            setCarregando(false);
-        }, 300);
-    }, []);
+        let ativo = true;
+
+        const carregarSolicitacoes = async () => {
+            setCarregando(true);
+
+            try {
+                const statusParam = STATUS_PARAM_MAP[filtroStatus.toLowerCase()];
+                const response = await api.get<SolicitacaoApi[]>("/solicitacoes", {
+                    params: statusParam ? { status: statusParam } : undefined,
+                });
+
+                if (!ativo) {
+                    return;
+                }
+
+                const dados = response.data.map((solicitacao) => ({
+                    id: solicitacao.id,
+                    tipo: TIPO_LABEL_MAP[solicitacao.tipo_solicitacao] ?? solicitacao.tipo_solicitacao,
+                    criador: solicitacao.nome,
+                    cargo: solicitacao.role,
+                    status: solicitacao.status,
+                    data_criacao: solicitacao.data_criacao,
+                }));
+
+                setSolicitacoes(dados);
+            } catch (error) {
+                console.error("Erro ao carregar solicitacoes", error);
+
+                if (ativo) {
+                    setSolicitacoes([]);
+                }
+            } finally {
+                if (ativo) {
+                    setCarregando(false);
+                }
+            }
+        };
+
+        carregarSolicitacoes();
+
+        return () => {
+            ativo = false;
+        };
+    }, [filtroStatus, refreshTrigger]);
 
     const solicitacoesFiltradas = solicitacoes
         .filter((s) => filtroStatus === 'todas' || s.status.toLowerCase() === filtroStatus)
