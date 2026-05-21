@@ -155,8 +155,15 @@ export default function IndicarNormaModal({ open, onOpenChange }: IndicarNormaMo
             },
         };
 
+        const formData = new FormData();
+        if (arquivoNorma) {
+            formData.append('file', arquivoNorma);
+        }
+        formData.append('tipo_solicitacao', payload.tipo_solicitacao);
+        formData.append('dados', JSON.stringify(payload.dados));
+
         try {
-            const response = await api.post('/solicitacoes', payload);
+            const response = await api.post('/solicitacoes', formData);
             console.log('Norma Cadastrada com Sucesso:', response.data);
             setCadastroConcluido(true);
             return response.data;
