@@ -7,6 +7,7 @@ import AddStandardModal from '@/components/add-standard-modal';
 import ReportErrorModal from '../Solicitacoes/ReportErrorModal';
 import SelectRequestModal, { type TipoSolicitacao } from '../Solicitacoes/SelectRequestModal';
 import { ModalSolicitacaoNota } from '../Solicitacoes/ModalSolicitacaoNota';
+import IndicarNormaModal from '../Solicitacoes/IndicarNormaModal';
 import { getUserRole } from '../../utils/auth';
 import { FilterAside, type FiltrosSelecionados } from '../../components/FilterAside/FilterAside';
 
@@ -24,6 +25,7 @@ export default function Home() {
     const [/* modoSolicitacao */, setModoSolicitacao] = useState(false);
     const [erroModalOpen, setErroModalOpen] = useState(false);
     const [modalSolicitacaoNota, setNotaModalOpen] = useState(false);
+    const [indicarNormaOpen, setIndicarNormaOpen] = useState(false);
 
     const filtrosAtivos = Object.values(filtrosSelecionados).some(
         (v) => Array.isArray(v) && v.length > 0
@@ -38,8 +40,7 @@ export default function Home() {
 
         switch (tipo) {
             case 'indicar_norma':
-                setModoSolicitacao(true);
-                setModalAberto(true);
+                setIndicarNormaOpen(true);
                 break;
             case 'adicionar_nota':
                 setNotaModalOpen(true);
@@ -93,6 +94,11 @@ export default function Home() {
                                 open={modalAberto}
                                 onOpenChange={handleModalOpenChange}
                                 onSuccess={handleCadastroSucesso}
+                            />
+
+                            <IndicarNormaModal
+                               open={indicarNormaOpen}
+                               onOpenChange={setIndicarNormaOpen}
                             />
 
                             <ReportErrorModal
