@@ -33,14 +33,15 @@ interface FormErrors {
 }
 
 interface SolicitacaoNotaPayload {
-    tipo: 'Nova Nota';
-    normaId: string;
-    nomeSolicitante: string;
-    conteudoSugerido: string;
-    status: 'Pendente';
+    tipo_solicitacao: 'NOVA_NOTA';
+    dados: {
+        solicitante: string;
+        norma_id: string;
+        descricao: string;
+    };
 }
 
-export function ModalSolicitacaoNota({ open, onOpenChange, normas = [] }: ModalSolicitacaoNotaProps) {
+export default function ModalSolicitacaoNota({ open, onOpenChange, normas = [] }: ModalSolicitacaoNotaProps) {
     const [form, setForm] = useState<FormState>({
         nomeSolicitante: '',
         normaId: '',
@@ -50,6 +51,7 @@ export function ModalSolicitacaoNota({ open, onOpenChange, normas = [] }: ModalS
     const [errors, setErrors] = useState<FormErrors>({});
     const [enviando, setEnviando] = useState(false);
     const [enviado, setEnviado] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
 
     const [busca, setBusca] = useState('');
     const [normasSugeridas, setNormasSugeridas] = useState<NormaOpcao[]>([]);
@@ -95,6 +97,7 @@ export function ModalSolicitacaoNota({ open, onOpenChange, normas = [] }: ModalS
         setErrors({});
         setEnviando(false);
         setEnviado(false);
+        setSubmitError(null);
         setBusca('');
         setNormasSugeridas([]);
         setDropdownAberto(false);
@@ -130,26 +133,31 @@ export function ModalSolicitacaoNota({ open, onOpenChange, normas = [] }: ModalS
         return Object.keys(novosErros).length === 0;
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!validar()) return;
 
         setEnviando(true);
+        setSubmitError(null);
 
         const payload: SolicitacaoNotaPayload = {
-            tipo: 'Nova Nota',
-            normaId: form.normaId,
-            nomeSolicitante: form.nomeSolicitante.trim(),
-            conteudoSugerido: form.conteudoSugerido.trim(),
-            status: 'Pendente',
+            tipo_solicitacao: 'NOVA_NOTA',
+            dados: {
+                solicitante: form.nomeSolicitante.trim(),
+                norma_id: form.normaId,
+                descricao: form.conteudoSugerido.trim(),
+            },
         };
 
-        // TODO: Substituir por chamada real à API
-        setTimeout(() => {
-            console.log('[Solicitação de Nota] Payload:', payload);
-            setEnviando(false);
+        try {
+            await api.post('/solicitacoes', payload);
             setEnviado(true);
-        }, 1000);
+        } catch (error: any) {
+            const message = error?.response?.data?.error || 'Erro ao enviar a solicitação.';
+            setSubmitError(message);
+        } finally {
+            setEnviando(false);
+        }
     };
 
     return (
@@ -161,7 +169,7 @@ export function ModalSolicitacaoNota({ open, onOpenChange, normas = [] }: ModalS
                             Solicitação
                         </p>
                         <h2 className="text-lg font-medium text-dark-title leading-tight">
-                            Norma aeronáutica
+                            Adicionar Nota
                         </h2>
                     </div>
                 </div>
@@ -203,6 +211,7 @@ export function ModalSolicitacaoNota({ open, onOpenChange, normas = [] }: ModalS
                                         placeholder="Ex: Cesar Silva"
                                         className={`bg-gray-100/80 border rounded h-10 px-3 text-sm outline-none focus:ring-1 focus:ring-gray-400 transition ${errors.nomeSolicitante ? 'border-red-400' : 'border-font-border'
                                             }`}
+                                        required
                                     />
                                     {errors.nomeSolicitante && (
                                         <span className="text-xs text-red-akaer mt-0.5">{errors.nomeSolicitante}</span>
@@ -225,6 +234,7 @@ export function ModalSolicitacaoNota({ open, onOpenChange, normas = [] }: ModalS
                                             placeholder="Buscar norma..."
                                             className={`bg-gray-100/80 border rounded h-10 px-3 text-sm outline-none focus:ring-1 focus:ring-gray-400 transition w-full ${errors.normaId ? 'border-red-400' : 'border-font-border'
                                                 }`}
+                                            required
                                         />
                                         {dropdownAberto && (
                                             <div className="absolute z-50 mt-1 w-full border rounded bg-white max-h-40 overflow-y-auto shadow-sm">
@@ -260,12 +270,19 @@ export function ModalSolicitacaoNota({ open, onOpenChange, normas = [] }: ModalS
                                     placeholder="Ex: Insira Aqui Anotações Rápidas, Exceções Ou Detalhes Sobre A Norma..."
                                     className={`bg-gray-100/80 border rounded p-3 text-sm outline-none focus:ring-1 focus:ring-gray-400 transition resize-none ${errors.conteudoSugerido ? 'border-red-400' : 'border-font-border'
                                         }`}
+                                    required
                                 />
                                 {errors.conteudoSugerido && (
                                     <span className="text-xs text-red-akaer mt-0.5">{errors.conteudoSugerido}</span>
                                 )}
                             </div>
                         </div>
+
+                        {submitError && (
+                            <div className="mx-7 mb-4 text-sm text-red-akaer">
+                                {submitError}
+                            </div>
+                        )}
 
                         <hr className="border-font-border" />
 

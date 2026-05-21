@@ -54,7 +54,7 @@ export default function SelectRequestModal({
                         <button
                             key={tipo}
                             onClick={() => onSelect(tipo)}
-                            className="flex items-center justify-between w-full bg-dark-title rounded-lg px-4 py-4 text-left hover:opacity-90 transition-opacity group"
+                            className="cursor-pointer flex items-center justify-between w-full bg-dark-title rounded-lg px-4 py-4 text-left hover:opacity-90 transition-opacity group"
                         >
                             <div>
                                 <p className="font-semibold text-white text-sm">{titulo}</p>
