@@ -112,48 +112,66 @@ export default function IndicarNormaModal({ open, onOpenChange }: IndicarNormaMo
             return;
         }
 
+        const normalizarTexto = (valor: string) => valor.trim() || undefined;
+        const codigoNorma = normalizarTexto(codigo);
+
         const notasFormatadas = notas
-            .map((nota, index) => ({ texto: nota.texto.trim(), ordem: index }))
+            .map((nota, index) => ({
+                norma_codigo: codigoNorma,
+                texto: nota.texto.trim(),
+                ordem: index,
+            }))
             .filter((nota) => nota.texto !== '');
 
+        const normasRelacionadasFormatadas = normasRelacionadas
+            .map((norma, index) => ({
+                norma_codigo: codigoNorma,
+                relacionada_codigo: norma.codigo,
+                ordem: index,
+            }))
+            .filter((norma) => norma.relacionada_codigo);
+
         const payload = {
-            tipo: 'Indicar Norma',
-            status: 'Pendente',
-            nomeSolicitante: nomeSolicitante.trim(),
-            referenciaExterna: referenciaExterna.trim(),
-            utilidade: utilidade.trim(),
-            codigo,
-            titulo,
-            orgao_emissor_id: orgaoEmissor,
-            categoria_id: categoria,
-            etapa_projeto_id: etapaProjeto,
-            revisao,
-            status_norma: status,
-            data_publicacao: dataPublicacao,
-            escopo,
-            palavras_chave: palavrasChave.length > 0 ? JSON.stringify(palavrasChave) : undefined,
-            notas: notasFormatadas.length > 0 ? JSON.stringify(notasFormatadas) : undefined,
-            normas_relacionadas_ids: normasRelacionadas.length > 0
-                ? JSON.stringify(normasRelacionadas.map((norma) => norma.codigo))
-                : undefined,
+            tipo_solicitacao: 'NOVA_NORMA',
+            dados: {
+                solicitante: normalizarTexto(nomeSolicitante),
+                referencia: normalizarTexto(referenciaExterna),
+                utilidade: normalizarTexto(utilidade),
+                dados_norma: {
+                    codigo: codigoNorma,
+                    titulo: normalizarTexto(titulo),
+                    orgao_emissor_id: orgaoEmissor || undefined,
+                    categoria_id: categoria || undefined,
+                    etapa_projeto_id: etapaProjeto || undefined,
+                    revisao: normalizarTexto(revisao),
+                    status,
+                    data_publicacao: dataPublicacao || undefined,
+                    arquivo: arquivoNorma?.name,
+                    escopo: normalizarTexto(escopo),
+                    palavras_chave: palavrasChave.length > 0 ? palavrasChave : undefined,
+                    notas: notasFormatadas.length > 0 ? notasFormatadas : undefined,
+                    normas_relacionadas: normasRelacionadasFormatadas.length > 0 ? normasRelacionadasFormatadas : undefined,
+                },
+            },
         };
 
         const formData = new FormData();
-        if (arquivoNorma) formData.append('file', arquivoNorma);
-
-        Object.entries(payload).forEach(([key, value]) => {
-            if (value !== undefined && value !== null && value !== '') {
-                formData.append(key, String(value));
-            }
-        });
+        if (arquivoNorma) {
+            formData.append('file', arquivoNorma);
+        }
+        formData.append('tipo_solicitacao', payload.tipo_solicitacao);
+        formData.append('dados', JSON.stringify(payload.dados));
 
         try {
-            // TODO: Substituir pelo endpoint real de solicitações
-            // await api.post('/solicitacoes/create', formData);
-            console.log('[Solicitação] Indicar Norma:', payload);
+            const response = await api.post('/solicitacoes', formData);
+            console.log('Norma Cadastrada com Sucesso:', response.data);
             setCadastroConcluido(true);
+            return response.data;
         } catch (error: any) {
-            alert('Erro ao enviar solicitação: ' + (error.response?.data?.error || error.message));
+            const mensagemErro = 'Erro ao enviar Solicitação: ' + (error.response?.data?.error || error.message);
+            alert(mensagemErro);
+            console.error('Erro ao enviar Solicitação:', error);
+            throw error;
         }
     };
 

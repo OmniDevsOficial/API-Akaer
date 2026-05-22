@@ -6,7 +6,7 @@ import TabelaNormas from '../../components/tabela';
 import AddStandardModal from '@/components/add-standard-modal';
 import ReportErrorModal from '../Solicitacoes/ReportErrorModal';
 import SelectRequestModal, { type TipoSolicitacao } from '../Solicitacoes/SelectRequestModal';
-import { ModalSolicitacaoNota } from '../Solicitacoes/ModalSolicitacaoNota';
+import ModalSolicitacaoNota from '../Solicitacoes/ModalSolicitacaoNota';
 import IndicarNormaModal from '../Solicitacoes/IndicarNormaModal';
 import { getUserRole } from '../../utils/auth';
 import { FilterAside, type FiltrosSelecionados } from '../../components/FilterAside/FilterAside';
@@ -75,12 +75,12 @@ export default function Home() {
                             {isAdmin ? (
                                 <button onClick={() => setModalAberto(true)}
                                     className='font-semibold text-white text-sm bg-dark-title border border-font-border rounded-md py-3 px-6 cursor-pointer'>
-                                    + Novo Cadastro
+                                    <span className='mr-2'>+</span>Novo Cadastro
                                 </button>
                             ) : (
                                 <button onClick={() => setSelectRequestOpen(true)}
                                     className='font-semibold text-white text-sm bg-dark-title border border-font-border rounded-md py-3 px-6 cursor-pointer'>
-                                    Fazer Solicitação
+                                    <span className='mr-2'>+</span>Fazer Solicitação
                                 </button>
                             )}
 

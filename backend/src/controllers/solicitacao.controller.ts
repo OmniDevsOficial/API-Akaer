@@ -50,12 +50,58 @@ const normalizarDadosSolicitacao = (
   return dados;
 };
 
+const parseDadosSolicitacao = (valor: unknown): DadosSolicitacao | null => {
+  if (isDadosSolicitacao(valor)) {
+    return valor;
+  }
+
+  if (typeof valor !== "string") {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(valor);
+    return isDadosSolicitacao(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+};
+
+const adicionarArquivoSolicitacao = (
+  tipoSolicitacao: TipoSolicitacao,
+  dados: DadosSolicitacao,
+  arquivo?: Express.Multer.File
+): DadosSolicitacao => {
+  if (tipoSolicitacao !== "NOVA_NORMA" || !arquivo) {
+    return dados;
+  }
+
+  const dadosNorma = dados.dados_norma;
+
+  if (typeof dadosNorma !== "object" || dadosNorma === null || Array.isArray(dadosNorma)) {
+    return {
+      ...dados,
+      dados_norma: { arquivo: arquivo.path },
+    };
+  }
+
+  return {
+    ...dados,
+    dados_norma: {
+      ...(dadosNorma as Record<string, Prisma.InputJsonValue>),
+      arquivo: arquivo.path,
+    },
+  };
+};
+
 export const createSolicitacaoController = async (req: Request, res: Response): Promise<void> => {
   try {
     const { tipo_solicitacao, dados } = req.body;
+    const tipoSolicitacao = typeof tipo_solicitacao === "string" ? tipo_solicitacao : undefined;
+    const dadosSolicitacao = parseDadosSolicitacao(dados);
     const usuarioId = (req as any).user?.id;
 
-    if (!tipo_solicitacao || !dados) {
+    if (!tipoSolicitacao || dados === undefined) {
       res.status(400).json({ error: "Campos solicitacao e dados são obrigatórios." });
       return;
     }
@@ -65,33 +111,34 @@ export const createSolicitacaoController = async (req: Request, res: Response): 
       return;
     }
 
-    if (!isTipoSolicitacao(tipo_solicitacao)) {
+    if (!isTipoSolicitacao(tipoSolicitacao)) {
       res.status(400).json({ error: "Solicitacao inválida." });
       return;
     }
 
-    if (!isDadosSolicitacao(dados)) {
+    if (!dadosSolicitacao) {
       res.status(400).json({ error: "Campo dados inválido." });
       return;
     }
 
-    const dadosNormalizados = normalizarDadosSolicitacao(tipo_solicitacao, dados);
+    const dadosNormalizados = normalizarDadosSolicitacao(tipoSolicitacao, dadosSolicitacao);
+    const dadosComArquivo = adicionarArquivoSolicitacao(tipoSolicitacao, dadosNormalizados, req.file);
 
-    if (tipo_solicitacao === "NOVA_NORMA") {
-      const { solicitante, referencia, utilidade } = dados;
+    if (tipoSolicitacao === "NOVA_NORMA") {
+      const { solicitante, referencia, utilidade } = dadosComArquivo;
       if (!solicitante || !referencia || !utilidade) {
         res.status(400).json({ error: "Para uma nova norma, os campos solicitante, referencia e utilidade são obrigatórios." });
         return;
       }
-    } else if (tipo_solicitacao === "NOVA_NOTA" || tipo_solicitacao === "REPORTE_ERRO") {
-      const { solicitante, norma_id, descricao } = dados;
+    } else if (tipoSolicitacao === "NOVA_NOTA" || tipoSolicitacao === "REPORTE_ERRO") {
+      const { solicitante, norma_id, descricao } = dadosComArquivo;
       if (!solicitante || !norma_id || !descricao) {
         res.status(400).json({ error: "Para uma nova nota ou relato de erro, o ID da norma, nome do solicitante e a descrição/texto são obrigatórios e não podem ser vazios." });
         return;
       }
     }
 
-    await criarSolicitacao(usuarioId, tipo_solicitacao, dadosNormalizados);
+    await criarSolicitacao(usuarioId, tipoSolicitacao, dadosComArquivo);
 
     res.status(201).json({ message: "Solicitação enviada com sucesso." });
   } catch (error) {

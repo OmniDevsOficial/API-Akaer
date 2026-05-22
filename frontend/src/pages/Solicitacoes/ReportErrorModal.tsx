@@ -1,166 +1,318 @@
-import { useState } from 'react';
-import { Dialog, DialogContent } from '../../components/ui/dialog';
+import { useState, useEffect, useRef } from 'react';
 import { Check } from 'lucide-react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import api from '@/services/api';
 
+interface NormaOpcao {
+    titulo: string;
+    codigo: string;
+}
+
+interface NormaProps {
+    id: number | string;
+    titulo: string;
+}
 
 interface ReportErrorModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    normas?: NormaProps[];
 }
 
-interface FormFields {
+interface FormState {
     nomeSolicitante: string;
-    normaRelacionada: string;
-    detalhesErro: string;
+    normaId: string;
+    detalheErro: string;
 }
 
 interface FormErrors {
     nomeSolicitante?: string;
-    normaRelacionada?: string;
-    detalhesErro?: string;
+    normaId?: string;
+    detalheErro?: string;
 }
 
-export default function ReportErrorModal({
-    open,
-    onOpenChange,
-}: ReportErrorModalProps) {
-    const [form, setForm] = useState<FormFields>({
+interface ReportErrorPayload {
+    tipo_solicitacao: 'REPORTE_ERRO';
+    dados: {
+        solicitante: string;
+        norma_id: string;
+        descricao: string;
+    };
+}
+
+export default function ReportErrorModal({ open, onOpenChange, normas = [] }: ReportErrorModalProps) {
+    const [form, setForm] = useState<FormState>({
         nomeSolicitante: '',
-        normaRelacionada: '',
-        detalhesErro: '',
+        normaId: '',
+        detalheErro: '',
     });
+
     const [errors, setErrors] = useState<FormErrors>({});
-    const [sucesso, setSucesso] = useState(false);
+    const [enviando, setEnviando] = useState(false);
+    const [enviado, setEnviado] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
 
-    if (!open) return null;
+    const [busca, setBusca] = useState('');
+    const [normasSugeridas, setNormasSugeridas] = useState<NormaOpcao[]>([]);
+    const [dropdownAberto, setDropdownAberto] = useState(false);
+    const refCombobox = useRef<HTMLDivElement>(null);
 
-    const validate = (): boolean => {
-        const newErrors: FormErrors = {};
-        if (!form.nomeSolicitante.trim()) newErrors.nomeSolicitante = 'Campo obrigatório';
-        if (!form.normaRelacionada.trim()) newErrors.normaRelacionada = 'Campo obrigatório';
-        if (!form.detalhesErro.trim()) newErrors.detalhesErro = 'Campo obrigatório';
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
+    useEffect(() => {
+        if (open && normas.length === 1) {
+            setBusca(normas[0].titulo);
+            setForm((prev) => ({ ...prev, normaId: String(normas[0].id) }));
+        }
+    }, [open, normas]);
 
-    const handleSubmit = () => {
-        if (!validate()) return;
+    useEffect(() => {
+        if (!dropdownAberto) return;
 
-        // TODO: POST /api/solicitacoes { tipo: 'erro', status: 'Pendente', ...form }
-        console.log('[Solicitação] Reportar erro:', { ...form, status: 'Pendente' });
+        const buscarNormas = async () => {
+            try {
+                const response = await api.get('/normas/listar', {
+                    params: { texto: busca.trim() || undefined, page: 1 },
+                });
+                setNormasSugeridas(response.data?.itens || []);
+            } catch (error) {
+                console.error('Erro ao buscar normas:', error);
+            }
+        };
 
-        setSucesso(true);
-        setTimeout(() => {
-            setSucesso(false);
-            setForm({ nomeSolicitante: '', normaRelacionada: '', detalhesErro: '' });
-            setErrors({});
-            onOpenChange(false);
-        }, 2000);
-    };
+        buscarNormas();
+    }, [busca, dropdownAberto]);
 
-    const handleClose = () => {
-        setForm({ nomeSolicitante: '', normaRelacionada: '', detalhesErro: '' });
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (refCombobox.current && !refCombobox.current.contains(event.target as Node)) {
+                setDropdownAberto(false);
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const resetModal = () => {
+        setForm({ nomeSolicitante: '', normaId: '', detalheErro: '' });
         setErrors({});
-        setSucesso(false);
-        onOpenChange(false);
+        setEnviando(false);
+        setEnviado(false);
+        setSubmitError(null);
+        setBusca('');
+        setNormasSugeridas([]);
+        setDropdownAberto(false);
     };
 
-    const handleChange = (field: keyof FormFields, value: string) => {
-        setForm((prev) => ({ ...prev, [field]: value }));
-        if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
+    const handleOpenChange = (nextOpen: boolean) => {
+        if (!nextOpen) resetModal();
+        onOpenChange(nextOpen);
+    };
+
+    const selecionarNorma = (norma: NormaOpcao) => {
+        setBusca(norma.titulo);
+        setForm((prev) => ({ ...prev, normaId: norma.codigo }));
+        setDropdownAberto(false);
+        if (errors.normaId) setErrors((prev) => ({ ...prev, normaId: undefined }));
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setForm((prev) => ({ ...prev, [name]: value }));
+        if (errors[name as keyof FormErrors]) {
+            setErrors((prev) => ({ ...prev, [name]: undefined }));
+        }
+    };
+
+    const validar = (): boolean => {
+        const novosErros: FormErrors = {};
+        if (!form.nomeSolicitante.trim()) novosErros.nomeSolicitante = 'Preenchimento obrigatório.';
+        if (!form.normaId) novosErros.normaId = 'Preenchimento obrigatório.';
+        if (!form.detalheErro.trim()) novosErros.detalheErro = 'Preenchimento obrigatório.';
+
+        setErrors(novosErros);
+        return Object.keys(novosErros).length === 0;
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!validar()) return;
+
+        setEnviando(true);
+        setSubmitError(null);
+
+        const payload: ReportErrorPayload = {
+            tipo_solicitacao: 'REPORTE_ERRO',
+            dados: {
+                solicitante: form.nomeSolicitante.trim(),
+                norma_id: form.normaId,
+                descricao: form.detalheErro.trim(),
+            },
+        };
+
+        try {
+            await api.post('/solicitacoes', payload);
+            setEnviado(true);
+        } catch (error: any) {
+            const message = error?.response?.data?.error || 'Erro ao enviar a solicitação.';
+            setSubmitError(message);
+        } finally {
+            setEnviando(false);
+        }
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-sm p-0 gap-0 overflow-hidden rounded-2xl bg-white outline-none">
-                {/* Header */}
-                <div className="px-6 py-4 flex items-start justify-between border-b border-gray-200">
+        <Dialog open={open} onOpenChange={handleOpenChange}>
+            <DialogContent className="!p-0 flex flex-col gap-0 sm:!max-w-[640px] bg-[#fbfbfb]">
+                <div className="flex items-start mx-7 mt-5 mb-4">
                     <div>
-                        <p className="text-red-akaer font-bold text-xs tracking-widest uppercase mb-1">
+                        <p className="text-xs font-semibold tracking-widest text-red-akaer uppercase">
                             Solicitação
                         </p>
-                        <h2 className="font-semibold text-dark-title text-base">Norma aeronáutica</h2>
+                        <h2 className="text-lg font-medium text-dark-title leading-tight">
+                            Reportar um Erro
+                        </h2>
                     </div>
                 </div>
 
-                {/* Body */}
-                <div className="px-6 py-5 flex flex-col gap-4">
-                    {sucesso && (
-                        <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-md px-4 py-2">
-                            Solicitação enviada com sucesso.
-                        </div>
-                    )}
+                <hr className="border-font-border" />
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="flex flex-col gap-1">
-                            <label className="text-xs font-semibold text-dark-title uppercase tracking-wide">
-                                Nome do Solicitante <span className="text-red-akaer">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                placeholder="Ex: Cesar Silva"
-                                value={form.nomeSolicitante}
-                                onChange={(e) => handleChange('nomeSolicitante', e.target.value)}
-                                className="border border-gray-200 rounded-md px-3 py-2 text-sm text-dark-title placeholder-gray-400 focus:outline-none focus:border-gray-400"
-                            />
-                            {errors.nomeSolicitante && (
-                                <span className="text-red-akaer text-xs">{errors.nomeSolicitante}</span>
-                            )}
+                {enviado ? (
+                    <>
+                        <div className="flex flex-col items-center justify-center py-24 gap-4">
+                            <div className="w-12 h-12 rounded-full border border-green-700/40 flex items-center justify-center">
+                                <Check className="text-green-700 w-7 h-7" />
+                            </div>
+                            <h3 className="text-base text-[#3f3f3f] font-semibold">
+                                Solicitação de Erro cadastrada com sucesso!
+                            </h3>
+                            <p className="text-sm text-gray-500">
+                                Os metadados foram salvos no sistema.
+                            </p>
+                        </div>
+                        <hr className="border-font-border" />
+                        <div className="flex justify-end mx-7 my-4">
+                            <Button size="lg" className="hover:bg-black/80" onClick={() => handleOpenChange(false)}>
+                                Fechar
+                            </Button>
+                        </div>
+                    </>
+                ) : (
+                    <form onSubmit={handleSubmit} noValidate className="flex flex-col">
+                        <div className="mx-7 mt-5 mb-6 flex flex-col gap-5">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-lg text-gray-600 mb-0 leading-none">
+                                        NOME DO SOLICITANTE <span className="text-red-akaer">*</span>
+                                    </label>
+                                    <input
+                                        name="nomeSolicitante"
+                                        value={form.nomeSolicitante}
+                                        onChange={handleChange}
+                                        placeholder="Ex: Cesar Silva"
+                                        className={`bg-gray-100/80 border rounded h-10 px-3 text-sm outline-none focus:ring-1 focus:ring-gray-400 transition ${errors.nomeSolicitante ? 'border-red-400' : 'border-font-border'
+                                            }`}
+                                        required
+                                    />
+                                    {errors.nomeSolicitante && (
+                                        <span className="text-xs text-red-akaer mt-0.5">{errors.nomeSolicitante}</span>
+                                    )}
+                                </div>
+
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-lg text-gray-600 mb-0 leading-none">
+                                        NORMA RELACIONADA <span className="text-red-akaer">*</span>
+                                    </label>
+                                    <div ref={refCombobox} className="relative">
+                                        <input
+                                            value={busca}
+                                            onChange={(e) => {
+                                                setBusca(e.target.value);
+                                                setForm((prev) => ({ ...prev, normaId: '' }));
+                                                if (errors.normaId) setErrors((prev) => ({ ...prev, normaId: undefined }));
+                                            }}
+                                            onFocus={() => setDropdownAberto(true)}
+                                            placeholder="Buscar norma..."
+                                            className={`bg-gray-100/80 border rounded h-10 px-3 text-sm outline-none focus:ring-1 focus:ring-gray-400 transition w-full ${errors.normaId ? 'border-red-400' : 'border-font-border'
+                                                }`}
+                                            required
+                                        />
+                                        {dropdownAberto && (
+                                            <div className="absolute z-50 mt-1 w-full border rounded bg-white max-h-40 overflow-y-auto shadow-sm">
+                                                {normasSugeridas.length > 0 ? (
+                                                    normasSugeridas.map((n) => (
+                                                        <div
+                                                            key={n.codigo}
+                                                            className="p-2 hover:bg-gray-100 cursor-pointer text-sm"
+                                                            onMouseDown={() => selecionarNorma(n)}
+                                                        >
+                                                            {n.codigo} — {n.titulo}
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <div className="p-2 text-sm text-gray-400">Nenhuma norma encontrada</div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                    {errors.normaId && <span className="text-xs text-red-akaer mt-0.5">{errors.normaId}</span>}
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-1">
+                                <label className="text-lg text-gray-600 mb-0 leading-none">
+                                    DETALHES DO ERRO <span className="text-red-akaer">*</span>
+                                </label>
+                                <textarea
+                                    name="detalheErro"
+                                    value={form.detalheErro}
+                                    onChange={handleChange}
+                                    rows={5}
+                                    placeholder="Escreva detalhadamente o erro para que possa ser eventualmente corrigido com mais agilidade..."
+                                    className={`bg-gray-100/80 border rounded p-3 text-sm outline-none focus:ring-1 focus:ring-gray-400 transition resize-none ${errors.detalheErro ? 'border-red-400' : 'border-font-border'
+                                        }`}
+                                />
+                                {errors.detalheErro && (
+                                    <span className="text-xs text-red-akaer mt-0.5">{errors.detalheErro}</span>
+                                )}
+                            </div>
                         </div>
 
-                        <div className="flex flex-col gap-1">
-                            <label className="text-xs font-semibold text-dark-title uppercase tracking-wide">
-                                Norma Relacionada <span className="text-red-akaer">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                placeholder="Ex: Aeronavegabilidade"
-                                value={form.normaRelacionada}
-                                onChange={(e) => handleChange('normaRelacionada', e.target.value)}
-                                className="border border-gray-200 rounded-md px-3 py-2 text-sm text-dark-title placeholder-gray-400 focus:outline-none focus:border-gray-400"
-                            />
-                            {errors.normaRelacionada && (
-                                <span className="text-red-akaer text-xs">{errors.normaRelacionada}</span>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col gap-1">
-                        <label className="text-xs font-semibold text-dark-title uppercase tracking-wide">
-                            Detalhes do Erro <span className="text-red-akaer">*</span>
-                        </label>
-                        <textarea
-                            placeholder="Ex: Descreva detalhadamente sobre o erro aqui..."
-                            value={form.detalhesErro}
-                            onChange={(e) => handleChange('detalhesErro', e.target.value)}
-                            rows={4}
-                            className="border border-gray-200 rounded-md px-3 py-2 text-sm text-dark-title placeholder-gray-400 focus:outline-none focus:border-gray-400 resize-none"
-                        />
-                        {errors.detalhesErro && (
-                            <span className="text-red-akaer text-xs">{errors.detalhesErro}</span>
+                        {submitError && (
+                            <div className="mx-7 mb-4 text-sm text-red-akaer">
+                                {submitError}
+                            </div>
                         )}
-                    </div>
-                </div>
 
-                {/* Footer */}
-                <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200">
-                    <span className="text-xs text-gray-400">Campos com <span className="text-xs text-red-akaer">*</span> são obrigatórios</span>
-                    <div className="flex gap-2">
-                        <button
-                            onClick={handleClose}
-                            className="text-sm text-gray-600 hover:text-dark-title border border-gray-200 rounded-md px-4 py-2 transition-colors cursor-pointer"
-                        >
-                            Cancelar
-                        </button>
-                        <button
-                            onClick={handleSubmit}
-                            className="text-sm font-semibold text-white bg-dark-title rounded-md px-4  hover:opacity-90 transition-opacity flex items-center gap-1 cursor-pointer"
-                        >
-                            <Check className="w-4 h-4 mr-1" /> Enviar
-                        </button>
-                    </div>
-                </div>
-            </DialogContent >
-        </Dialog >
+                        <hr className="border-font-border" />
+
+                        <div className="grid grid-cols-2 mx-7 items-center py-4">
+                            <div className="text-start text-sm text-gray-500">
+                                Campos com <span className="text-red-akaer">*</span> são obrigatórios
+                            </div>
+                            <div className="flex justify-end gap-2">
+                                <Button type="button" size="lg" variant="secondary"
+                                    onClick={() => handleOpenChange(false)} disabled={enviando}
+                                    className="text-sm text-gray-600 hover:text-dark-title border border-gray-200 rounded-md px-4 py-2 transition-colors cursor-pointer">
+                                    Cancelar
+                                </Button>
+                                <Button type="submit" size="lg" className="hover:bg-black/80 bg-dark-title" disabled={enviando}>
+                                    {enviando ? (
+                                        <span className="flex items-center gap-2">
+                                            <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                                            </svg>
+                                            Enviando...
+                                        </span>
+                                    ) : (
+                                        <><Check className="w-4 h-4 mr-1" /> Enviar</>
+                                    )}
+                                </Button>
+                            </div>
+                        </div>
+                    </form>
+                )}
+            </DialogContent>
+        </Dialog>
     );
 }
