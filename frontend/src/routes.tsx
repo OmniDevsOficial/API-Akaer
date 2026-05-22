@@ -1,14 +1,16 @@
 import { Route, BrowserRouter, Routes } from "react-router-dom";
 import LoginPage from "./pages/Login/Login";
 import Home from './pages/Home/Home';
+import Solicitar from './pages/Solicitar/solicitar';
 import Visualizar from "./pages/Normas/Visualizar";
 import Editar from './pages/Editar/Editar'
 
 const routes = [
     {element: <LoginPage />, path: "/"},
     {element: <Home />, path: "/home"},
+    {element: <Solicitar />, path: "/solicitar"},
     {element: <Visualizar />, path: "/normas/ver/:codigo"},
-    {element: <Editar />, path: "/normas/editar"}
+    {element: <Editar />, path: "/normas/editar/:codigo"}
 ]
 
 const Router = () => {

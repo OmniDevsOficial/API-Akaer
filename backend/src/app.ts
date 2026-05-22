@@ -4,6 +4,7 @@ import path from "path";
 import authRoutes from "./routes/auth.routes";
 import normaRoutes from "./routes/norma.routes";
 import optionsRoutes from "./routes/options.routes";
+import solicitacaoRoutes from "./routes/solicitacao.routes";
 
 const app = express();
 
@@ -11,7 +12,8 @@ app.use(cors({ origin: ["http://localhost:5173","https://api-akaer.vercel.app"] 
 app.use(express.json());
 app.use("/uploads", express.static(path.resolve(__dirname, "../uploads")));
 
-app.use("/api/auth", authRoutes);
+app.use("/auth", authRoutes);
+app.use("/solicitacoes", solicitacaoRoutes);
 app.use("/normas", normaRoutes);
 app.use("/", optionsRoutes);
 

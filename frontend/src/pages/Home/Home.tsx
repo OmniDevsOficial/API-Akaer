@@ -4,6 +4,10 @@ import Sidebar from '../../components/sidebar';
 import Barra_pesquisa from '../../components/barra_pes';
 import TabelaNormas from '../../components/tabela';
 import AddStandardModal from '@/components/add-standard-modal';
+import ReportErrorModal from '../Solicitacoes/ReportErrorModal';
+import SelectRequestModal, { type TipoSolicitacao } from '../Solicitacoes/SelectRequestModal';
+import ModalSolicitacaoNota from '../Solicitacoes/ModalSolicitacaoNota';
+import IndicarNormaModal from '../Solicitacoes/IndicarNormaModal';
 import { getUserRole } from '../../utils/auth';
 import { FilterAside, type FiltrosSelecionados } from '../../components/FilterAside/FilterAside';
 
@@ -17,6 +21,11 @@ export default function Home() {
     const [recarregarTabela, setRecarregarTabela] = useState(0);
     const [buscaNorma, setBuscaNorma] = useState('');
     const [filtrosSelecionados, setFiltrosSelecionados] = useState<FiltrosSelecionados>({});
+    const [selectRequestOpen, setSelectRequestOpen] = useState(false);
+    const [/* modoSolicitacao */, setModoSolicitacao] = useState(false);
+    const [erroModalOpen, setErroModalOpen] = useState(false);
+    const [modalSolicitacaoNota, setNotaModalOpen] = useState(false);
+    const [indicarNormaOpen, setIndicarNormaOpen] = useState(false);
 
     const filtrosAtivos = Object.values(filtrosSelecionados).some(
         (v) => Array.isArray(v) && v.length > 0
@@ -24,6 +33,27 @@ export default function Home() {
 
     const handleCadastroSucesso = () => {
         setRecarregarTabela((anterior) => anterior + 1);
+    };
+
+    const handleSelectTipo = (tipo: TipoSolicitacao) => {
+        setSelectRequestOpen(false);
+
+        switch (tipo) {
+            case 'indicar_norma':
+                setIndicarNormaOpen(true);
+                break;
+            case 'adicionar_nota':
+                setNotaModalOpen(true);
+                break;
+            case 'reportar_erro':
+                setErroModalOpen(true);
+                break;
+        }
+    };
+
+    const handleModalOpenChange = (open: boolean) => {
+        setModalAberto(open);
+        if (!open) setModoSolicitacao(false);
     };
 
     return (
@@ -42,17 +72,44 @@ export default function Home() {
                         <div className='flex justify-between items-center'>
                             <h1 className="text-3xl font-dm font-semibold text-dark-title">Normas Aeronáuticas</h1>
 
-                            {isAdmin && (
+                            {isAdmin ? (
                                 <button onClick={() => setModalAberto(true)}
                                     className='font-semibold text-white text-sm bg-dark-title border border-font-border rounded-md py-3 px-6 cursor-pointer'>
-                                    + Novo Cadastro
+                                    <span className='mr-2'>+</span>Novo Cadastro
+                                </button>
+                            ) : (
+                                <button onClick={() => setSelectRequestOpen(true)}
+                                    className='font-semibold text-white text-sm bg-dark-title border border-font-border rounded-md py-3 px-6 cursor-pointer'>
+                                    <span className='mr-2'>+</span>Fazer Solicitação
                                 </button>
                             )}
 
+                            <SelectRequestModal
+                                open={selectRequestOpen}
+                                onOpenChange={setSelectRequestOpen}
+                                onSelect={handleSelectTipo}
+                            />
+
                             <AddStandardModal
                                 open={modalAberto}
-                                onOpenChange={setModalAberto}
+                                onOpenChange={handleModalOpenChange}
                                 onSuccess={handleCadastroSucesso}
+                            />
+
+                            <IndicarNormaModal
+                               open={indicarNormaOpen}
+                               onOpenChange={setIndicarNormaOpen}
+                            />
+
+                            <ReportErrorModal
+                                open={erroModalOpen}
+                                onOpenChange={setErroModalOpen}
+                            />
+
+                            <ModalSolicitacaoNota
+                                open={modalSolicitacaoNota}
+                                onOpenChange={() => setNotaModalOpen(false)}
+                                normas={[]}
                             />
                         </div>
 

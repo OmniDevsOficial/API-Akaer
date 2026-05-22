@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import styles from './Login.module.css';
-import backgroundImage from '../../assets/background.jpg';
 import { useNavigate } from 'react-router-dom';
+import backgroundImage from '../../assets/background.jpg';
+import styles from './Login.module.css';
 import api from '../../services/api';
 
 const LoginPage: React.FC = () => {
@@ -14,7 +14,7 @@ const LoginPage: React.FC = () => {
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      const response = await api.post('/api/auth/login', {
+      const response = await api.post('/auth/login', {
         email,
         password,
       });

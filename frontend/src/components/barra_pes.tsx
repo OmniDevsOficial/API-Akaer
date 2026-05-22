@@ -4,11 +4,6 @@ import { BiSortAlt2 } from "react-icons/bi";
 interface BarraPesquisaProps {
     busca: string;
     onBuscaChange: (value: string) => void;
-}
-
-interface BarraPesquisaProps {
-    busca: string;
-    onBuscaChange: (value: string) => void;
     onOpenFilters: () => void;
     filtrosAtivos: boolean
 }

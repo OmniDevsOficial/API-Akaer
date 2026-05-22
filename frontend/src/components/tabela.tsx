@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { FileText, Pencil, Globe, Eye } from "lucide-react";
-// import api from "@/services/api";
+import { FileText, Pencil, Eye } from "lucide-react";
 import { getUserRole } from '../utils/auth';
-import PdfViewerModal from "./pdf-viewer-modal";
-import type { FiltrosSelecionados } from "@/components/FilterAside/FilterAside";
 import { useNavigate } from "react-router-dom";
-// 1. Adicionar getNormaDetalhes ao import existente[cite: 2]
 import { listarNormas, getNormaDetalhes } from "@/services/normaService";
+import type { FiltrosSelecionados } from "@/components/FilterAside/FilterAside";
+import PdfViewerModal from "./pdf-viewer-modal";
+// import api from "@/services/api";
+// 1. Adicionar getNormaDetalhes ao import existente[cite: 2]
 
 export interface Norma {
     id: number;
@@ -133,7 +133,6 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">STATUS</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">DOCUMENTO</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">AÇÕES</th>
-                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">VISIB.</th>
                     </tr>
                 </thead>
 
@@ -163,10 +162,10 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                                 {norma.codigo}
                             </td>
 
-                            {/* Título + descrição empilhados */}
+                            {/* Título */}
                             <td className="px-6 py-4">
                                 <span className="block text-sm font-medium text-gray-900">{norma.titulo}</span>
-                                <span className="block text-xs text-gray-medium">Categoria: {norma.categoria?.nome || norma.categoria_id?.nome}</span>
+                                <span className="block text-xs text-gray-medium">Revisão atual: {norma.revisao}</span>
                             </td>
 
                             <td className="px-6 py-4 text-sm text-gray-700">{norma.orgao_emissor?.nome || norma.orgao_emissor_id?.nome}</td>
@@ -175,8 +174,8 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                             {/* Status com bolinha colorida */}
                             <td className="px-6 py-4">
                                 <div className="flex items-center gap-1">
-                                    <span className={`w-2 h-2 rounded-full ${statusColorClass(norma.status)}`}></span>
-                                    <span className="text-sm text-gray-700">{norma.status}</span>
+                                    <span className={`inline-block w-2 h-2 rounded-full ${statusColorClass(norma.status)}`}></span>
+                                    <span className="leading-none text-sm text-gray-700">{norma.status}</span>
                                 </div>
                             </td>
 
@@ -201,7 +200,7 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                                 {isAdmin && (<button className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
                                     onClick={(event) => {
                                         event.stopPropagation();
-                                        navigate(`/normas/editar`, {
+                                        navigate(`/normas/editar/${encodeURIComponent(norma.codigo)}`, {
                                             state: { norma }
                                         });
                                     }}>
@@ -217,15 +216,6 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                                     <Eye size={15} />
                                     <span>Detalhes</span>
                                 </button>
-                            </td>
-
-
-                            {/* Visibilidade */}
-                            <td className="px-6 py-4">
-                                <div className="flex items-center gap-1.5 text-sm text-gray-700">
-                                    <Globe size={15} />
-                                    <span>Público</span>
-                                </div>
                             </td>
 
                         </tr>

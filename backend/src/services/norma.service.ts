@@ -94,7 +94,7 @@ export const createNormaService = async (data: any, filePath: string) => {
   return norma;
 };
 
-export const updateNormaService = async (codigo: string, data: any) => {
+export const updateNormaService = async (codigo: string, data: any, newFilePath?: string) => {
   const existingNorma = await prisma.norma.findUnique({ where: { codigo } });
 
   if (!existingNorma) {
@@ -120,7 +120,7 @@ export const updateNormaService = async (codigo: string, data: any) => {
     revisao:          data.revisao          ?? existingNorma.revisao,
     status:           data.status           ?? existingNorma.status,
     data_publicacao:  data.data_publicacao  ? parseBrDate(String(data.data_publicacao), "data_publicacao") : existingNorma.data_publicacao,
-    arquivo:          data.arquivo          ?? existingNorma.arquivo,
+    arquivo:          newFilePath           ?? existingNorma.arquivo,
     escopo:           data.escopo           ?? existingNorma.escopo,
   };
 
@@ -139,6 +139,12 @@ export const updateNormaService = async (codigo: string, data: any) => {
 
   if (hasNormasRelacionadasIds) {
     await replaceNormasRelacionadasService(codigo, normasRelacionadasIds);
+  }
+
+  if (newFilePath && existingNorma.arquivo && existingNorma.arquivo !== newFilePath) {
+    if (fs.existsSync(existingNorma.arquivo)) {
+      fs.unlinkSync(existingNorma.arquivo);
+    }
   }
 
   const [notas, normasRelacionadasIdsAtualizadas] = await Promise.all([
