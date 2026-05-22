@@ -126,6 +126,7 @@ model SolicitacaoNorma {
   tipo_solicitacao tipo_solicitacao
   norma_id         String?            @db.VarChar(50)
   dados_propostos  Json?
+  motivo_rejeicao  String?            @db.Text
   data_criacao     DateTime           @default(now())
 
   usuario_id Int
