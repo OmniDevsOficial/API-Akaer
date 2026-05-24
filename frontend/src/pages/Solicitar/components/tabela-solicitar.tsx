@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import { getUserRole } from "@/utils/auth";
-import api from "@/services/api";
 import type { FiltrosSelecionados } from "@/components/FilterAside/FilterAside";
 import ModalAvaliacaoChecker from "./modalAvaliacaoChecker";
+import api from "@/services/api";
 
 interface SolicitacaoApi {
     id: number;
@@ -62,6 +62,7 @@ export default function TabelaSolicitar({
     const role = getUserRole();
     const isAdmin = role?.toLowerCase() === 'admin';
     const isChecker = role?.toLowerCase() === 'checker';
+    const mostraColunas = isAdmin || isChecker;
 
     const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([]);
     const [carregando, setCarregando] = useState(true);
@@ -118,8 +119,8 @@ export default function TabelaSolicitar({
 
     return (
         <div className="border border-font-border rounded-lg overflow-hidden">
-            
-            <ModalAvaliacaoChecker 
+
+            <ModalAvaliacaoChecker
                 open={modalCheckerAberto}
                 onOpenChange={setModalCheckerAberto}
                 solicitacao={solicitacaoSelecionada}
@@ -131,8 +132,8 @@ export default function TabelaSolicitar({
                     <tr className="border-b border-font-border">
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">#</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">TIPO</th>
-                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">CRIADOR</th>
-                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">CARGO</th>
+                        {mostraColunas && <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">CRIADOR</th>}
+                        {mostraColunas && <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">CARGO</th>}
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">STATUS</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">DATA DE CRIAÇÃO</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">AÇÕES</th>
@@ -142,58 +143,61 @@ export default function TabelaSolicitar({
                 <tbody>
                     {carregando ? (
                         <tr>
-                            <td colSpan={7} className="px-6 py-6 text-sm text-gray-medium text-center">Carregando solicitações...</td>
+                            <td colSpan={mostraColunas ? 7 : 5} className="px-6 py-6 text-sm text-gray-medium text-center">Carregando solicitações...</td>
                         </tr>
                     ) : solicitacoesFiltradas.length === 0 ? (
                         <tr>
-                            <td colSpan={7} className="px-6 py-6 text-sm text-gray-medium text-center">Nenhuma solicitação encontrada.</td>
+                            <td colSpan={mostraColunas ? 7 : 5} className="px-6 py-6 text-sm text-gray-medium text-center">Nenhuma solicitação encontrada.</td>
                         </tr>
-                    ) : solicitacoesFiltradas.map((s) => {
-                        
-                        const podeAvaliarChecker = isChecker && s.status.toLowerCase() === 'pendente';
-                        const podeAvaliarAdmin = isAdmin && s.status.toLowerCase() === 'aprovada';
-                        const mostrarBotaoAvaliar = podeAvaliarChecker || podeAvaliarAdmin;
+                    ) : (
+                        solicitacoesFiltradas.map((s) => {
+                            const podeAvaliarChecker = isChecker && s.status.toLowerCase() === 'pendente';
+                            const podeAvaliarAdmin = isAdmin && s.status.toLowerCase() === 'aprovada';
+                            const mostrarBotaoAvaliar = podeAvaliarChecker || podeAvaliarAdmin;
 
-                        return (
-                            <tr
-                                key={s.id}
-                                className="border-b border-font-border last:border-none hover:bg-red-50/60 transition-colors"
-                            >
-                                <td className="px-6 py-4 text-sm text-red-akaer font-semibold">{s.id}</td>
-                                <td className="px-6 py-4 text-sm text-gray-900">{s.tipo}</td>
-                                <td className="px-6 py-4 text-sm text-gray-700">{s.criador}</td>
-                                <td className="px-6 py-4 text-sm text-gray-700">{s.cargo}</td>
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-1.5">
-                                        <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${statusColorClass(s.status)}`} />
-                                        <span className="text-sm leading-none text-gray-700">{s.status}</span>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-700">
-                                    {new Date(s.data_criacao).toLocaleDateString('pt-BR')}
-                                </td>
-                                <td className="px-6 py-4">
-                                    {mostrarBotaoAvaliar && (
-                                        <button
-                                            className="flex items-center gap-1.5 bg-dark-title py-1.5 px-3 rounded-sm text-sm text-white hover:text-gray-medium transition-colors cursor-pointer"
-                                            onClick={() => {
-                                                if (podeAvaliarChecker) {
-                                                    setSolicitacaoSelecionada(s);
-                                                    setModalCheckerAberto(true);
-                                                }
-                                                if (podeAvaliarAdmin) {
-                                                    // ...
-                                                }
-                                            }}
-                                        >
-                                            <Check size={15} />
-                                            <span>Avaliar</span>
-                                        </button>
-                                    )}
-                                </td>
-                            </tr>
-                        );
-                    })}
+                            return (
+                                <tr
+                                    key={s.id}
+                                    className="border-b border-font-border last:border-none hover:bg-red-50/60 transition-colors"
+                                >
+                                    <td className="px-6 py-4 text-sm text-red-akaer font-semibold">{s.id}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-900">{s.tipo}</td>
+                                    {mostraColunas && <td className="px-6 py-4 text-sm text-gray-700">{s.criador}</td>}
+                                    {mostraColunas && <td className="px-6 py-4 text-sm text-gray-700">{s.cargo}</td>}
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-1.5">
+                                            <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${statusColorClass(s.status)}`} />
+                                            <span className="text-sm leading-none text-gray-700">{s.status}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-gray-700">
+                                        {new Date(s.data_criacao).toLocaleDateString('pt-BR')}
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        {mostrarBotaoAvaliar && (
+                                            <button
+                                                className="flex items-center gap-1.5 bg-dark-title py-1.5 px-3 rounded-sm text-sm text-white hover:text-gray-medium transition-colors cursor-pointer"
+                                                onClick={() => {
+                                                    if (podeAvaliarChecker) {
+                                                        setSolicitacaoSelecionada(s);
+                                                        setModalCheckerAberto(true);
+                                                    }
+                                                    if (podeAvaliarAdmin && s.status != 'aprovada') {
+                                                        <button>
+                                                            a
+                                                        </button>
+                                                    }
+                                                }}
+                                            >
+                                                <Check size={15} />
+                                                <span>Avaliar</span>
+                                            </button>
+                                        )}
+                                    </td>
+                                </tr>
+                            );
+                        })
+                    )}
                 </tbody>
             </table>
 

@@ -35,37 +35,43 @@ export const criarSolicitacao = async (
   });
 };
 
-export const listarSolicitacoes = async (status?: string): Promise<SolicitacaoListagem[]> => {
+export const listarSolicitacoes = async (
+  status?: string,
+  role?: string,
+  usuarioId?: number
+): Promise<SolicitacaoListagem[]> => {
   const filtroStatus = status?.trim();
   const statusValido = filtroStatus
     ? STATUS_SOLICITACAO.find((value) => value === filtroStatus)
     : undefined;
 
   const solicitacoes = await prisma.solicitacaoNorma.findMany({
-    where: statusValido ? { status: statusValido as any } : undefined,
+    where: {
+      ...(role === "VISUALIZADOR" && { usuario_id: usuarioId }),
+      ...(statusValido && { status: statusValido as any }),
+    },
     orderBy: { id: "desc" },
     select: {
       id: true,
+      usuario_id: true,
       status: true,
       tipo_solicitacao: true,
       norma_id: true,
       data_criacao: true,
       usuario: {
-        select: {
-          nome: true,
-          role: true
-        }
+        select: { nome: true, role: true }
       }
     }
   });
 
-  return solicitacoes.map((solicitacao) => ({
-    id: solicitacao.id,
-    nome: solicitacao.usuario.nome,
-    role: solicitacao.usuario.role,
-    status: solicitacao.status as SolicitacaoStatus,
-    tipo_solicitacao: solicitacao.tipo_solicitacao as TipoSolicitacao,
-    norma_id: solicitacao.norma_id,
-    data_criacao: solicitacao.data_criacao
+  return solicitacoes.map((s) => ({
+    id: s.id,
+    usuario_id: s.usuario_id,
+    nome: s.usuario.nome,
+    role: s.usuario.role,
+    status: s.status as SolicitacaoStatus,
+    tipo_solicitacao: s.tipo_solicitacao as TipoSolicitacao,
+    norma_id: s.norma_id,
+    data_criacao: s.data_criacao
   }));
 };

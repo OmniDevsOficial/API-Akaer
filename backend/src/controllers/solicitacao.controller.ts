@@ -151,12 +151,16 @@ export const listSolicitacoesController = async (req: Request, res: Response): P
   try {
     const status = typeof req.query.status === "string" ? req.query.status : undefined;
 
-    if (status && !STATUS_SOLICITACAO.includes(status as SolicitacaoStatus)) {
-      res.status(400).json({ error: "Status inválido." });
-      return;
-    }
+    const usuarioId = (req as any).user?.id;
+    const role = (req as any).user?.role;
 
-    const solicitacoes = await listarSolicitacoes(status);
+    if (!usuarioId || !role) {
+      res.status(401).json({ error: "Usuário não autenticado." });
+      return;
+    };
+
+    // Pede os dados necessário para o service, no caso os dados do banco
+    const solicitacoes = await listarSolicitacoes(status, role, usuarioId);
 
     res.status(200).json(solicitacoes);
   } catch (error) {

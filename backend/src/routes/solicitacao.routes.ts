@@ -16,7 +16,7 @@ const handleUpload = (req: Request, res: Response, next: NextFunction) => {
 		next();
 	});
 };
-router.get("/", authMiddleware, roleMiddleware(["ADMIN", "CHECKER"]), listSolicitacoesController);
+router.get("/", authMiddleware, roleMiddleware(["ADMIN", "CHECKER", "VISUALIZADOR"]), listSolicitacoesController);
 router.post("/", authMiddleware, roleMiddleware(["VISUALIZADOR", "CHECKER"]), handleUpload, createSolicitacaoController);
 
 export default router;
