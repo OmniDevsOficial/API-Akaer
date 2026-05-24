@@ -3,7 +3,6 @@ import prisma from "../prisma/client";
 
 type TipoSolicitacao = "NOVA_NORMA" | "NOVA_NOTA" | "REPORTE_ERRO";
 type SolicitacaoStatus = "Pendente" | "Reprovada" | "Aprovada" | "Concluida";
-type StatusAvaliacaoSolicitacao = "Aprovada" | "Reprovada";
 
 type SolicitacaoListagem = {
   id: number;
@@ -183,29 +182,4 @@ export const buscarSolicitacaoPorId = async (id: number): Promise<SolicitacaoDet
     usuario_id: solicitacao.usuario_id,
     dados_propostos: solicitacao.dados_propostos
   };
-};
-
-export const avaliarSolicitacao = async (
-  id: number,
-  status: StatusAvaliacaoSolicitacao,
-  motivoRejeicao?: string
-) => {
-  const solicitacao = await prisma.solicitacaoNorma.findUnique({
-    where: { id },
-    select: { id: true }
-  });
-
-  if (!solicitacao) {
-    return null;
-  }
-
-  const data = {
-    status,
-    motivo_rejeicao: status === "Reprovada" ? motivoRejeicao ?? null : null
-  } as any;
-
-  return prisma.solicitacaoNorma.update({
-    where: { id },
-    data
-  });
 };

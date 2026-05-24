@@ -1,21 +1,14 @@
 import { Request, Response } from "express";
 import { Prisma } from "@prisma/client";
-import {
-  avaliarSolicitacao,
-  buscarSolicitacaoPorId,
-  criarSolicitacao,
-  listarSolicitacoes
-} from "../services/solicitacao.service";
+import { buscarSolicitacaoPorId, criarSolicitacao, listarSolicitacoes } from "../services/solicitacao.service";
 
 type DadosSolicitacao = Record<string, Prisma.InputJsonValue>;
 type TipoSolicitacao = "NOVA_NORMA" | "NOVA_NOTA" | "REPORTE_ERRO";
 type SolicitacaoStatus = "Pendente" | "Reprovada" | "Aprovada" | "Concluida";
-type StatusAvaliacao = "Aprovada" | "Reprovada";
 
 const TIPOS_SOLICITACAO: TipoSolicitacao[] = ["NOVA_NORMA", "NOVA_NOTA", "REPORTE_ERRO"];
 const STATUS_SOLICITACAO: SolicitacaoStatus[] = ["Pendente", "Reprovada", "Aprovada", "Concluida"];
 const ROLES_PERMITIDAS = ["ADMIN", "VISUALIZADOR", "CHECKER"];
-const STATUS_AVALIACAO: StatusAvaliacao[] = ["Aprovada", "Reprovada"];
 
 const isTipoSolicitacao = (valor: unknown): valor is TipoSolicitacao =>
   typeof valor === "string" && TIPOS_SOLICITACAO.includes(valor as TipoSolicitacao);
@@ -233,52 +226,5 @@ export const getSolicitacaoByIdController = async (req: Request, res: Response):
   } catch (error) {
     console.error("Erro ao buscar a solicitação:", error);
     res.status(500).json({ error: "Erro interno do servidor ao buscar a solicitação." });
-  }
-};
-
-export const avaliarSolicitacaoController = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const id = Number(req.params.id);
-    const status = typeof req.body?.status === "string" ? req.body.status : undefined;
-    const motivo =
-      typeof req.body?.motivo_rejeicao === "string"
-        ? req.body.motivo_rejeicao.trim()
-        : typeof req.body?.motivo === "string"
-          ? req.body.motivo.trim()
-          : "";
-
-    if (!Number.isInteger(id) || id < 1) {
-      res.status(400).json({ error: "Id inválido." });
-      return;
-    }
-
-    if (!status || !STATUS_AVALIACAO.includes(status as StatusAvaliacao)) {
-      res.status(400).json({ error: "Status de avaliação inválido." });
-      return;
-    }
-
-    if (status === "Reprovada" && !motivo) {
-      res.status(400).json({ error: "O motivo da rejeição é obrigatório." });
-      return;
-    }
-
-    const solicitacaoAtualizada = await avaliarSolicitacao(
-      id,
-      status as StatusAvaliacao,
-      status === "Reprovada" ? motivo : undefined
-    );
-
-    if (!solicitacaoAtualizada) {
-      res.status(404).json({ error: "Solicitação não encontrada." });
-      return;
-    }
-
-    res.status(200).json({
-      message: status === "Aprovada" ? "Solicitação aprovada com sucesso." : "Solicitação reprovada com sucesso.",
-      solicitacao: solicitacaoAtualizada
-    });
-  } catch (error) {
-    console.error("Erro ao avaliar a solicitação:", error);
-    res.status(500).json({ error: "Erro interno do servidor ao avaliar a solicitação." });
   }
 };
