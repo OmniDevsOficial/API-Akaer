@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Prisma } from "@prisma/client";
-import { criarSolicitacao, listarSolicitacoes } from "../services/solicitacao.service";
+import { buscarSolicitacaoPorId, criarSolicitacao, listarSolicitacoes } from "../services/solicitacao.service";
 
 type DadosSolicitacao = Record<string, Prisma.InputJsonValue>;
 type TipoSolicitacao = "NOVA_NORMA" | "NOVA_NOTA" | "REPORTE_ERRO";
@@ -8,6 +8,7 @@ type SolicitacaoStatus = "Pendente" | "Reprovada" | "Aprovada" | "Concluida";
 
 const TIPOS_SOLICITACAO: TipoSolicitacao[] = ["NOVA_NORMA", "NOVA_NOTA", "REPORTE_ERRO"];
 const STATUS_SOLICITACAO: SolicitacaoStatus[] = ["Pendente", "Reprovada", "Aprovada", "Concluida"];
+const ROLES_PERMITIDAS = ["ADMIN", "VISUALIZADOR", "CHECKER"];
 
 const isTipoSolicitacao = (valor: unknown): valor is TipoSolicitacao =>
   typeof valor === "string" && TIPOS_SOLICITACAO.includes(valor as TipoSolicitacao);
@@ -103,17 +104,80 @@ export const createSolicitacaoController = async (req: Request, res: Response): 
 export const listSolicitacoesController = async (req: Request, res: Response): Promise<void> => {
   try {
     const status = typeof req.query.status === "string" ? req.query.status : undefined;
+    const tipo =
+      typeof req.query.tipo === "string"
+        ? req.query.tipo
+        : typeof req.query.tipo_solicitacao === "string"
+          ? req.query.tipo_solicitacao
+          : undefined;
+    const criador =
+      typeof req.query.criador === "string"
+        ? req.query.criador
+        : typeof req.query.nome === "string"
+          ? req.query.nome
+          : undefined;
+    const cargo =
+      typeof req.query.cargo === "string"
+        ? req.query.cargo
+        : typeof req.query.role === "string"
+          ? req.query.role
+          : undefined;
+    const page = Number(req.query.page ?? 1);
+    const limit = Number(req.query.limit ?? 10);
 
     if (status && !STATUS_SOLICITACAO.includes(status as SolicitacaoStatus)) {
       res.status(400).json({ error: "Status inválido." });
       return;
     }
 
-    const solicitacoes = await listarSolicitacoes(status);
+    if (tipo && !TIPOS_SOLICITACAO.includes(tipo.toUpperCase() as TipoSolicitacao)) {
+      res.status(400).json({ error: "Tipo de solicitação inválido." });
+      return;
+    }
+
+    if (cargo && !ROLES_PERMITIDAS.includes(cargo.toUpperCase())) {
+      res.status(400).json({ error: "Cargo inválido." });
+      return;
+    }
+
+    if (!Number.isInteger(page) || page < 1) {
+      res.status(400).json({ error: "Parâmetro page inválido." });
+      return;
+    }
+
+    if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+      res.status(400).json({ error: "Parâmetro limit inválido." });
+      return;
+    }
+
+    const solicitacoes = await listarSolicitacoes({ status, tipo, criador, cargo, page, limit });
 
     res.status(200).json(solicitacoes);
   } catch (error) {
     console.error("Erro ao listar as solicitações:", error);
     res.status(500).json({ error: "Erro interno do servidor ao listar as solicitações." });
+  }
+};
+
+export const getSolicitacaoByIdController = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const id = Number(req.params.id);
+
+    if (!Number.isInteger(id) || id < 1) {
+      res.status(400).json({ error: "Id inválido." });
+      return;
+    }
+
+    const solicitacao = await buscarSolicitacaoPorId(id);
+
+    if (!solicitacao) {
+      res.status(404).json({ error: "Solicitação não encontrada." });
+      return;
+    }
+
+    res.status(200).json(solicitacao);
+  } catch (error) {
+    console.error("Erro ao buscar a solicitação:", error);
+    res.status(500).json({ error: "Erro interno do servidor ao buscar a solicitação." });
   }
 };
