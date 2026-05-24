@@ -1,25 +1,27 @@
-// Importa a lib de icons do react
 import { IoReorderFour } from "react-icons/io5";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { LuLogOut } from "react-icons/lu";
+import { LuLogOut, LuLayers } from "react-icons/lu";
 import { FiUser } from "react-icons/fi";
 import { HiOutlineUsers } from "react-icons/hi2";
 import { BsJournalText } from "react-icons/bs";
 import { useRecolher } from "../utils/functions";
 import { useNavigate, useLocation, matchPath } from "react-router-dom";
-
+import { handleLogout } from '../utils/auth'
 
 export default function Sidebar() {
     const { recolher, alternar } = useRecolher();
     const navigate = useNavigate();
     const location = useLocation();
+    const executarLogout = () => {
+        handleLogout();
+        navigate('/');
+    }
 
     const itemSidebar = [
         {
             id: 1,
             nome: 'Normas',
             rota: '/home',
-            // matchPath interpreta :codigo como parâmetro dinâmico automaticamente
             rotaAtiva: ['/home', `/normas/ver/:codigo`, '/normas/editar/:codigo'],
             icone: <IoReorderFour className="text-lg" />
         },
@@ -34,26 +36,41 @@ export default function Sidebar() {
             id: 3,
             nome: 'Usuários',
             rota: '/usuario',
-            rotaAtiva: ['/usuario'],
+            rotaAtiva: ['/usuario'], // mudar quando tiver a página de usuários
             icone: <HiOutlineUsers className="text-lg" />
         }
     ];
 
     return (
-        <aside className={`flex flex-col min-h-full relative bg-white border-r border-font-border p-4 transition-all duration-300 ${recolher ? "w-16" : "w-60"}`}>
+        <aside className={`flex flex-col h-full relative bg-white border-r border-font-border p-4 transition-all duration-300 ${recolher ? "w-16" : "w-60"}`}>
+
             {/* Botão de Recolher */}
             <button onClick={() => alternar()}
-                className="absolute -right-3 top-6 bg-white border border-font-border rounded-full p-0.5 text-gray-400 hover:text-red-akaer transition-colors z-10">
+                className="absolute -right-3 top-7 bg-white border border-font-border rounded-full p-0.5 text-gray-400 hover:text-red-akaer transition-colors z-10">
                 {recolher ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
             </button>
 
+            {/* Logo da plataforma */}
+            <div className={`flex items-center mb-8 h-10 ${recolher ? "justify-center" : "gap-3 px-1"}`}>
+                <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#73203A] text-white shadow-sm flex-shrink-0">
+                    <LuLayers size={18} />
+                </div>
+                {!recolher && (
+                    <div className="flex flex-col leading-none animate-fade-in truncate mt-1">
+                        <span className="font-extrabold text-base tracking-tight text-dark-title">
+                            Plataforma<span className="text-[#73203A]"></span>
+                        </span>
+                        <span className="text-[9px] font-bold text-gray-medium tracking-widest uppercase mt-0.5">
+                            Normativa
+                        </span>
+                    </div>
+                )}
+            </div>
 
             {!recolher && (<span className="text-xs font-semibold text-gray-medium tracking-widest mb-2">PRINCIPAL</span>)}
 
-            {/* Opções Aside */}
             <nav className={`flex flex-col ${recolher ? "gap-2" : ""}`}>
                 {itemSidebar.map((item) => {
-                    /* Verifica qual é a rota atual e armazena a mesma em isAtivo  */
                     const isAtivo = item.rotaAtiva.some(padrao =>
                         matchPath({ path: padrao, end: false }, location.pathname)
                     );
@@ -77,9 +94,8 @@ export default function Sidebar() {
             </nav>
 
             {/* Footer do Aside */}
-            <div className={`mt-auto border-t border-font-border pt-2 flex flex-col ${recolher ? "gap-2" : ""}`}>
-                {/* Botão de perfil */}
-                <button onClick={() => navigate('/perfil')}
+            <div className={`mt-auto border-t border-font-border pt-4 flex flex-col ${recolher ? "gap-2" : ""}`}>
+                <button onClick={() => navigate('/home')} // Mudar quando tiver a página de perfil dos usuários
                     className={`flex items-center gap-2 px-3 py-2 text-left text-sm rounded-md w-full font-medium text-dark-title hover:bg-gray-medium/35 transition-colors ${recolher ? "justify-center" : ""}`}
                 >
                     <span className="flex-shrink-0 flex items-center justify-center">
@@ -88,9 +104,8 @@ export default function Sidebar() {
                     {!recolher && <span>Meu Perfil</span>}
                 </button>
 
-                {/* Botão de sair */}
-                <button onClick={() => navigate('/')}
-                    className={`flex items-center gap-2 px-3 py-2 text-left text-sm rounded-md w-full font-medium text-dark-title hover:bg-red-100 transition-colors ${recolher ? "justify-center" : ""}`}
+                <button onClick={executarLogout}
+                    className={`flex items-center gap-2 px-3 py-2 text-left text-sm rounded-md w-full font-medium text-dark-title hover:bg-red-500/10 transition-colors ${recolher ? "justify-center" : ""}`}
                 >
                     <span className="flex-shrink-0 flex items-center justify-center">
                         <LuLogOut className="text-sm" />
@@ -98,7 +113,6 @@ export default function Sidebar() {
                     {!recolher && <span>Sair</span>}
                 </button>
             </div>
-
-        </aside>
+        </aside >
     )
 }

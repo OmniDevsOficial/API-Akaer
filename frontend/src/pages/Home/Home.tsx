@@ -58,19 +58,19 @@ export default function Home() {
 
     return (
         <>
-            <div className="min-h-screen bg-[#fbfbfb] flex flex-col font-dm">
+            <div className="flex h-screen w-full overflow-hidden bg-[#fbfbfb] font-dm">
+                <Sidebar />
 
-                <Header />
-
-                <div className="flex flex-1">
-
-                    <Sidebar />
+                <div className="flex flex-col flex-1 h-full overflow-hidden">
 
                     <main className="flex-1 p-8">
                         <h2 className="text-red-akaer font-bold text-sm tracking-widest mb-2">GERENCIAMENTO</h2>
 
                         <div className='flex justify-between items-center'>
-                            <h1 className="text-3xl font-dm font-semibold text-dark-title">Normas Aeronáuticas</h1>
+                            <div>
+                                <h1 className="text-2xl font-dm font-semibold text-dark-title">Normas Aeronáuticas</h1>
+                                <span className="text-sm text-gray-medium flex justify-between gap-3 ">Cadastre, edite e visualize todas as normas da empresa</span>
+                            </div>
 
                             {isAdmin ? (
                                 <button onClick={() => setModalAberto(true)}
@@ -97,8 +97,8 @@ export default function Home() {
                             />
 
                             <IndicarNormaModal
-                               open={indicarNormaOpen}
-                               onOpenChange={setIndicarNormaOpen}
+                                open={indicarNormaOpen}
+                                onOpenChange={setIndicarNormaOpen}
                             />
 
                             <ReportErrorModal

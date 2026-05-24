@@ -51,11 +51,11 @@ export default function Home() {
 
             {/* Logo e título */}
             <div className="flex gap-6 items-center">
-                <span className="text-[#9A9390]">Plataforma Normativa</span>
+                <span className="text-[#9A9390]"> </span>
             </div>
 
-            {/* Notificação e Perfil */}
-            <div className="flex items-center gap-2">
+            {/* Perfil */}
+            <div className="flex flex-end items-center gap-2">
                 <div onClick={handleLogout} className="flex items-center gap-2 border border-font-border rounded-lg cursor-pointer py-1 px-2">
                     <span className={`w-8 h-8 ${usuario.corFundo} text-white text-sm font-medium flex items-center justify-center rounded`}>
                         {usuario.iniciais}
