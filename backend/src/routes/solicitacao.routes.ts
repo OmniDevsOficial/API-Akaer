@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
 import {
+	avaliarSolicitacaoController,
 	createSolicitacaoController,
 	getSolicitacaoByIdController,
 	listSolicitacoesController
@@ -22,6 +23,7 @@ const handleUpload = (req: Request, res: Response, next: NextFunction) => {
 };
 router.get("/", authMiddleware, roleMiddleware(["ADMIN", "CHECKER"]), listSolicitacoesController);
 router.get("/:id", authMiddleware, roleMiddleware(["ADMIN", "CHECKER"]), getSolicitacaoByIdController);
+router.patch("/:id/avaliar", authMiddleware, roleMiddleware(["ADMIN", "CHECKER"]), avaliarSolicitacaoController);
 router.post("/", authMiddleware, roleMiddleware(["VISUALIZADOR", "CHECKER"]), handleUpload, createSolicitacaoController);
 
 export default router;
