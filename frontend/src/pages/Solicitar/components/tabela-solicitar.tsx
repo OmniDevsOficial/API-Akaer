@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import { getUserRole } from "@/utils/auth";
 import type { FiltrosSelecionados } from "@/components/FilterAside/FilterAside";
+import { Eye } from "lucide-react";
 import ModalAvaliacaoChecker from "./modalAvaliacaoChecker";
 import api from "@/services/api";
 
@@ -69,6 +70,9 @@ export default function TabelaSolicitar({
 
     const [modalCheckerAberto, setModalCheckerAberto] = useState(false);
     const [solicitacaoSelecionada, setSolicitacaoSelecionada] = useState<Solicitacao | null>(null);
+    // Adiciona estado separado pro modal de detalhes do admin
+    const [modalDetalhesAberto, setModalDetalhesAberto] = useState(false);
+    const [solicitacaoDetalhes, setSolicitacaoDetalhes] = useState<Solicitacao | null>(null);
 
     useEffect(() => {
         let ativo = true;
@@ -127,6 +131,14 @@ export default function TabelaSolicitar({
                 onSuccess={handleSucessoAvaliacao}
             />
 
+            <ModalAvaliacaoChecker
+                open={modalDetalhesAberto}
+                onOpenChange={setModalDetalhesAberto}
+                solicitacao={solicitacaoDetalhes}
+                onSuccess={() => { }}
+                modo="detalhes"
+            />
+
             <table className="w-full">
                 <thead>
                     <tr className="border-b border-font-border">
@@ -154,6 +166,7 @@ export default function TabelaSolicitar({
                             const podeAvaliarChecker = isChecker && s.status.toLowerCase() === 'pendente';
                             const podeAvaliarAdmin = isAdmin && s.status.toLowerCase() === 'aprovada';
                             const mostrarBotaoAvaliar = podeAvaliarChecker || podeAvaliarAdmin;
+                            const mostrarBotaoDetalhes = isAdmin && !podeAvaliarAdmin;
 
                             return (
                                 <tr
@@ -183,14 +196,23 @@ export default function TabelaSolicitar({
                                                         setModalCheckerAberto(true);
                                                     }
                                                     if (podeAvaliarAdmin && s.status != 'aprovada') {
-                                                        <button>
-                                                            a
-                                                        </button>
+                                                        // .
                                                     }
                                                 }}
                                             >
                                                 <Check size={15} />
                                                 <span>Avaliar</span>
+                                            </button>
+                                        )}
+                                        {mostrarBotaoDetalhes && (
+                                            <button className="flex items-center gap-1.5 border border-font-border py-1.5 px-3 rounded-sm text-sm text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                                                onClick={() => {
+                                                    setSolicitacaoDetalhes(s);
+                                                    setModalDetalhesAberto(true);
+                                                }}
+                                            >
+                                                <Eye size={15} />
+                                                <span>Detalhes</span>
                                             </button>
                                         )}
                                     </td>

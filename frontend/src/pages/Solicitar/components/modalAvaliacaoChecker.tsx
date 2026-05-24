@@ -44,6 +44,7 @@ interface ModalAvaliacaoCheckerProps {
     onOpenChange: (open: boolean) => void;
     solicitacao: Solicitacao | null;
     onSuccess: (id: number) => void;
+    modo?: "avaliacao" | "detalhes";
 }
 
 type EtapaModal = 'visualizando' | 'rejeitando' | 'concluido';
@@ -136,6 +137,7 @@ export default function ModalAvaliacaoChecker({
     onOpenChange,
     solicitacao,
     onSuccess,
+    modo = "avaliacao",
 }: ModalAvaliacaoCheckerProps) {
     const [detalhes, setDetalhes] = useState<SolicitacaoDetalhes | null>(null);
     const [carregando, setCarregando] = useState(false);
@@ -230,7 +232,9 @@ export default function ModalAvaliacaoChecker({
             <DialogContent className="!p-0 flex flex-col gap-0 sm:!max-w-[600px] bg-[#fbfbfb]">
                 <div className="flex items-start mx-7 mt-5 mb-4">
                     <div>
-                        <p className="text-xs font-semibold tracking-widest text-red-akaer uppercase">Avaliação · Checker</p>
+                        <p className="text-xs font-semibold tracking-widest text-red-akaer uppercase">
+                            {modo === "detalhes" ? "Detalhes · Admin" : "Avaliação · Checker"}
+                        </p>
                         <h2 className="text-lg font-medium text-dark-title leading-tight">{solicitacao?.tipo || 'Solicitação'}</h2>
                     </div>
                 </div>
@@ -273,7 +277,15 @@ export default function ModalAvaliacaoChecker({
                         </div>
                         <hr className="border-font-border" />
                         <div className="flex justify-between items-center mx-7 my-4 gap-2">
-                            {etapa === 'visualizando' ? (
+                            {modo === "detalhes" ? (
+                                // Modo leitura quando for admin
+                                <div className="flex justify-end w-full">
+                                    <Button size="lg" variant="outline" onClick={() => handleOpenChange(false)} className="border-gray-200 text-gray-600">
+                                        Fechar
+                                    </Button>
+                                </div>
+                            ) : (
+                                // Modo avaliação, tanto checker, quanto admin
                                 <>
                                     <Button type="button" size="lg" variant="outline" onClick={() => handleOpenChange(false)} disabled={enviando} className="border-gray-200 text-gray-600 hover:text-dark-title">Cancelar</Button>
                                     <div className="flex gap-2">
@@ -284,15 +296,6 @@ export default function ModalAvaliacaoChecker({
                                             {enviando ? <Spinner className="mr-2" /> : <Check className="w-4 h-4 mr-1" />} Aprovar
                                         </Button>
                                     </div>
-                                </>
-                            ) : (
-                                <>
-                                    <Button type="button" size="lg" variant="outline" onClick={() => setEtapa('visualizando')} disabled={enviando} className="border-gray-200 text-gray-600 hover:text-dark-title">
-                                        <ChevronLeft className="w-4 h-4 mr-1" /> Voltar
-                                    </Button>
-                                    <Button type="button" size="lg" onClick={handleConfirmarRejeicao} disabled={enviando} className="bg-red-akaer hover:bg-red-700 text-white">
-                                        {enviando ? <Spinner className="mr-2" /> : <X className="w-4 h-4 mr-1" />} Confirmar Rejeição
-                                    </Button>
                                 </>
                             )}
                         </div>
