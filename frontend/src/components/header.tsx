@@ -1,4 +1,3 @@
-import { IoMdNotificationsOutline } from "react-icons/io";
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 
@@ -57,10 +56,6 @@ export default function Home() {
 
             {/* Notificação e Perfil */}
             <div className="flex items-center gap-2">
-                <div className="flex border border-font-border rounded-lg cursor-pointer p-2.5">
-                    <IoMdNotificationsOutline className="w-6 h-6" />
-                </div>
-
                 <div onClick={handleLogout} className="flex items-center gap-2 border border-font-border rounded-lg cursor-pointer py-1 px-2">
                     <span className={`w-8 h-8 ${usuario.corFundo} text-white text-sm font-medium flex items-center justify-center rounded`}>
                         {usuario.iniciais}
