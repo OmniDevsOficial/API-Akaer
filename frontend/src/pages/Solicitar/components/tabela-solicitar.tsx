@@ -63,7 +63,6 @@ export default function TabelaSolicitar({
     const role = getUserRole();
     const isAdmin = role?.toLowerCase() === 'admin';
     const isChecker = role?.toLowerCase() === 'checker';
-    const mostraColunas = isAdmin || isChecker;
 
     const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([]);
     const [carregando, setCarregando] = useState(true);
@@ -144,8 +143,8 @@ export default function TabelaSolicitar({
                     <tr className="border-b border-font-border">
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">#</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">TIPO</th>
-                        {mostraColunas && <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">CRIADOR</th>}
-                        {mostraColunas && <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">CARGO</th>}
+                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">CRIADOR</th>
+                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">CARGO</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">STATUS</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">DATA DE CRIAÇÃO</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">AÇÕES</th>
@@ -155,11 +154,11 @@ export default function TabelaSolicitar({
                 <tbody>
                     {carregando ? (
                         <tr>
-                            <td colSpan={mostraColunas ? 7 : 5} className="px-6 py-6 text-sm text-gray-medium text-center">Carregando solicitações...</td>
+                            <td className="px-6 py-6 text-sm text-gray-medium text-center">Carregando solicitações...</td>
                         </tr>
                     ) : solicitacoesFiltradas.length === 0 ? (
                         <tr>
-                            <td colSpan={mostraColunas ? 7 : 5} className="px-6 py-6 text-sm text-gray-medium text-center">Nenhuma solicitação encontrada.</td>
+                            <td className="px-6 py-6 text-sm text-gray-medium text-center">Nenhuma solicitação encontrada.</td>
                         </tr>
                     ) : (
                         solicitacoesFiltradas.map((s) => {
@@ -175,8 +174,8 @@ export default function TabelaSolicitar({
                                 >
                                     <td className="px-6 py-4 text-sm text-red-akaer font-semibold">{s.id}</td>
                                     <td className="px-6 py-4 text-sm text-gray-900">{s.tipo}</td>
-                                    {mostraColunas && <td className="px-6 py-4 text-sm text-gray-700">{s.criador}</td>}
-                                    {mostraColunas && <td className="px-6 py-4 text-sm text-gray-700">{s.cargo}</td>}
+                                    <td className="px-6 py-4 text-sm text-gray-700">{s.criador}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-700">{s.cargo}</td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-1.5">
                                             <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${statusColorClass(s.status)}`} />
