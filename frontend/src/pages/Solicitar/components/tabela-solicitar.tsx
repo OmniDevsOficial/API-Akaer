@@ -2,10 +2,9 @@ import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import { getUserRole } from "@/utils/auth";
 import api from "@/services/api";
-/* import { useNavigate } from "react-router-dom"; */
 import type { FiltrosSelecionados } from "@/components/FilterAside/FilterAside";
+import ModalAvaliacaoChecker from "./modalAvaliacaoChecker";
 
-// INTEGRAÇÃO: reflete o contrato esperado do endpoint /solicitacoes
 interface SolicitacaoApi {
     id: number;
     nome: string;
@@ -22,7 +21,14 @@ export interface Solicitacao {
     criador: string;
     cargo: string;
     status: string;
-    data_criacao: string; // não sei se está vindo formatado, tem que conferir
+    data_criacao: string;
+}
+
+export interface TabelaSolicitarProps {
+    refreshTrigger?: number;
+    searchText?: string;
+    filtros?: FiltrosSelecionados;
+    filtroStatus?: string;
 }
 
 const STATUS_PARAM_MAP: Record<string, string | undefined> = {
@@ -37,13 +43,6 @@ const TIPO_LABEL_MAP: Record<string, string> = {
     NOVA_NOTA: "Nova nota",
     REPORTE_ERRO: "Reporte de erro",
 };
-
-export interface TabelaSolicitarProps {
-    refreshTrigger?: number;
-    searchText?: string;
-    filtros?: FiltrosSelecionados;
-    filtroStatus?: string;
-}
 
 const statusColorClass = (status: string) => {
     const corStatus: Record<string, string> = {
@@ -62,25 +61,26 @@ export default function TabelaSolicitar({
 }: TabelaSolicitarProps) {
     const role = getUserRole();
     const isAdmin = role?.toLowerCase() === 'admin';
-    /* const navigate = useNavigate(); */
+    const isChecker = role?.toLowerCase() === 'checker';
+
     const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([]);
     const [carregando, setCarregando] = useState(true);
+
+    const [modalCheckerAberto, setModalCheckerAberto] = useState(false);
+    const [solicitacaoSelecionada, setSolicitacaoSelecionada] = useState<Solicitacao | null>(null);
 
     useEffect(() => {
         let ativo = true;
 
         const carregarSolicitacoes = async () => {
             setCarregando(true);
-
             try {
                 const statusParam = STATUS_PARAM_MAP[filtroStatus.toLowerCase()];
                 const response = await api.get<SolicitacaoApi[]>("/solicitacoes", {
                     params: statusParam ? { status: statusParam } : undefined,
                 });
 
-                if (!ativo) {
-                    return;
-                }
+                if (!ativo) return;
 
                 const dados = response.data.map((solicitacao) => ({
                     id: solicitacao.id,
@@ -94,23 +94,19 @@ export default function TabelaSolicitar({
                 setSolicitacoes(dados);
             } catch (error) {
                 console.error("Erro ao carregar solicitacoes", error);
-
-                if (ativo) {
-                    setSolicitacoes([]);
-                }
+                if (ativo) setSolicitacoes([]);
             } finally {
-                if (ativo) {
-                    setCarregando(false);
-                }
+                if (ativo) setCarregando(false);
             }
         };
 
         carregarSolicitacoes();
-
-        return () => {
-            ativo = false;
-        };
+        return () => { ativo = false; };
     }, [filtroStatus, refreshTrigger]);
+
+    const handleSucessoAvaliacao = (idAprovadoOuRejeitado: number) => {
+        setSolicitacoes(prev => prev.filter(s => s.id !== idAprovadoOuRejeitado));
+    };
 
     const solicitacoesFiltradas = solicitacoes
         .filter((s) => filtroStatus === 'todas' || s.status.toLowerCase() === filtroStatus)
@@ -122,6 +118,14 @@ export default function TabelaSolicitar({
 
     return (
         <div className="border border-font-border rounded-lg overflow-hidden">
+            
+            <ModalAvaliacaoChecker 
+                open={modalCheckerAberto}
+                onOpenChange={setModalCheckerAberto}
+                solicitacao={solicitacaoSelecionada}
+                onSuccess={handleSucessoAvaliacao}
+            />
+
             <table className="w-full">
                 <thead>
                     <tr className="border-b border-font-border">
@@ -144,37 +148,52 @@ export default function TabelaSolicitar({
                         <tr>
                             <td colSpan={7} className="px-6 py-6 text-sm text-gray-medium text-center">Nenhuma solicitação encontrada.</td>
                         </tr>
-                    ) : solicitacoesFiltradas.map((s) => (
-                        <tr
-                            key={s.id}
-                            className="border-b border-font-border last:border-none hover:bg-red-50/60 transition-colors"
-                        >
-                            <td className="px-6 py-4 text-sm text-red-akaer font-semibold">{s.id}</td>
-                            <td className="px-6 py-4 text-sm text-gray-900">{s.tipo}</td>
-                            <td className="px-6 py-4 text-sm text-gray-700">{s.criador}</td>
-                            <td className="px-6 py-4 text-sm text-gray-700">{s.cargo}</td>
-                            <td className="px-6 py-4">
-                                <div className="flex items-center gap-1.5">
-                                    <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${statusColorClass(s.status)}`} />
-                                    <span className="text-sm leading-none text-gray-700">{s.status}</span>
-                                </div>
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">
-                                {new Date(s.data_criacao).toLocaleDateString('pt-BR')}
-                            </td>
-                            <td className="px-6 py-4">
-                                {isAdmin && (
-                                    <button
-                                        className="flex items-center gap-1.5 bg-dark-title py-1.5 px-3 rounded-sm text-sm text-white hover:text-gray-medium transition-colors cursor-pointer"
-                                        onClick={() => { }}
-                                    >
-                                        <Check size={15} />
-                                        <span>Avaliar</span>
-                                    </button>
-                                )}
-                            </td>
-                        </tr>
-                    ))}
+                    ) : solicitacoesFiltradas.map((s) => {
+                        
+                        const podeAvaliarChecker = isChecker && s.status.toLowerCase() === 'pendente';
+                        const podeAvaliarAdmin = isAdmin && s.status.toLowerCase() === 'aprovada';
+                        const mostrarBotaoAvaliar = podeAvaliarChecker || podeAvaliarAdmin;
+
+                        return (
+                            <tr
+                                key={s.id}
+                                className="border-b border-font-border last:border-none hover:bg-red-50/60 transition-colors"
+                            >
+                                <td className="px-6 py-4 text-sm text-red-akaer font-semibold">{s.id}</td>
+                                <td className="px-6 py-4 text-sm text-gray-900">{s.tipo}</td>
+                                <td className="px-6 py-4 text-sm text-gray-700">{s.criador}</td>
+                                <td className="px-6 py-4 text-sm text-gray-700">{s.cargo}</td>
+                                <td className="px-6 py-4">
+                                    <div className="flex items-center gap-1.5">
+                                        <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${statusColorClass(s.status)}`} />
+                                        <span className="text-sm leading-none text-gray-700">{s.status}</span>
+                                    </div>
+                                </td>
+                                <td className="px-6 py-4 text-sm text-gray-700">
+                                    {new Date(s.data_criacao).toLocaleDateString('pt-BR')}
+                                </td>
+                                <td className="px-6 py-4">
+                                    {mostrarBotaoAvaliar && (
+                                        <button
+                                            className="flex items-center gap-1.5 bg-dark-title py-1.5 px-3 rounded-sm text-sm text-white hover:text-gray-medium transition-colors cursor-pointer"
+                                            onClick={() => {
+                                                if (podeAvaliarChecker) {
+                                                    setSolicitacaoSelecionada(s);
+                                                    setModalCheckerAberto(true);
+                                                }
+                                                if (podeAvaliarAdmin) {
+                                                    // ...
+                                                }
+                                            }}
+                                        >
+                                            <Check size={15} />
+                                            <span>Avaliar</span>
+                                        </button>
+                                    )}
+                                </td>
+                            </tr>
+                        );
+                    })}
                 </tbody>
             </table>
 
