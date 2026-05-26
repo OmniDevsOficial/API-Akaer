@@ -11,6 +11,8 @@ interface StandardModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSuccess: () => void;
+    solicitacaoId?: number; // serve para o auto-preenchimento do modal quando houver solicitação
+    onConcluir?: (id: number) => void; // aqui vai atualizar o status da solicitação na tabela
 }
 
 interface NotaCadastro {
@@ -18,7 +20,7 @@ interface NotaCadastro {
     texto: string;
 }
 
-function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps) {
+function AddStandardModal({ open, onOpenChange, onSuccess, solicitacaoId, onConcluir }: StandardModalProps) {
     const [titulo, setTitulo] = useState('');
     const [orgaoEmissor, setOrgaoEmissor] = useState('');
     const [status, setStatus] = useState('Ativa');
@@ -99,9 +101,18 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
         try {
             const response = await api.post('/normas/create', formData);
             console.log('Norma Cadastrada com Sucesso:', response.data);
+
+            // SE a norma veio de uma solicitação, atualiza a solicitação
+            if (solicitacaoId) {
+                await api.patch(`/solicitacoes/${solicitacaoId}/status`, { status: 'Concluida' });
+                onConcluir?.(solicitacaoId);
+            }
+            
             setCadastroConcluido(true);
             onSuccess();
+
             return response.data;
+
         } catch (error: any) {
             const mensagemErro = 'Erro ao cadastrar norma: ' + (error.response?.data?.error || error.message);
             alert(mensagemErro);
@@ -109,6 +120,7 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
             throw error;
         }
     };
+
 
     const limparFormulario = () => {
         setTitulo('');
@@ -167,6 +179,24 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
     const removerPalavra = (index: number) => {
         setPalavrasChave(prev => prev.filter((_, i) => i !== index));
     }
+
+    useEffect(() => {
+        if (!open || !solicitacaoId) return;
+
+        api.get(`/solicitacoes/${solicitacaoId}`).then((res) => {
+            const dn = res.data.dados_propostos?.dados_norma ?? {};
+            if (dn.titulo) setTitulo(dn.titulo);
+            if (dn.codigo) setCodigo(dn.codigo);
+            if (dn.revisao) setRevisao(dn.revisao);
+            if (dn.escopo) setEscopo(dn.escopo);
+            if (dn.status) setStatus(dn.status);
+            if (dn.data_publicacao) setDataPublicacao(dn.data_publicacao);
+            if (dn.orgao_emissor_id) setOrgaoEmissor(dn.orgao_emissor_id);
+            if (dn.categoria_id) setCategoria(dn.categoria_id);
+            if (dn.etapa_projeto_id) setEtapaProjeto(dn.etapa_projeto_id);
+            if (dn.palavras_chave) setPalavrasChave(dn.palavras_chave);
+        });
+    }, [open, solicitacaoId]);
 
 
     return (

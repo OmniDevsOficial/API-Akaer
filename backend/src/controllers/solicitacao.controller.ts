@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Prisma } from "@prisma/client";
-import { buscarSolicitacaoPorId, criarSolicitacao, listarSolicitacoes } from "../services/solicitacao.service";
+import { buscarSolicitacaoPorId, criarSolicitacao, listarSolicitacoes, atualizarStatusSolicitacao } from "../services/solicitacao.service";
 
 type DadosSolicitacao = Record<string, Prisma.InputJsonValue>;
 type TipoSolicitacao = "NOVA_NORMA" | "NOVA_NOTA" | "REPORTE_ERRO";
@@ -219,5 +219,37 @@ export const getSolicitacaoByIdController = async (req: Request, res: Response):
   } catch (error) {
     console.error("Erro ao buscar a solicitação:", error);
     res.status(500).json({ error: "Erro interno do servidor ao buscar a solicitação." });
+  }
+};
+
+// Atualizar status da solicitação
+export const updateStatusSolicitacaoController = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const id = Number(req.params.id);
+    const { status } = req.body;
+
+    if (!Number.isInteger(id) || id < 1) {
+      res.status(400).json({ error: "Id inválido." });
+      return;
+    }
+
+    if (!status || !STATUS_SOLICITACAO.includes(status as SolicitacaoStatus)) {
+      res.status(400).json({ error: "Status inválido." });
+      return;
+    }
+
+    const solicitacao = await buscarSolicitacaoPorId(id);
+
+    if (!solicitacao) {
+      res.status(404).json({ error: "Solicitação não encontrada." });
+      return;
+    }
+
+    await atualizarStatusSolicitacao(id, status as SolicitacaoStatus);
+
+    res.status(200).json({ message: "Status atualizado com sucesso." });
+  } catch (error) {
+    console.error("Erro ao atualizar status:", error);
+    res.status(500).json({ error: "Erro interno do servidor ao atualizar o status." });
   }
 };

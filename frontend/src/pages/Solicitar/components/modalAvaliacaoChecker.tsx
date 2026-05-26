@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Check, X, ChevronLeft } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import api from '@/services/api';

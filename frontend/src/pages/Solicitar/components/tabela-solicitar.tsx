@@ -4,6 +4,7 @@ import { getUserRole } from "@/utils/auth";
 import { Eye } from "lucide-react";
 import type { FiltrosSelecionados } from "@/components/FilterAside/FilterAside";
 import ModalAvaliacaoChecker from "./modalAvaliacaoChecker";
+import AddStandardModal from "@/components/add-standard-modal";
 import api from "@/services/api";
 
 interface SolicitacaoApi {
@@ -82,6 +83,9 @@ export default function TabelaSolicitar({
     // Adiciona estado separado pro modal de detalhes do admin
     const [modalDetalhesAberto, setModalDetalhesAberto] = useState(false);
     const [solicitacaoDetalhes, setSolicitacaoDetalhes] = useState<Solicitacao | null>(null);
+    // Abertura e conclusão para modal de cadastro de norma
+    const [modalCadastroAberto, setModalCadastroAberto] = useState(false);
+    const [solicitacaoParaConcluir, setSolicitacaoParaConcluir] = useState<Solicitacao | null>(null);
 
     useEffect(() => {
         let ativo = true;
@@ -130,6 +134,12 @@ export default function TabelaSolicitar({
             s.tipo.toLowerCase().includes(searchText.toLowerCase())
         );
 
+    const handleConcluirSolicitacao = (id: number) => {
+        setSolicitacoes(prev =>
+            prev.map(s => s.id === id ? { ...s, status: 'Concluida' } : s)
+        );
+    };
+
     return (
         <div className="border border-font-border rounded-lg overflow-hidden">
 
@@ -146,6 +156,14 @@ export default function TabelaSolicitar({
                 solicitacao={solicitacaoDetalhes}
                 onSuccess={() => { }}
                 modo="detalhes"
+            />
+
+            <AddStandardModal
+                open={modalCadastroAberto}
+                onOpenChange={setModalCadastroAberto}
+                onSuccess={() => { }}
+                solicitacaoId={solicitacaoParaConcluir?.id}
+                onConcluir={handleConcluirSolicitacao}
             />
 
             <table className="w-full">
@@ -175,7 +193,7 @@ export default function TabelaSolicitar({
                             const podeAvaliarChecker = isChecker && s.status.toLowerCase() === 'pendente';
                             const podeAvaliarAdmin = isAdmin && s.status.toLowerCase() === 'aprovada';
                             const mostrarBotaoAvaliar = podeAvaliarChecker || podeAvaliarAdmin;
-                            const mostrarBotaoDetalhes = isAdmin && !podeAvaliarAdmin;
+                            const mostrarBotaoDetalhes = isAdmin && !podeAvaliarAdmin || isChecker && s.status.toLowerCase() != 'pendente';
 
                             return (
                                 <tr
@@ -204,8 +222,9 @@ export default function TabelaSolicitar({
                                                         setSolicitacaoSelecionada(s);
                                                         setModalCheckerAberto(true);
                                                     }
-                                                    if (podeAvaliarAdmin && s.status != 'aprovada') {
-                                                        // .
+                                                    if (podeAvaliarAdmin) {
+                                                        setSolicitacaoParaConcluir(s);
+                                                        setModalCadastroAberto(true);
                                                     }
                                                 }}
                                             >

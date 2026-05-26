@@ -167,3 +167,13 @@ export const buscarSolicitacaoPorId = async (id: number): Promise<SolicitacaoDet
     dados_propostos: solicitacao.dados_propostos,
   };
 };
+
+export const atualizarStatusSolicitacao = async (
+  id: number,
+  status: SolicitacaoStatus
+): Promise<void> => {
+  await prisma.solicitacaoNorma.update({
+    where: { id },
+    data: { status },
+  });
+};
