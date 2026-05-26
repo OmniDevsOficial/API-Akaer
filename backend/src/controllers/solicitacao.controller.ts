@@ -189,7 +189,6 @@ export const listSolicitacoesController = async (req: Request, res: Response): P
       return;
     }
 
-    // ← uma única declaração, assinatura nova com role e usuarioId
     const solicitacoes = await listarSolicitacoes({ status, tipo, criador, cargo, page, limit, role, usuarioId });
 
     res.status(200).json(solicitacoes);

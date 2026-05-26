@@ -59,7 +59,7 @@ const TIPO_LABEL_MAP: Record<string, string> = {
 const statusColorClass = (status: string) => {
     const corStatus: Record<string, string> = {
         'pendente': 'bg-gray-500',
-        'aprovada': 'bg-green-500',
+        'aprovada': 'bg-orange-400',
         'concluida': 'bg-green-500',
         'reprovada': 'bg-red-akaer',
     };
@@ -74,6 +74,7 @@ export default function TabelaSolicitar({
     const role = getUserRole();
     const isAdmin = role?.toLowerCase() === 'admin';
     const isChecker = role?.toLowerCase() === 'checker';
+    const isViewer = role?.toLowerCase() === 'visualizador';
 
     const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([]);
     const [carregando, setCarregando] = useState(true);
@@ -175,7 +176,7 @@ export default function TabelaSolicitar({
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">CARGO</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">STATUS</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">DATA DE CRIAÇÃO</th>
-                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">AÇÕES</th>
+                        {!isViewer && <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">AÇÕES</th>}
                     </tr>
                 </thead>
 
@@ -193,7 +194,7 @@ export default function TabelaSolicitar({
                             const podeAvaliarChecker = isChecker && s.status.toLowerCase() === 'pendente';
                             const podeAvaliarAdmin = isAdmin && s.status.toLowerCase() === 'aprovada';
                             const mostrarBotaoAvaliar = podeAvaliarChecker || podeAvaliarAdmin;
-                            const mostrarBotaoDetalhes = isAdmin && !podeAvaliarAdmin || isChecker && s.status.toLowerCase() != 'pendente';
+                            const mostrarBotaoDetalhes = (isAdmin && !podeAvaliarAdmin) || isChecker && s.status.toLowerCase() != 'pendente';
 
                             return (
                                 <tr

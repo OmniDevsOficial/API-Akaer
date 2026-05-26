@@ -278,16 +278,17 @@ export default function ModalAvaliacaoChecker({
                         <hr className="border-font-border" />
                         <div className="flex justify-between items-center mx-7 my-4 gap-2">
                             {modo === "detalhes" ? (
-                                // Modo leitura quando for admin
                                 <div className="flex justify-end w-full">
                                     <Button size="lg" variant="outline" onClick={() => handleOpenChange(false)} className="border-gray-200 text-gray-600">
                                         Fechar
                                     </Button>
                                 </div>
-                            ) : (
-                                // Modo avaliação, tanto checker, quanto admin
+                            ) : etapa === 'visualizando' ? (
+                                // Tela inicial — Cancelar | Rejeitar | Aprovar
                                 <>
-                                    <Button type="button" size="lg" variant="outline" onClick={() => handleOpenChange(false)} disabled={enviando} className="border-gray-200 text-gray-600 hover:text-dark-title">Cancelar</Button>
+                                    <Button type="button" size="lg" variant="outline" onClick={() => handleOpenChange(false)} disabled={enviando} className="border-gray-200 text-gray-600 hover:text-dark-title">
+                                        Cancelar
+                                    </Button>
                                     <div className="flex gap-2">
                                         <Button type="button" size="lg" variant="outline" onClick={() => setEtapa('rejeitando')} disabled={enviando || carregando} className="border-red-300 text-red-akaer hover:bg-red-50 hover:text-red-akaer">
                                             <X className="w-4 h-4 mr-1" /> Rejeitar
@@ -296,6 +297,16 @@ export default function ModalAvaliacaoChecker({
                                             {enviando ? <Spinner className="mr-2" /> : <Check className="w-4 h-4 mr-1" />} Aprovar
                                         </Button>
                                     </div>
+                                </>
+                            ) : (
+                                // Tela de rejeição — Voltar | Confirmar Rejeição
+                                <>
+                                    <Button type="button" size="lg" variant="outline" onClick={() => setEtapa('visualizando')} disabled={enviando} className="border-gray-200 text-gray-600 hover:text-dark-title">
+                                        Voltar
+                                    </Button>
+                                    <Button type="button" size="lg" onClick={handleConfirmarRejeicao} disabled={enviando} className="bg-red-akaer hover:bg-red-akaer/95  text-white">
+                                        {enviando ? <Spinner className="mr-2" /> : <X className="w-4 h-4 mr-1" />} Confirmar Rejeição
+                                    </Button>
                                 </>
                             )}
                         </div>
