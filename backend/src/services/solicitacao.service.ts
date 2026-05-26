@@ -27,6 +27,8 @@ type FiltrosListagemSolicitacao = {
   page: number;
   status?: string;
   tipo?: string;
+  role?: string;       // ← adicionado para filtro por permissão
+  usuarioId?: number;  // ← adicionado para filtro por permissão
 };
 
 type ResultadoPaginadoSolicitacoes = {
@@ -42,48 +44,24 @@ type ResultadoPaginadoSolicitacoes = {
 const STATUS_SOLICITACAO: SolicitacaoStatus[] = ["Pendente", "Reprovada", "Aprovada", "Concluida"];
 const TIPOS_SOLICITACAO: TipoSolicitacao[] = ["NOVA_NORMA", "NOVA_NOTA", "REPORTE_ERRO"];
 
-export const criarSolicitacao = async (
-  usuarioId: number,
-  tipo_solicitacao: any,
-  dados: any
-) => {
-  const norma_id = (tipo_solicitacao === "NOVA_NOTA" || tipo_solicitacao === "REPORTE_ERRO") ? dados.norma_id : null;
-
-  await prisma.solicitacaoNorma.create({
-    data: {
-      tipo_solicitacao: tipo_solicitacao,
-      dados_propostos: dados,
-      usuario_id: usuarioId,
-      status: "Pendente",
-      norma_id: norma_id,
-    }
-  });
-};
-
-  // Aqui aceitei as duas alterações (minha e da dev), mas ainda está errando.
-export const listarSolicitacoes = async (
-  status?: string,
-  role?: string,
-  usuarioId?: number
-): Promise<SolicitacaoListagem[]> => {
 const normalizarStatus = (status?: string): solicitacao_status | undefined => {
   const filtroStatus = status?.trim();
   return filtroStatus
-    ? (STATUS_SOLICITACAO.find((value) => value === filtroStatus) as solicitacao_status | undefined)
+    ? (STATUS_SOLICITACAO.find((v) => v === filtroStatus) as solicitacao_status | undefined)
     : undefined;
 };
 
 const normalizarTipo = (tipo?: string): tipo_solicitacao | undefined => {
   const filtroTipo = tipo?.trim().toUpperCase();
   return filtroTipo
-    ? (TIPOS_SOLICITACAO.find((value) => value === filtroTipo) as tipo_solicitacao | undefined)
+    ? (TIPOS_SOLICITACAO.find((v) => v === filtroTipo) as tipo_solicitacao | undefined)
     : undefined;
 };
 
 const normalizarCargo = (cargo?: string): Role | undefined => {
   const filtroCargo = cargo?.trim().toUpperCase();
   return filtroCargo
-    ? (Object.values(Role).find((value) => value === filtroCargo) as Role | undefined)
+    ? (Object.values(Role).find((v) => v === filtroCargo) as Role | undefined)
     : undefined;
 };
 
@@ -93,10 +71,7 @@ const mapSolicitacaoListagem = (solicitacao: {
   tipo_solicitacao: tipo_solicitacao;
   norma_id: string | null;
   data_criacao: Date;
-  usuario: {
-    nome: string;
-    role: Role;
-  };
+  usuario: { nome: string; role: Role };
 }): SolicitacaoListagem => ({
   id: solicitacao.id,
   nome: solicitacao.usuario.nome,
@@ -105,8 +80,22 @@ const mapSolicitacaoListagem = (solicitacao: {
   status: solicitacao.status as SolicitacaoStatus,
   tipo_solicitacao: solicitacao.tipo_solicitacao as TipoSolicitacao,
   norma_id: solicitacao.norma_id,
-  data_criacao: solicitacao.data_criacao
+  data_criacao: solicitacao.data_criacao,
 });
+
+export const criarSolicitacao = async (usuarioId: number, tipo_solicitacao: any, dados: any) => {
+  const norma_id = (tipo_solicitacao === "NOVA_NOTA" || tipo_solicitacao === "REPORTE_ERRO") ? dados.norma_id : null;
+
+  await prisma.solicitacaoNorma.create({
+    data: {
+      tipo_solicitacao,
+      dados_propostos: dados,
+      usuario_id: usuarioId,
+      status: "Pendente",
+      norma_id,
+    },
+  });
+};
 
 export const listarSolicitacoes = async (
   filtros: FiltrosListagemSolicitacao
@@ -119,10 +108,11 @@ export const listarSolicitacoes = async (
   const where: Prisma.SolicitacaoNormaWhereInput = {
     ...(status ? { status } : {}),
     ...(tipo ? { tipo_solicitacao: tipo } : {}),
+    ...(filtros.role === "VISUALIZADOR" && filtros.usuarioId ? { usuario_id: filtros.usuarioId } : {}),
     usuario: {
       ...(cargo ? { role: cargo } : {}),
-      ...(criador ? { nome: { contains: criador } } : {})
-    }
+      ...(criador ? { nome: { contains: criador } } : {}),
+    },
   };
 
   const [total, solicitacoes] = await Promise.all([
@@ -138,14 +128,9 @@ export const listarSolicitacoes = async (
         tipo_solicitacao: true,
         norma_id: true,
         data_criacao: true,
-        usuario: {
-          select: {
-            nome: true,
-            role: true
-          }
-        }
-      }
-    })
+        usuario: { select: { nome: true, role: true } },
+      },
+    }),
   ]);
 
   return {
@@ -154,8 +139,8 @@ export const listarSolicitacoes = async (
       limit: filtros.limit,
       page: filtros.page,
       total,
-      totalPages: total === 0 ? 0 : Math.ceil(total / filtros.limit)
-    }
+      totalPages: total === 0 ? 0 : Math.ceil(total / filtros.limit),
+    },
   };
 };
 
@@ -170,33 +155,15 @@ export const buscarSolicitacaoPorId = async (id: number): Promise<SolicitacaoDet
       norma_id: true,
       dados_propostos: true,
       data_criacao: true,
-      usuario_id: true,
-      usuario: {
-        select: { nome: true, role: true }
-      }
-    }
+      usuario: { select: { nome: true, role: true } },
+    },
   });
-  // Linhas do conflito que vieram da dev
-  if (!solicitacao) {
-    return null;
-  }
+
+  if (!solicitacao) return null;
 
   return {
     ...mapSolicitacaoListagem(solicitacao),
     usuario_id: solicitacao.usuario_id,
-    dados_propostos: solicitacao.dados_propostos
+    dados_propostos: solicitacao.dados_propostos,
   };
-
-  // Return da minha branch
-  return solicitacoes.map((s) => ({
-    id: s.id,
-    usuario_id: s.usuario_id,
-    nome: s.usuario.nome,
-    role: s.usuario.role,
-    status: s.status as SolicitacaoStatus,
-    tipo_solicitacao: s.tipo_solicitacao as TipoSolicitacao,
-    norma_id: s.norma_id,
-    data_criacao: s.data_criacao
-  }));
-  
 };

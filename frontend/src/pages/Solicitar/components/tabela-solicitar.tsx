@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import { getUserRole } from "@/utils/auth";
-import type { FiltrosSelecionados } from "@/components/FilterAside/FilterAside";
 import { Eye } from "lucide-react";
+import type { FiltrosSelecionados } from "@/components/FilterAside/FilterAside";
 import ModalAvaliacaoChecker from "./modalAvaliacaoChecker";
 import api from "@/services/api";
 
@@ -23,6 +23,16 @@ export interface Solicitacao {
     cargo: string;
     status: string;
     data_criacao: string;
+}
+
+interface RespostaSolicitacoes {
+    data: SolicitacaoApi[];
+    pagination: {
+        limit: number,
+        page: number,
+        total: number,
+        totalPages: number,
+    };
 }
 
 export interface TabelaSolicitarProps {
@@ -80,13 +90,13 @@ export default function TabelaSolicitar({
             setCarregando(true);
             try {
                 const statusParam = STATUS_PARAM_MAP[filtroStatus.toLowerCase()];
-                const response = await api.get<SolicitacaoApi[]>("/solicitacoes", {
+                const response = await api.get<RespostaSolicitacoes>("/solicitacoes", {
                     params: statusParam ? { status: statusParam } : undefined,
                 });
 
                 if (!ativo) return;
 
-                const dados = response.data.map((solicitacao) => ({
+                const dados = response.data.data.map((solicitacao) => ({
                     id: solicitacao.id,
                     tipo: TIPO_LABEL_MAP[solicitacao.tipo_solicitacao] ?? solicitacao.tipo_solicitacao,
                     criador: solicitacao.nome,

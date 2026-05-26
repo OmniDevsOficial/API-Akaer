@@ -151,24 +151,12 @@ export const createSolicitacaoController = async (req: Request, res: Response): 
 export const listSolicitacoesController = async (req: Request, res: Response): Promise<void> => {
   try {
     const status = typeof req.query.status === "string" ? req.query.status : undefined;
-    const tipo =
-      typeof req.query.tipo === "string"
-        ? req.query.tipo
-        : typeof req.query.tipo_solicitacao === "string"
-          ? req.query.tipo_solicitacao
-          : undefined;
-    const criador =
-      typeof req.query.criador === "string"
-        ? req.query.criador
-        : typeof req.query.nome === "string"
-          ? req.query.nome
-          : undefined;
-    const cargo =
-      typeof req.query.cargo === "string"
-        ? req.query.cargo
-        : typeof req.query.role === "string"
-          ? req.query.role
-          : undefined;
+    const tipo = typeof req.query.tipo === "string" ? req.query.tipo
+      : typeof req.query.tipo_solicitacao === "string" ? req.query.tipo_solicitacao : undefined;
+    const criador = typeof req.query.criador === "string" ? req.query.criador
+      : typeof req.query.nome === "string" ? req.query.nome : undefined;
+    const cargo = typeof req.query.cargo === "string" ? req.query.cargo
+      : typeof req.query.role === "string" ? req.query.role : undefined;
     const page = Number(req.query.page ?? 1);
     const limit = Number(req.query.limit ?? 10);
 
@@ -178,10 +166,9 @@ export const listSolicitacoesController = async (req: Request, res: Response): P
     if (!usuarioId || !role) {
       res.status(401).json({ error: "Usuário não autenticado." });
       return;
-    };
+    }
 
-    // Pede os dados necessário para o service, no caso os dados do banco
-    const solicitacoes = await listarSolicitacoes(status, role, usuarioId);
+    // ← validações antes da chamada ao service
     if (tipo && !TIPOS_SOLICITACAO.includes(tipo.toUpperCase() as TipoSolicitacao)) {
       res.status(400).json({ error: "Tipo de solicitação inválido." });
       return;
@@ -202,7 +189,8 @@ export const listSolicitacoesController = async (req: Request, res: Response): P
       return;
     }
 
-    const solicitacoes = await listarSolicitacoes({ status, tipo, criador, cargo, page, limit });
+    // ← uma única declaração, assinatura nova com role e usuarioId
+    const solicitacoes = await listarSolicitacoes({ status, tipo, criador, cargo, page, limit, role, usuarioId });
 
     res.status(200).json(solicitacoes);
   } catch (error) {

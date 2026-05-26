@@ -28,6 +28,7 @@ export default function Solicitar() {
             <Sidebar />
 
             <div className="flex flex-col flex-1 h-full overflow-hidden">
+                <Header />
 
                 <main className="flex-1 p-8 overflow-y-auto">
                     <h2 className="text-red-akaer font-bold text-sm tracking-widest mb-2">GERENCIAMENTO</h2>

@@ -1,70 +1,72 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
+import api from "@/services/api";
 
 interface UsuarioAPI {
     nome: string;
-    cargo: string;
     iniciais: string;
+    role: string;
+    cargo: string;
     corFundo: string;
 }
 
-export default function Home() {
+export default function Header() {
     const [usuario, setUsuario] = useState<UsuarioAPI | null>(null);
-    const navigate = useNavigate();
 
     useEffect(() => {
-        // Futuramente: conectar ao back-end
-        // fetch('http://localhost:3000/usuario')
-        //   .then(res => res.json())
-        //   .then(dados => setUsuario(dados));
+        const buscarUsuario = async () => {
+            try {
+                // Aqui você coloca a rota real do seu back-end (ex: '/usuarios/me', '/perfil', etc)
+                const response = await api.get('/usuario');
 
-        // 🧪 Mock temporário enquanto não ativa o fetch
-        setTimeout(() => {
-            setUsuario({
-                nome: 'Lucas G.',
-                cargo: 'Engenheiro',
-                iniciais: 'LG',
-                corFundo: 'bg-red-akaer',
-            });
-        },);
-    }, []);
+                const dados = response.data;
 
-    // função ativada quando não há recebimento dos dados do usuário vindo da API
-    if (!usuario) {
+                setUsuario({
+                    nome: dados.nome || 'Carlos',
+                    iniciais: dados.iniciais || dados.nome.substring(0, 2).toUpperCase(),
+                    role: dados.role || 'Admin',
+                    cargo: dados.cargo || 'Cargo não definido',
+                    corFundo: dados.corFundo || 'bg-[#73203A]'
+                });
+
+            } catch (error) {
+                console.error("Erro ao buscar dados do usuário na API:", error);
+            }
+        };
+
+        buscarUsuario();
+    }, []); // O array vazio garante que a API só seja chamada 1 vez quando o Header aparecer
+
+    // Loading enquanto o request da API não termina
+    // Ativar apenas quando estiver recebendo os dados corretamente do backend
+    /* if (!usuario) {
         return (
-            <div className="min-h-screen bg-[#fbfbfb] flex items-center justify-center font-sans">
-                <span className="text-gray-500 text-lg font-semibold animate-pulse">
-                    Buscando dados no servidor...
-                </span>
-            </div>
+            <header className="h-16 bg-white border-b border-font-border flex items-center justify-between px-8 w-full">
+                <div className="flex gap-6 items-center"></div>
+                <div className="flex items-center justify-end gap-2">
+                    <span className="text-gray-400 text-sm font-semibold animate-pulse">
+                        Carregando perfil...
+                    </span>
+                </div>
+            </header>
         );
-    }
-
-    // Usar para sair da plataforma, vai ser colocado no dropdown do perfil
-    const handleLogout = async () => {
-        localStorage.removeItem("token");
-        navigate('/');
-    };
+    } */
 
     return (
-        <header className="h-16 bg-white border-b border-font-border flex items-center justify-between px-8">
+        <header className="h-16 bg-white border-b border-font-border flex items-center justify-between px-8 w-full">
+            <div className="flex gap-6 items-center"></div>
 
-            {/* Logo e título */}
-            <div className="flex gap-6 items-center">
-                <span className="text-[#9A9390]"> </span>
-            </div>
+            <div className="flex items-center justify-end gap-2">
+                <div className="flex items-center gap-3 border border-font-border rounded-lg cursor-pointer py-1.5 px-3 hover:bg-gray-50 transition-colors">
 
-            {/* Perfil */}
-            <div className="flex flex-end items-center gap-2">
-                <div onClick={handleLogout} className="flex items-center gap-2 border border-font-border rounded-lg cursor-pointer py-1 px-2">
-                    <span className={`w-8 h-8 ${usuario.corFundo} text-white text-sm font-medium flex items-center justify-center rounded`}>
-                        {usuario.iniciais}
+                    <span className={`w-8 h-8 ${usuario?.corFundo} text-white text-sm font-medium flex items-center justify-center rounded`}>
+                        {usuario?.iniciais}
                     </span>
 
                     <div className="flex flex-col tracking-wider">
-                        <span className="text-sm font-semibold leading-tight">{usuario.nome}</span>
-                        <span className="text-xs text-gray-medium">{usuario.cargo}</span>
+                        <span className="text-sm font-semibold leading-tight text-dark-title">{usuario?.nome}</span>
+                        <span className="text-[11px] text-gray-medium uppercase tracking-widest">{usuario?.cargo}</span>
                     </div>
+
                 </div>
             </div>
         </header>
