@@ -18,6 +18,7 @@ type SolicitacaoListagem = {
 type SolicitacaoDetalhe = SolicitacaoListagem & {
   usuario_id: number;
   dados_propostos: Prisma.JsonValue | null;
+  motivo_rejeicao: string | null;
 };
 
 type FiltrosListagemSolicitacao = {
@@ -154,6 +155,7 @@ export const buscarSolicitacaoPorId = async (id: number): Promise<SolicitacaoDet
       tipo_solicitacao: true,
       norma_id: true,
       dados_propostos: true,
+      motivo_rejeicao: true,
       data_criacao: true,
       usuario: { select: { nome: true, role: true } },
     },
@@ -165,15 +167,20 @@ export const buscarSolicitacaoPorId = async (id: number): Promise<SolicitacaoDet
     ...mapSolicitacaoListagem(solicitacao),
     usuario_id: solicitacao.usuario_id,
     dados_propostos: solicitacao.dados_propostos,
+    motivo_rejeicao: solicitacao.motivo_rejeicao,
   };
 };
 
 export const atualizarStatusSolicitacao = async (
   id: number,
-  status: SolicitacaoStatus
+  status: SolicitacaoStatus,
+  motivoRejeicao?: string
 ): Promise<void> => {
   await prisma.solicitacaoNorma.update({
     where: { id },
-    data: { status },
+    data: {
+      status,
+      ...(motivoRejeicao !== undefined ? { motivo_rejeicao: motivoRejeicao } : {}),
+    },
   });
 };

@@ -35,6 +35,7 @@ interface SolicitacaoDetalhes {
     status: string;
     dados_propostos: DadosSolicitacao;
     norma_id: string | null;
+    motivo_rejeicao?: string | null;
     data_criacao: string;
     usuario: { nome: string; role: string };
 }
@@ -110,8 +111,9 @@ function DadosNovaNorma({ dados, criacao, status }: { dados: DadosSolicitacao; c
                 <CampoLeitura label="Utilidade" valor={dados.utilidade} />
             </div>
             <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase">Dados da Norma</span>
+                <div className="flex items-center gap-3 my-1">
+                    <div className="flex-1 h-px bg-font-border" />
+                    <span className="text-xs font-semibold tracking-widest text-gray-400 uppercase whitespace-nowrap">Dados da Norma</span>
                     <div className="flex-1 h-px bg-font-border" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -219,11 +221,37 @@ export default function ModalAvaliacaoChecker({
         if (erroCarregamento) return <p className="text-sm text-red-akaer py-8 text-center">{erroCarregamento}</p>;
         if (!detalhes) return null;
 
-        const { dados_propostos, tipo_solicitacao, data_criacao, status } = detalhes;
+        const { dados_propostos, tipo_solicitacao, data_criacao, status, motivo_rejeicao } = detalhes;
 
-        if (tipo_solicitacao === 'NOVA_NOTA') return <DadosNovaNotaOuErro dados={dados_propostos} criacao={data_criacao} status={status} tipo="Nova Nota" />;
-        if (tipo_solicitacao === 'REPORTE_ERRO') return <DadosNovaNotaOuErro dados={dados_propostos} criacao={data_criacao} status={status} tipo="Reporte de Erro" />;
-        if (tipo_solicitacao === 'NOVA_NORMA') return <DadosNovaNorma dados={dados_propostos} criacao={data_criacao} status={status} />;
+        const motivoReprovacao = status.toLowerCase() === 'reprovada' && motivo_rejeicao ? (
+            <div className="flex flex-col gap-0.5">
+                <span className="text-[10px] font-semibold tracking-widest text-red-akaer uppercase">
+                    Motivo da reprovação
+                </span>
+                <p className="text-sm text-gray-800 bg-gray-50 border border-font-border rounded p-3 whitespace-pre-wrap">
+                    {motivo_rejeicao}
+                </p>
+            </div>
+        ) : null;
+
+        if (tipo_solicitacao === 'NOVA_NOTA') return (
+            <>
+                <DadosNovaNotaOuErro dados={dados_propostos} criacao={data_criacao} status={status} tipo="Nova Nota" />
+                {motivoReprovacao}
+            </>
+        );
+        if (tipo_solicitacao === 'REPORTE_ERRO') return (
+            <>
+                <DadosNovaNotaOuErro dados={dados_propostos} criacao={data_criacao} status={status} tipo="Reporte de Erro" />
+                {motivoReprovacao}
+            </>
+        );
+        if (tipo_solicitacao === 'NOVA_NORMA') return (
+            <>
+                <DadosNovaNorma dados={dados_propostos} criacao={data_criacao} status={status} />
+                {motivoReprovacao}
+            </>
+        );
         return null;
     };
 

@@ -225,7 +225,7 @@ export const getSolicitacaoByIdController = async (req: Request, res: Response):
 export const updateStatusSolicitacaoController = async (req: Request, res: Response): Promise<void> => {
   try {
     const id = Number(req.params.id);
-    const { status } = req.body;
+    const { status, motivo_rejeicao } = req.body;
 
     if (!Number.isInteger(id) || id < 1) {
       res.status(400).json({ error: "Id inválido." });
@@ -237,6 +237,13 @@ export const updateStatusSolicitacaoController = async (req: Request, res: Respo
       return;
     }
 
+    const motivoRejeicao = typeof motivo_rejeicao === "string" ? motivo_rejeicao.trim() : "";
+
+    if (status === "Reprovada" && !motivoRejeicao) {
+      res.status(400).json({ error: "Motivo da reprovação é obrigatório." });
+      return;
+    }
+
     const solicitacao = await buscarSolicitacaoPorId(id);
 
     if (!solicitacao) {
@@ -244,7 +251,11 @@ export const updateStatusSolicitacaoController = async (req: Request, res: Respo
       return;
     }
 
-    await atualizarStatusSolicitacao(id, status as SolicitacaoStatus);
+    await atualizarStatusSolicitacao(
+      id,
+      status as SolicitacaoStatus,
+      status === "Reprovada" ? motivoRejeicao : undefined
+    );
 
     res.status(200).json({ message: "Status atualizado com sucesso." });
   } catch (error) {
