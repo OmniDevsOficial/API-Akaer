@@ -5,6 +5,8 @@ import { Eye } from "lucide-react";
 import type { FiltrosSelecionados } from "@/components/FilterAside/FilterAside";
 import ModalAvaliacaoChecker from "./modalAvaliacaoChecker";
 import AddStandardModal from "@/components/add-standard-modal";
+import ModalSolicitacaoNota from "@/pages/Solicitacoes/ModalSolicitacaoNota";
+import ReportErrorModal from "@/pages/Solicitacoes/ReportErrorModal";
 import api from "@/services/api";
 
 interface SolicitacaoApi {
@@ -87,6 +89,8 @@ export default function TabelaSolicitar({
     // Abertura e conclusão para modal de cadastro de norma
     const [modalCadastroAberto, setModalCadastroAberto] = useState(false);
     const [solicitacaoParaConcluir, setSolicitacaoParaConcluir] = useState<Solicitacao | null>(null);
+    // Abertura para modal de reportar erro
+    const [modalReporteErro, setModalReporteErro] = useState(false)
 
     useEffect(() => {
         let ativo = true;
@@ -167,6 +171,12 @@ export default function TabelaSolicitar({
                 onConcluir={handleConcluirSolicitacao}
             />
 
+            <ReportErrorModal
+                open={modalReporteErro}
+                onOpenChange={setModalCadastroAberto}
+                normas={[]}
+            />
+
             <table className="w-full">
                 <thead>
                     <tr className="border-b border-font-border">
@@ -223,9 +233,16 @@ export default function TabelaSolicitar({
                                                         setSolicitacaoSelecionada(s);
                                                         setModalCheckerAberto(true);
                                                     }
+
                                                     if (podeAvaliarAdmin) {
-                                                        setSolicitacaoParaConcluir(s);
-                                                        setModalCadastroAberto(true);
+                                                        if (s.tipo === 'Nova norma') {
+                                                            setSolicitacaoParaConcluir(s);
+                                                            setModalCadastroAberto(true);
+                                                        }
+                                                        else {
+                                                            setSolicitacaoSelecionada(s);
+                                                            setModalCheckerAberto(true);
+                                                        }
                                                     }
                                                 }}
                                             >

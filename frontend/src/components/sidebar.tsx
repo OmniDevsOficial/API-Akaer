@@ -1,21 +1,15 @@
 import { IoReorderFour } from "react-icons/io5";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { LuLogOut, LuLayers } from "react-icons/lu";
-import { FiUser } from "react-icons/fi";
+import { LuLayers } from "react-icons/lu";
 import { HiOutlineUsers } from "react-icons/hi2";
 import { BsJournalText } from "react-icons/bs";
 import { useRecolher } from "../utils/functions";
 import { useNavigate, useLocation, matchPath } from "react-router-dom";
-import { handleLogout } from '../utils/auth'
 
 export default function Sidebar() {
     const { recolher, alternar } = useRecolher();
     const navigate = useNavigate();
     const location = useLocation();
-    const executarLogout = () => {
-        handleLogout();
-        navigate('/');
-    }
 
     const itemSidebar = [
         {
@@ -42,7 +36,7 @@ export default function Sidebar() {
     ];
 
     return (
-        <aside className={`flex flex-col h-full relative bg-white border-r border-font-border p-4 transition-all duration-300 ${recolher ? "w-16" : "w-60"}`}>
+        <aside className={`z-20 flex flex-col h-full relative bg-white border-r border-font-border p-4 transition-all duration-300 ${recolher ? "w-16" : "w-60"}`}>
 
             {/* Botão de Recolher */}
             <button onClick={() => alternar()}
@@ -92,27 +86,6 @@ export default function Sidebar() {
                     )
                 })}
             </nav>
-
-            {/* Footer do Aside */}
-            <div className={`mt-auto border-t border-font-border pt-4 flex flex-col ${recolher ? "gap-2" : ""}`}>
-                <button onClick={() => navigate('/home')} // Mudar quando tiver a página de perfil dos usuários
-                    className={`flex items-center gap-2 px-3 py-2 text-left text-sm rounded-md w-full font-medium text-dark-title hover:bg-gray-medium/35 transition-colors ${recolher ? "justify-center" : ""}`}
-                >
-                    <span className="flex-shrink-0 flex items-center justify-center">
-                        <FiUser className="text-sm" />
-                    </span>
-                    {!recolher && <span>Meu Perfil</span>}
-                </button>
-
-                <button onClick={executarLogout}
-                    className={`flex items-center gap-2 px-3 py-2 text-left text-sm rounded-md w-full font-medium text-dark-title hover:bg-red-500/10 transition-colors ${recolher ? "justify-center" : ""}`}
-                >
-                    <span className="flex-shrink-0 flex items-center justify-center">
-                        <LuLogOut className="text-sm" />
-                    </span>
-                    {!recolher && <span>Sair</span>}
-                </button>
-            </div>
         </aside >
     )
 }
