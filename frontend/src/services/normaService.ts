@@ -55,6 +55,19 @@ export interface Norma {
     status: string;
 }
 
+// Representa uma revisão obsoleta de uma norma
+export interface RevisaoNorma {
+    id: number;
+    codigo: string;
+    titulo: string;
+    revisao: string | null;
+    status: string;
+    arquivo?: string | null;
+    categoria?: { nome: string } | null;
+    categoria_id?: { nome: string } | null;
+    data_publicacao?: string | null;
+}
+
 export interface NormasLeituraResponse {
     itens?: Norma[];
     paginacao?: {
@@ -99,5 +112,16 @@ export async function listarNormas({
         paramsSerializer: serializarParams,
     });
 
+    return response.data;
+}
+
+/**
+ * Busca o histórico de revisões obsoletas de uma norma pelo seu código.
+ * Retorna uma lista de revisões anteriores (status obsoleto/inativo).
+ */
+export async function getRevisoesNorma(codigo: string): Promise<RevisaoNorma[]> {
+    const response = await api.get<RevisaoNorma[]>(
+        `/normas/${encodeURIComponent(codigo)}/revisoes`
+    );
     return response.data;
 }
