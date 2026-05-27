@@ -18,6 +18,21 @@ interface DadosNorma {
     data_publicacao?: string;
     escopo?: string;
     palavras_chave?: string[];
+    arquivo?: string;
+    notas?: DadosNormaNota[];
+    normas_relacionadas?: DadosNormaRelacionada[];
+}
+
+interface DadosNormaNota {
+    ordem?: number;
+    texto?: string;
+    norma_codigo?: string;
+}
+
+interface DadosNormaRelacionada {
+    ordem?: number;
+    norma_codigo?: string;
+    relacionada_codigo?: string;
 }
 
 interface DadosSolicitacao {
@@ -72,6 +87,22 @@ function Spinner({ className = 'h-4 w-4' }: { className?: string }) {
     );
 }
 
+const resolveArquivoUrl = (arquivo: string) => {
+    const trimmed = arquivo.trim();
+    if (!trimmed) return "";
+    if (/^https?:\/\//.test(trimmed)) return trimmed;
+
+    const normalized = trimmed.replace(/\\/g, "/");
+    const marker = "/uploads/";
+    const idx = normalized.lastIndexOf(marker);
+    const relative = idx >= 0 ? normalized.slice(idx) : normalized;
+    const path = relative.startsWith("/") ? relative : `/${relative}`;
+    const baseUrl = api.defaults.baseURL ?? "";
+
+    if (!baseUrl) return path;
+    return `${baseUrl.replace(/\/$/, "")}${path}`;
+};
+
 function DadosNovaNotaOuErro({ dados, criacao, status, tipo }: { dados: DadosSolicitacao; criacao: string; status: string, tipo: string }) {
     return (
         <div className="flex flex-col gap-4">
@@ -122,11 +153,71 @@ function DadosNovaNorma({ dados, criacao, status }: { dados: DadosSolicitacao; c
                     <CampoLeitura label="Status" valor={dn.status} />
                     <CampoLeitura label="Revisão" valor={dn.revisao} />
                     <CampoLeitura label="Data de publicação" valor={dn.data_publicacao} />
+                    <CampoLeitura label="Órgão emissor" valor={dn.orgao_emissor_id} />
+                    <CampoLeitura label="Categoria" valor={dn.categoria_id} />
+                    <CampoLeitura label="Etapa do projeto" valor={dn.etapa_projeto_id} />
                 </div>
                 {dn.escopo && (
                     <div className="flex flex-col gap-0.5">
                         <span className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase">Escopo</span>
                         <p className="text-sm text-gray-800 bg-gray-50 border border-font-border rounded p-3 whitespace-pre-wrap">{dn.escopo}</p>
+                    </div>
+                )}
+                {dn.arquivo && (
+                    <div className="flex flex-col gap-0.5">
+                        <span className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase">Arquivo PDF</span>
+                            <a
+                            href={resolveArquivoUrl(dn.arquivo)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-sm text-red-akaer underline break-all"
+                        >
+                            Abrir arquivo
+                        </a>
+                    </div>
+                )}
+                {Array.isArray(dn.palavras_chave) && dn.palavras_chave.length > 0 && (
+                    <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase">Palavras-chave</span>
+                        <div className="flex flex-wrap gap-2">
+                            {dn.palavras_chave.map((palavra, idx) => (
+                                <span key={`${palavra}-${idx}`} className="text-xs text-gray-700 bg-gray-50 border border-font-border rounded px-2 py-1">
+                                    {palavra}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                )}
+                {Array.isArray(dn.notas) && dn.notas.length > 0 && (
+                    <div className="flex flex-col gap-2">
+                        <span className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase">Notas</span>
+                        <div className="flex flex-col gap-2">
+                            {dn.notas.map((nota, idx) => (
+                                <div key={`${nota.ordem ?? idx}-${idx}`} className="bg-gray-50 border border-font-border rounded p-3">
+                                    <span className="text-xs text-gray-500">
+                                        Nota {(nota.ordem ?? idx) + 1}
+                                    </span>
+                                    <p className="text-sm text-gray-800 whitespace-pre-wrap mt-2">
+                                        {nota.texto || "—"}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+                {Array.isArray(dn.normas_relacionadas) && dn.normas_relacionadas.length > 0 && (
+                    <div className="flex flex-col gap-2">
+                        <span className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase">Normas relacionadas</span>
+                        <div className="flex flex-col gap-2">
+                            {dn.normas_relacionadas.map((rel, idx) => (
+                                <div key={`${rel.ordem ?? idx}-${idx}`} className="bg-gray-50 border border-font-border rounded p-3">
+                                    <span className="text-xs text-gray-500">Norma {(rel.ordem ?? idx) + 1}</span>
+                                    <div className="text-sm text-gray-800 mt-1 break-words">
+                                        {rel.relacionada_codigo || "—"}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
             </div>
