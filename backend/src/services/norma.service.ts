@@ -85,6 +85,7 @@ export const createNormaService = async (data: any, filePath: string) => {
       categoria_id:     Number(categoria_id),
       etapa_projeto_id: etapa_projeto_id ? Number(etapa_projeto_id) : null,
       revisao:          revisaoNormalizada,
+      is_vigente:       true,
       status,
       data_publicacao:  dataPublicacao,
       escopo: escopo ?? null,
@@ -366,8 +367,10 @@ export const createNormaRevisaoService = async (codigo: string, data: any, newFi
 
   const novaRevisao = getNextRevision(existingNorma.revisao);
 
+  const novoCodigo = `${existingNorma.codigo_base}-${novaRevisao}`;
+
   const duplicateRevision = await prisma.norma.findFirst({
-    where: { codigo, revisao: novaRevisao }
+    where: { codigo_base: existingNorma.codigo_base, revisao: novaRevisao }
   });
 
   if (duplicateRevision) {
@@ -382,11 +385,12 @@ export const createNormaRevisaoService = async (codigo: string, data: any, newFi
   const [_, novaNorma] = await prisma.$transaction([
     prisma.norma.update({
       where: { id: existingNorma.id },
-      data: { status: "Obsoleta" }
+      data: { status: "Obsoleta", is_vigente: false }
     }),
     prisma.norma.create({
       data: {
-        codigo: existingNorma.codigo,
+        codigo: novoCodigo,
+        codigo_base: existingNorma.codigo_base,
         titulo: existingNorma.titulo,
         orgao_emissor_id: existingNorma.orgao_emissor_id,
         categoria_id: existingNorma.categoria_id,
@@ -394,6 +398,7 @@ export const createNormaRevisaoService = async (codigo: string, data: any, newFi
         escopo: existingNorma.escopo,
         palavras_chave: existingNorma.palavras_chave ? JSON.parse(JSON.stringify(existingNorma.palavras_chave)) : [],
         revisao: novaRevisao,
+        is_vigente: true,
         status: "Ativa",
         data_publicacao: data.data_publicacao ? parseBrDate(String(data.data_publicacao), "data_publicacao") : existingNorma.data_publicacao,
         arquivo: newFilePath,
