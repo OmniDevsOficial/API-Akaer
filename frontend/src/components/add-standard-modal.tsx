@@ -40,6 +40,7 @@ function AddStandardModal({ open, onOpenChange, onSuccess, solicitacaoId, onConc
     const [notas, setNotas] = useState<NotaCadastro[]>([]);
     const [arquivoNorma, setArquivoNorma] = useState<File | null>(null);
     const [arquivoNormaUrl, setArquivoNormaUrl] = useState<string | null>(null);
+    const [arquivoNormaPath, setArquivoNormaPath] = useState<string | null>(null);
     const [cadastroConcluido, setCadastroConcluido] = useState(false);
 
     // Opções dinâmicas
@@ -139,13 +140,15 @@ function AddStandardModal({ open, onOpenChange, onSuccess, solicitacaoId, onConc
                 : undefined,
         };
 
-        if (!arquivoNorma) {
+        const formData = new FormData();
+        if (arquivoNorma) {
+            formData.append('file', arquivoNorma);
+        } else if (arquivoNormaPath) {
+            formData.append('arquivo_existente', arquivoNormaPath);
+        } else {
             alert("O arquivo PDF da norma e obrigatorio.");
             return;
         }
-
-        const formData = new FormData();
-        formData.append('file', arquivoNorma);
 
         Object.entries(payload).forEach(([key, value]) => {
             // 3. CONSERTO DO ERRO 500 SILENCIOSO: Impede envio de IDs vazios
@@ -194,6 +197,7 @@ function AddStandardModal({ open, onOpenChange, onSuccess, solicitacaoId, onConc
         setNormasRelacionadas([]);
         setArquivoNorma(null);
         setArquivoNormaUrl(null);
+        setArquivoNormaPath(null);
         setCadastroConcluido(false);
         setNormasRelacionadas([]);
     };
@@ -289,17 +293,7 @@ function AddStandardModal({ open, onOpenChange, onSuccess, solicitacaoId, onConc
                 const url = resolveArquivoUrl(dn.arquivo);
                 if (!url) return;
                 setArquivoNormaUrl(url);
-
-                try {
-                    const response = await fetch(url);
-                    if (!response.ok) return;
-                    const blob = await response.blob();
-                    const nomeArquivo = dn.arquivo.split("/").pop() || "documento.pdf";
-                    const file = new File([blob], nomeArquivo, { type: blob.type || "application/pdf" });
-                    setArquivoNorma(file);
-                } catch {
-                    // Se falhar, o admin ainda pode reenviar manualmente.
-                }
+                setArquivoNormaPath(dn.arquivo);
             }
         });
 
@@ -350,10 +344,14 @@ function AddStandardModal({ open, onOpenChange, onSuccess, solicitacaoId, onConc
                                         onClearExisting={() => {
                                             setArquivoNorma(null);
                                             setArquivoNormaUrl(null);
+                                            setArquivoNormaPath(null);
                                         }}
                                         onFileSelected={(file) => {
                                             setArquivoNorma(file);
-                                            if (file) setArquivoNormaUrl(null);
+                                            if (file) {
+                                                setArquivoNormaUrl(null);
+                                                setArquivoNormaPath(null);
+                                            }
                                         }}
                                     />
                                 </div>

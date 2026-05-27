@@ -6,12 +6,17 @@ import fs from "fs";
 export const createNorma = async (req: Request, res: Response) => {
   try {
     const file = req.file;
+    const arquivoExistente = typeof req.body.arquivo_existente === "string"
+      ? req.body.arquivo_existente.trim()
+      : "";
 
-    if (!file) {
+    const filePath = file?.path || (arquivoExistente || undefined);
+
+    if (!filePath) {
       return res.status(400).json({ error: "Arquivo é obrigatório" });
     }
 
-    const norma = await createNormaService(req.body, file.path);
+    const norma = await createNormaService(req.body, filePath);
 
     return res.status(201).json(norma);
   } catch (error: any) {
