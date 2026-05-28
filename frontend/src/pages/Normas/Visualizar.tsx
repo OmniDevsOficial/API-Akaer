@@ -152,13 +152,13 @@ export default function Visualizar() {
         : null;
 
     return (
-        <div className="min-h-screen bg-[#fbfbfb] flex flex-col font-dm">
-            <Header />
-
+        <div className="flex h-screen w-full overflow-hidden bg-[#fbfbfb] font-dm">
             <div className="flex flex-1">
                 <Sidebar />
 
                 <div className="flex-1 flex flex-col">
+                    <Header />
+                    
                     <div className="flex flex-wrap items-center gap-4 border-b border-font-border bg-white px-7 py-6">
                         <div className="flex items-center gap-4">
                             <Link
@@ -192,7 +192,7 @@ export default function Visualizar() {
                         </div>
                     </div>
 
-                    <main className="flex-1 px-8 pb-8 pt-2">
+                    <main className="flex-1 px-8 pt-2 pb-8 overflow-y-auto">
                         {carregando && (
                             <div className="flex items-center justify-center py-24 text-gray-400">
                                 <Loader2 className="animate-spin mr-2" size={20} />

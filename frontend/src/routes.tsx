@@ -10,7 +10,8 @@ const routes = [
     {element: <Home />, path: "/home"},
     {element: <Solicitar />, path: "/solicitar"},
     {element: <Visualizar />, path: "/normas/ver/:codigo"},
-    {element: <Editar />, path: "/normas/editar/:codigo"}
+    {element: <Editar />, path: "/normas/editar/:codigo"},
+    {element: <Editar />, path: "/normas/usuario/:id"} // trocar o elemento por usuário quando a página estiver feita
 ]
 
 const Router = () => {

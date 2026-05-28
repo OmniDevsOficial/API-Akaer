@@ -11,6 +11,7 @@ interface NotasFieldProps {
   placeholder?: string;
   value?: Nota[];
   onChange?: (notas: Nota[]) => void;
+  autoFocus?: boolean;
 }
 
 export function NotasField({
@@ -18,6 +19,7 @@ export function NotasField({
   placeholder = "Digite uma nota e pressione Enter para adicionar…",
   value,
   onChange,
+  autoFocus = true,
 }: NotasFieldProps) {
   const [notasInternas, setNotasInternas] = useState<Nota[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -109,10 +111,10 @@ export function NotasField({
   const hasNotas = notas.length > 0;
 
   useEffect(() => {
-    if (hasNotas) {
+    if (autoFocus && hasNotas) {
       inputRef.current?.focus();
     }
-  }, [hasNotas]);
+  }, [autoFocus, hasNotas]);
 
   return (
     <div className="flex flex-col text-start gap-1">

@@ -33,6 +33,21 @@ const parseJsonInput = (input: unknown, fieldName: string): unknown => {
   throw new Error(`${fieldName} deve ser um JSON valido`);
 };
 
+const resolveUploadPath = (filePath: string) => {
+  const uploadsDir = path.resolve(__dirname, "../../uploads");
+  const resolvedPath = path.resolve(filePath);
+
+  if (!resolvedPath.startsWith(uploadsDir)) {
+    throw new Error("Arquivo inválido");
+  }
+
+  if (!fs.existsSync(resolvedPath)) {
+    throw new Error("Documento não encontrado");
+  }
+
+  return resolvedPath;
+};
+
 export const createNormaService = async (data: any, filePath: string) => {
   const {
     codigo,
@@ -75,6 +90,8 @@ export const createNormaService = async (data: any, filePath: string) => {
   const palavrasChaveJson = parseJsonInput(palavras_chave, "palavras_chave");
   const normasRelacionadasIds = parseNormasRelacionadasInput(normas_relacionadas_ids);
   
+  const arquivoPath = resolveUploadPath(filePath);
+
   const norma = await prisma.norma.create({
     data: {
       codigo: codigoNormalizado,
@@ -88,7 +105,7 @@ export const createNormaService = async (data: any, filePath: string) => {
       data_publicacao:  dataPublicacao,
       escopo: escopo ?? null,
       palavras_chave: palavrasChaveJson ?? [],
-      arquivo:        filePath,
+      arquivo:        arquivoPath,
     }
   });
 

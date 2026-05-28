@@ -21,7 +21,7 @@ async function main() {
   if (!backupFileName) {
     console.log('Nenhum arquivo de backup (.json) encontrado na pasta imports. Inserindo apenas os dados vitais...');
     
-   const hashedPassword1 = await hashPassword('admin123');
+    const hashedPassword1 = await hashPassword('admin123');
     const hashedPassword2 = await hashPassword('viewer123');
     const hashedPassword3 = await hashPassword('checker123');
 
