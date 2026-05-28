@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Check, X, ChevronLeft } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import api from '@/services/api';
+import { getUserRole } from "@/utils/auth";
 import type { Solicitacao } from './tabela-solicitar';
+import api from '@/services/api';
 
 export type TipoSolicitacaoRaw = 'NOVA_NORMA' | 'NOVA_NOTA' | 'REPORTE_ERRO';
 
@@ -18,6 +19,21 @@ interface DadosNorma {
     data_publicacao?: string;
     escopo?: string;
     palavras_chave?: string[];
+    arquivo?: string;
+    notas?: DadosNormaNota[];
+    normas_relacionadas?: DadosNormaRelacionada[];
+}
+
+interface DadosNormaNota {
+    ordem?: number;
+    texto?: string;
+    norma_codigo?: string;
+}
+
+interface DadosNormaRelacionada {
+    ordem?: number;
+    norma_codigo?: string;
+    relacionada_codigo?: string;
 }
 
 interface DadosSolicitacao {
@@ -26,6 +42,7 @@ interface DadosSolicitacao {
     descricao?: string;
     referencia?: string;
     utilidade?: string;
+    como_resolveu?: string;
     dados_norma?: DadosNorma;
 }
 
@@ -35,6 +52,7 @@ interface SolicitacaoDetalhes {
     status: string;
     dados_propostos: DadosSolicitacao;
     norma_id: string | null;
+    motivo_rejeicao?: string | null;
     data_criacao: string;
     usuario: { nome: string; role: string };
 }
@@ -44,10 +62,11 @@ interface ModalAvaliacaoCheckerProps {
     onOpenChange: (open: boolean) => void;
     solicitacao: Solicitacao | null;
     onSuccess: (id: number) => void;
+    modo?: "avaliacao" | "detalhes";
 }
 
-type EtapaModal = 'visualizando' | 'rejeitando' | 'concluido';
-type ResultadoAcao = 'aprovada' | 'reprovada';
+type EtapaModal = 'visualizando' | 'rejeitando' | 'resolvendo' | 'concluido';
+type ResultadoAcao = 'aprovada' | 'reprovada' | 'concluida';
 
 function CampoLeitura({ label, valor }: { label: string; valor?: string | null }) {
     if (!valor) return null;
@@ -69,6 +88,22 @@ function Spinner({ className = 'h-4 w-4' }: { className?: string }) {
         </svg>
     );
 }
+
+const resolveArquivoUrl = (arquivo: string) => {
+    const trimmed = arquivo.trim();
+    if (!trimmed) return "";
+    if (/^https?:\/\//.test(trimmed)) return trimmed;
+
+    const normalized = trimmed.replace(/\\/g, "/");
+    const marker = "/uploads/";
+    const idx = normalized.lastIndexOf(marker);
+    const relative = idx >= 0 ? normalized.slice(idx) : normalized;
+    const path = relative.startsWith("/") ? relative : `/${relative}`;
+    const baseUrl = api.defaults.baseURL ?? "";
+
+    if (!baseUrl) return path;
+    return `${baseUrl.replace(/\/$/, "")}${path}`;
+};
 
 function DadosNovaNotaOuErro({ dados, criacao, status, tipo }: { dados: DadosSolicitacao; criacao: string; status: string, tipo: string }) {
     return (
@@ -94,8 +129,20 @@ function DadosNovaNotaOuErro({ dados, criacao, status, tipo }: { dados: DadosSol
     );
 }
 
-function DadosNovaNorma({ dados, criacao, status }: { dados: DadosSolicitacao; criacao: string; status: string }) {
+function DadosNovaNorma({ dados, criacao, status, listaOrgao, listaCategoria, listaEtapaProjeto }: {
+    dados: DadosSolicitacao;
+    criacao: string;
+    status: string;
+    listaOrgao: any[];
+    listaCategoria: any[];
+    listaEtapaProjeto: any[];
+}) {
     const dn = dados.dados_norma ?? {};
+
+    const nomeOrgao = listaOrgao.find(o => String(o.id) === String(dn.orgao_emissor_id))?.nome;
+    const nomeCategoria = listaCategoria.find(c => String(c.id) === String(dn.categoria_id))?.nome;
+    const nomeEtapa = listaEtapaProjeto.find(e => String(e.id) === String(dn.etapa_projeto_id))?.nome;
+
     return (
         <div className="flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-3 p-4 bg-gray-50 rounded-lg border border-font-border">
@@ -109,8 +156,9 @@ function DadosNovaNorma({ dados, criacao, status }: { dados: DadosSolicitacao; c
                 <CampoLeitura label="Utilidade" valor={dados.utilidade} />
             </div>
             <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase">Dados da Norma</span>
+                <div className="flex items-center gap-3 my-1">
+                    <div className="flex-1 h-px bg-font-border" />
+                    <span className="text-xs font-semibold tracking-widest text-gray-400 uppercase whitespace-nowrap">Dados da Norma</span>
                     <div className="flex-1 h-px bg-font-border" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -119,11 +167,71 @@ function DadosNovaNorma({ dados, criacao, status }: { dados: DadosSolicitacao; c
                     <CampoLeitura label="Status" valor={dn.status} />
                     <CampoLeitura label="Revisão" valor={dn.revisao} />
                     <CampoLeitura label="Data de publicação" valor={dn.data_publicacao} />
+                    <CampoLeitura label="Órgão Emissor" valor={nomeOrgao} />
+                    <CampoLeitura label="Categoria" valor={nomeCategoria} />
+                    <CampoLeitura label="Etapa do Projeto" valor={nomeEtapa} />
                 </div>
                 {dn.escopo && (
                     <div className="flex flex-col gap-0.5">
                         <span className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase">Escopo</span>
                         <p className="text-sm text-gray-800 bg-gray-50 border border-font-border rounded p-3 whitespace-pre-wrap">{dn.escopo}</p>
+                    </div>
+                )}
+                {dn.arquivo && (
+                    <div className="flex flex-col gap-0.5">
+                        <span className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase">Arquivo PDF</span>
+                        <a
+                            href={resolveArquivoUrl(dn.arquivo)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-sm text-red-akaer underline break-all"
+                        >
+                            Abrir arquivo
+                        </a>
+                    </div>
+                )}
+                {Array.isArray(dn.palavras_chave) && dn.palavras_chave.length > 0 && (
+                    <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase">Palavras-chave</span>
+                        <div className="flex flex-wrap gap-2">
+                            {dn.palavras_chave.map((palavra, idx) => (
+                                <span key={`${palavra}-${idx}`} className="text-xs text-gray-700 bg-gray-50 border border-font-border rounded px-2 py-1">
+                                    {palavra}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                )}
+                {Array.isArray(dn.notas) && dn.notas.length > 0 && (
+                    <div className="flex flex-col gap-2">
+                        <span className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase">Notas</span>
+                        <div className="flex flex-col gap-2">
+                            {dn.notas.map((nota, idx) => (
+                                <div key={`${nota.ordem ?? idx}-${idx}`} className="bg-gray-50 border border-font-border rounded p-3">
+                                    <span className="text-xs text-gray-500">
+                                        Nota {(nota.ordem ?? idx) + 1}
+                                    </span>
+                                    <p className="text-sm text-gray-800 whitespace-pre-wrap mt-2">
+                                        {nota.texto || "—"}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+                {Array.isArray(dn.normas_relacionadas) && dn.normas_relacionadas.length > 0 && (
+                    <div className="flex flex-col gap-2">
+                        <span className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase">Normas relacionadas</span>
+                        <div className="flex flex-col gap-2">
+                            {dn.normas_relacionadas.map((rel, idx) => (
+                                <div key={`${rel.ordem ?? idx}-${idx}`} className="bg-gray-50 border border-font-border rounded p-3">
+                                    <span className="text-xs text-gray-500">Norma {(rel.ordem ?? idx) + 1}</span>
+                                    <div className="text-sm text-gray-800 mt-1 break-words">
+                                        {rel.relacionada_codigo || "—"}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
             </div>
@@ -136,6 +244,7 @@ export default function ModalAvaliacaoChecker({
     onOpenChange,
     solicitacao,
     onSuccess,
+    modo = "avaliacao",
 }: ModalAvaliacaoCheckerProps) {
     const [detalhes, setDetalhes] = useState<SolicitacaoDetalhes | null>(null);
     const [carregando, setCarregando] = useState(false);
@@ -144,7 +253,15 @@ export default function ModalAvaliacaoChecker({
     const [resultado, setResultado] = useState<ResultadoAcao | null>(null);
     const [motivoRejeicao, setMotivoRejeicao] = useState('');
     const [erroMotivo, setErroMotivo] = useState<string | null>(null);
+    const [descricaoResolucao, setDescricaoResolucao] = useState('');
+    const [erroResolucao, setErroResolucao] = useState<string | null>(null);
     const [enviando, setEnviando] = useState(false);
+    const [listaOrgao, setListaOrgao] = useState<any[]>([]);
+    const [listaCategoria, setListaCategoria] = useState<any[]>([]);
+    const [listaEtapaProjeto, setListaEtapaProjeto] = useState<any[]>([]);
+
+    const role = getUserRole();
+    const isAdmin = role?.toLowerCase() === 'admin';
 
     useEffect(() => {
         if (!open || !solicitacao) return;
@@ -159,7 +276,12 @@ export default function ModalAvaliacaoChecker({
             .catch(() => { if (ativo) setErroCarregamento('Não foi possível carregar os detalhes da solicitação.'); })
             .finally(() => { if (ativo) setCarregando(false); });
 
+        api.get('/orgaos-emissores').then(res => setListaOrgao(res.data));
+        api.get('/categorias').then(res => setListaCategoria(res.data));
+        api.get('/etapas-projeto').then(res => setListaEtapaProjeto(res.data));
+
         return () => { ativo = false; };
+
     }, [open, solicitacao?.id]);
 
     const resetModal = () => {
@@ -167,6 +289,8 @@ export default function ModalAvaliacaoChecker({
         setEtapa('visualizando');
         setMotivoRejeicao('');
         setErroMotivo(null);
+        setDescricaoResolucao('');
+        setErroResolucao(null);
     };
 
     const handleOpenChange = (nextOpen: boolean) => {
@@ -212,16 +336,130 @@ export default function ModalAvaliacaoChecker({
         }
     };
 
+    const handleConcluir = async () => {
+        if (!solicitacao) return;
+        setEnviando(true);
+        try {
+            await api.patch(`/solicitacoes/${solicitacao.id}/status`, { status: 'Concluida' });
+            setResultado('concluida');
+            setEtapa('concluido');
+            onSuccess(solicitacao.id);
+        } catch (err: any) {
+            alert(err?.response?.data?.error ?? 'Erro ao concluir a solicitação.');
+        } finally {
+            setEnviando(false);
+        }
+    };
+
+    const handleResolver = async () => {
+        if (etapa !== 'resolvendo') {
+            setErroResolucao(null);
+            setEtapa('resolvendo');
+            return;
+        }
+
+        if (!descricaoResolucao.trim()) {
+            setErroResolucao('O preenchimento do campo é obrigatório para concluir.');
+            return;
+        }
+
+        if (!solicitacao) return;
+        setEnviando(true);
+        try {
+            await api.patch(`/solicitacoes/${solicitacao.id}/status`, {
+                status: 'Concluida',
+                como_resolveu: descricaoResolucao.trim(),
+            });
+            setResultado('concluida');
+            setEtapa('concluido');
+            onSuccess(solicitacao.id);
+        } catch (err: any) {
+            alert(err?.response?.data?.error ?? 'Erro ao resolver a solicitação.');
+        } finally {
+            setEnviando(false);
+        }
+    };
+
+    const statusAprovada = detalhes?.status?.toLowerCase() === 'aprovada';
+    const tipoSolicitacao = detalhes?.tipo_solicitacao;
+    const isReporteErro = tipoSolicitacao === 'REPORTE_ERRO';
+    const isAdminAprovadaNotaOuErro = isAdmin
+        && statusAprovada
+        && (tipoSolicitacao === 'NOVA_NOTA' || tipoSolicitacao === 'REPORTE_ERRO');
+    const sucessoConclusao = resultado === 'aprovada' || resultado === 'concluida';
+    const mensagemConclusao = resultado === 'concluida'
+        ? 'Solicitação concluída com sucesso!'
+        : 'Solicitação aprovada com sucesso!';
+
     const renderDados = () => {
         if (carregando) return <div className="flex items-center justify-center py-12 text-gray-400 gap-2"><Spinner /> Carregando...</div>;
         if (erroCarregamento) return <p className="text-sm text-red-akaer py-8 text-center">{erroCarregamento}</p>;
         if (!detalhes) return null;
 
-        const { dados_propostos, tipo_solicitacao, data_criacao, status } = detalhes;
+        const { dados_propostos, tipo_solicitacao, data_criacao, status, motivo_rejeicao } = detalhes;
+        const mostrarComoResolveu =
+            modo === 'detalhes'
+            && tipo_solicitacao === 'REPORTE_ERRO'
+            && status.toLowerCase() === 'concluida'
+            && dados_propostos.como_resolveu;
 
-        if (tipo_solicitacao === 'NOVA_NOTA') return <DadosNovaNotaOuErro dados={dados_propostos} criacao={data_criacao} status={status} tipo="Nova Nota" />;
-        if (tipo_solicitacao === 'REPORTE_ERRO') return <DadosNovaNotaOuErro dados={dados_propostos} criacao={data_criacao} status={status} tipo="Reporte de Erro" />;
-        if (tipo_solicitacao === 'NOVA_NORMA') return <DadosNovaNorma dados={dados_propostos} criacao={data_criacao} status={status} />;
+        const motivoReprovacao = status.toLowerCase() === 'reprovada' && motivo_rejeicao ? (
+            <div className="flex flex-col gap-0.5">
+                <span className="text-[10px] font-semibold tracking-widest text-red-akaer uppercase">
+                    Motivo da reprovação
+                </span>
+                <p className="text-sm text-gray-800 bg-gray-50 border border-font-border rounded p-3 whitespace-pre-wrap">
+                    {motivo_rejeicao}
+                </p>
+            </div>
+        ) : null;
+
+        if (tipo_solicitacao === 'NOVA_NOTA') return (
+            <>
+                <DadosNovaNotaOuErro dados={dados_propostos} criacao={data_criacao} status={status} tipo="Nova Nota" />
+                {!isAdminAprovadaNotaOuErro && motivoReprovacao}
+            </>
+        );
+        if (tipo_solicitacao === 'REPORTE_ERRO') return (
+            <>
+                <DadosNovaNotaOuErro dados={dados_propostos} criacao={data_criacao} status={status} tipo="Reporte de Erro" />
+                {mostrarComoResolveu && (
+                    <div className="flex flex-col gap-0.5">
+                        <span className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase">
+                            Como foi Resolvido
+                        </span>
+                        <textarea
+                            className="text-sm text-gray-800 bg-gray-50 border border-font-border rounded p-3 whitespace-pre-wrap min-h-[80px]"
+                            value={dados_propostos.como_resolveu}
+                            readOnly
+                        />
+                    </div>
+                )}
+                {!isAdminAprovadaNotaOuErro && motivoReprovacao}
+            </>
+        );
+        if (tipo_solicitacao === 'NOVA_NORMA') return (
+            <>
+                <DadosNovaNorma
+                    dados={dados_propostos}
+                    criacao={data_criacao}
+                    status={status}
+                    listaOrgao={listaOrgao}
+                    listaCategoria={listaCategoria}
+                    listaEtapaProjeto={listaEtapaProjeto} />
+                {motivoReprovacao}
+            </>
+        );
+        if (tipo_solicitacao === 'NOVA_NORMA') return (
+            <DadosNovaNorma
+                dados={dados_propostos}
+                criacao={data_criacao}
+                status={status}
+                listaOrgao={listaOrgao}
+                listaCategoria={listaCategoria}
+                listaEtapaProjeto={listaEtapaProjeto}
+            />
+        );
         return null;
     };
 
@@ -230,7 +468,9 @@ export default function ModalAvaliacaoChecker({
             <DialogContent className="!p-0 flex flex-col gap-0 sm:!max-w-[600px] bg-[#fbfbfb]">
                 <div className="flex items-start mx-7 mt-5 mb-4">
                     <div>
-                        <p className="text-xs font-semibold tracking-widest text-red-akaer uppercase">Avaliação · Checker</p>
+                        <p className="text-xs font-semibold tracking-widest text-red-akaer uppercase">
+                            {modo === "detalhes" ? "Detalhes · Admin" : `Avaliação · ${isAdmin ? 'Admin' : 'Checker'}`}
+                        </p>
                         <h2 className="text-lg font-medium text-dark-title leading-tight">{solicitacao?.tipo || 'Solicitação'}</h2>
                     </div>
                 </div>
@@ -239,11 +479,11 @@ export default function ModalAvaliacaoChecker({
                 {etapa === 'concluido' ? (
                     <>
                         <div className="flex flex-col items-center justify-center py-16 gap-4">
-                            <div className={`w-12 h-12 rounded-full border flex items-center justify-center ${resultado === 'aprovada' ? 'border-green-700/40' : 'border-red-400/40'}`}>
-                                {resultado === 'aprovada' ? <Check className="text-green-700 w-7 h-7" /> : <X className="text-red-akaer w-7 h-7" />}
+                            <div className={`w-12 h-12 rounded-full border flex items-center justify-center ${sucessoConclusao ? 'border-green-700/40' : 'border-red-400/40'}`}>
+                                {sucessoConclusao ? <Check className="text-green-700 w-7 h-7" /> : <X className="text-red-akaer w-7 h-7" />}
                             </div>
                             <h3 className="text-base text-[#3f3f3f] font-semibold">
-                                {resultado === 'aprovada' ? 'Solicitação aprovada com sucesso!' : 'Solicitação reprovada.'}
+                                {sucessoConclusao ? mensagemConclusao : 'Solicitação reprovada.'}
                             </h3>
                         </div>
                         <hr className="border-font-border" />
@@ -270,27 +510,91 @@ export default function ModalAvaliacaoChecker({
                                     {erroMotivo && <span className="text-xs text-red-akaer">{erroMotivo}</span>}
                                 </div>
                             )}
+                            {isAdminAprovadaNotaOuErro && isReporteErro && etapa === 'resolvendo' && (
+                                <div className="flex flex-col gap-2 pt-1 border-t border-font-border">
+                                    <label className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase mt-3">
+                                        Como Foi Resolvido <span className="text-red-akaer">*</span>
+                                    </label>
+                                    <textarea
+                                        value={descricaoResolucao}
+                                        onChange={(e) => {
+                                            setDescricaoResolucao(e.target.value);
+                                            if (erroResolucao) setErroResolucao(null);
+                                        }}
+                                        rows={4}
+                                        placeholder="Descreva como o erro foi resolvido..."
+                                        className={`bg-gray-100/80 border rounded p-3 text-sm outline-none focus:ring-1 focus:ring-gray-400 resize-none ${erroResolucao ? 'border-red-400' : 'border-font-border'}`}
+                                    />
+                                    {erroResolucao && <span className="text-xs text-red-akaer">{erroResolucao}</span>}
+                                </div>
+                            )}
                         </div>
                         <hr className="border-font-border" />
                         <div className="flex justify-between items-center mx-7 my-4 gap-2">
-                            {etapa === 'visualizando' ? (
-                                <>
-                                    <Button type="button" size="lg" variant="outline" onClick={() => handleOpenChange(false)} disabled={enviando} className="border-gray-200 text-gray-600 hover:text-dark-title">Cancelar</Button>
-                                    <div className="flex gap-2">
-                                        <Button type="button" size="lg" variant="outline" onClick={() => setEtapa('rejeitando')} disabled={enviando || carregando} className="border-red-300 text-red-akaer hover:bg-red-50 hover:text-red-akaer">
-                                            <X className="w-4 h-4 mr-1" /> Rejeitar
+                            {modo === "detalhes" ? (
+                                <div className="flex justify-end w-full">
+                                    <Button size="lg" variant="outline" onClick={() => handleOpenChange(false)} className="border-gray-200 text-gray-600">
+                                        Fechar
+                                    </Button>
+                                </div>
+                            ) : isAdminAprovadaNotaOuErro ? (
+                                <div className="flex justify-end w-full gap-2">
+                                    <Button
+                                        type="button"
+                                        size="lg"
+                                        variant="outline"
+                                        onClick={() => handleOpenChange(false)}
+                                        disabled={enviando}
+                                        className="border-gray-200 text-gray-600 hover:text-dark-title"
+                                    >
+                                        Cancelar
+                                    </Button>
+                                    {isReporteErro ? (
+                                        <Button
+                                            type="button"
+                                            size="lg"
+                                            onClick={handleResolver}
+                                            disabled={enviando}
+                                            className={isAdmin ? "bg-black hover:bg-black/80 text-white" : "bg-green-700 hover:bg-green-800 text-white"}
+                                        >
+                                            <Check className="w-4 h-4 mr-1" /> Resolver
                                         </Button>
+                                    ) : (
+                                        <Button
+                                            type="button"
+                                            size="lg"
+                                            onClick={handleConcluir}
+                                            disabled={enviando}
+                                            className={isAdmin ? "bg-black hover:bg-black/80 text-white" : "bg-green-700 hover:bg-green-800 text-white"}
+                                        >
+                                            <Check className="w-4 h-4 mr-1" /> Concluir
+                                        </Button>
+                                    )}
+                                </div>
+                            ) : etapa === 'visualizando' ? (
+                                // Tela inicial — Cancelar | Rejeitar | Aprovar
+                                <>
+                                    <Button type="button" size="lg" variant="outline" onClick={() => handleOpenChange(false)} disabled={enviando} className="border-gray-200 text-gray-600 hover:text-dark-title">
+                                        Cancelar
+                                    </Button>
+                                    <div className="flex gap-2">
+                                        {!isAdmin && (
+                                            <Button type="button" size="lg" variant="outline" onClick={() => setEtapa('rejeitando')} disabled={enviando || carregando} className="border-red-300 text-red-akaer hover:bg-red-50 hover:text-red-akaer">
+                                                <X className="w-4 h-4 mr-1" /> Rejeitar
+                                            </Button>)
+                                        }
                                         <Button type="button" size="lg" onClick={handleAprovar} disabled={enviando || carregando} className="bg-green-700 hover:bg-green-800 text-white">
                                             {enviando ? <Spinner className="mr-2" /> : <Check className="w-4 h-4 mr-1" />} Aprovar
                                         </Button>
                                     </div>
                                 </>
                             ) : (
+                                // Tela de rejeição — Voltar | Confirmar Rejeição
                                 <>
                                     <Button type="button" size="lg" variant="outline" onClick={() => setEtapa('visualizando')} disabled={enviando} className="border-gray-200 text-gray-600 hover:text-dark-title">
-                                        <ChevronLeft className="w-4 h-4 mr-1" /> Voltar
+                                        Voltar
                                     </Button>
-                                    <Button type="button" size="lg" onClick={handleConfirmarRejeicao} disabled={enviando} className="bg-red-akaer hover:bg-red-700 text-white">
+                                    <Button type="button" size="lg" onClick={handleConfirmarRejeicao} disabled={enviando} className="bg-red-akaer hover:bg-red-akaer/95  text-white">
                                         {enviando ? <Spinner className="mr-2" /> : <X className="w-4 h-4 mr-1" />} Confirmar Rejeição
                                     </Button>
                                 </>

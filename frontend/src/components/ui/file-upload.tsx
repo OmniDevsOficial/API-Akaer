@@ -1,16 +1,28 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, useEffect } from 'react';
 import { useDropzone, type FileRejection } from 'react-dropzone';
 import { Upload } from 'lucide-react';
 
 interface FileUploadProps {
     onFileSelected: (file: File | null) => void;
+    value?: File | null;
+    fileUrl?: string;
+    existingFile?: {
+        name: string;
+        url: string;
+        size?: number;
+    };
+    onClearExisting?: () => void;
 }
 
 const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024;
 
-export function FileUpload({ onFileSelected }: FileUploadProps) {
+export function FileUpload({ onFileSelected, value, fileUrl, existingFile, onClearExisting }: FileUploadProps) {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [errorMessage, setErrorMessage] = useState('');
+    const [hideExisting, setHideExisting] = useState(false);
+
+    const isControlled = value !== undefined;
+    const fileAtual = isControlled ? value : selectedFile;
 
     const formatSize = useMemo(
         () =>
@@ -25,10 +37,12 @@ export function FileUpload({ onFileSelected }: FileUploadProps) {
         (acceptedFiles: File[]) => {
             const file = acceptedFiles[0] ?? null;
             setErrorMessage('');
-            setSelectedFile(file);
+            if (!isControlled) {
+                setSelectedFile(file);
+            }
             onFileSelected(file);
         },
-        [onFileSelected],
+        [isControlled, onFileSelected],
     );
 
     const onDropRejected = useCallback((rejections: FileRejection[]) => {
@@ -46,16 +60,31 @@ export function FileUpload({ onFileSelected }: FileUploadProps) {
             message = 'Selecione apenas 1 arquivo.';
         }
 
-        setSelectedFile(null);
+        if (!isControlled) {
+            setSelectedFile(null);
+        }
         onFileSelected(null);
         setErrorMessage(message);
-    }, [onFileSelected]);
+    }, [isControlled, onFileSelected]);
 
     const handleClearFile = useCallback(() => {
-        setSelectedFile(null);
+        if (!isControlled) {
+            setSelectedFile(null);
+        }
         setErrorMessage('');
         onFileSelected(null);
-    }, [onFileSelected]);
+    }, [isControlled, onFileSelected]);
+
+    useEffect(() => {
+        setHideExisting(false);
+    }, [existingFile?.name, existingFile?.url]);
+
+    const handleClearExisting = useCallback(() => {
+        setHideExisting(true);
+        setErrorMessage('');
+        onFileSelected(null);
+        onClearExisting?.();
+    }, [onClearExisting, onFileSelected]);
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDropAccepted,
@@ -99,12 +128,25 @@ export function FileUpload({ onFileSelected }: FileUploadProps) {
                 </div>
             </div>
 
-            {selectedFile && (
+            {fileAtual && (
                 <div className="min-h-6 mt-4 text-sm text-start">
-                    {selectedFile && !errorMessage ? (
+                    {fileAtual && !errorMessage ? (
                         <div className="flex items-center justify-between gap-2 text-red-akaer">
                             <span className="truncate">
-                                {selectedFile.name} ({formatSize.format(selectedFile.size / (1024 * 1024))} MB)
+                                {fileUrl ? (
+                                    <a
+                                        href={fileUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="hover:underline"
+                                    >
+                                        {fileAtual.name} ({formatSize.format(fileAtual.size / (1024 * 1024))} MB)
+                                    </a>
+                                ) : (
+                                    <>
+                                        {fileAtual.name} ({formatSize.format(fileAtual.size / (1024 * 1024))} MB)
+                                    </>
+                                )}
                             </span>
                             <button
                                 type="button"
@@ -117,6 +159,33 @@ export function FileUpload({ onFileSelected }: FileUploadProps) {
                     ) : null}
 
                     {errorMessage ? <p className="text-red-akaer">{errorMessage}</p> : null}
+                </div>
+            )}
+
+            {!fileAtual && existingFile && !hideExisting && !errorMessage && (
+                <div className="min-h-6 mt-4 text-sm text-start">
+                    <div className="flex items-center justify-between gap-2 text-red-akaer">
+                        <span className="truncate">
+                            <a
+                                href={existingFile.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="hover:underline"
+                            >
+                                {existingFile.name}
+                                {typeof existingFile.size === "number"
+                                    ? ` (${formatSize.format(existingFile.size / (1024 * 1024))} MB)`
+                                    : ""}
+                            </a>
+                        </span>
+                        <button
+                            type="button"
+                            className="text-red-akaer hover:underline"
+                            onClick={handleClearExisting}
+                        >
+                            Remover
+                        </button>
+                    </div>
                 </div>
             )}
 

@@ -2,6 +2,7 @@ import prisma from "../prisma/client";
 import { parseBrDate } from "../utils/validateDate";
 import path from "path";
 import fs from "fs";
+import crypto from "crypto";
 import {
   createNormaNotasService,
   getNormaNotasService,
@@ -33,6 +34,21 @@ const parseJsonInput = (input: unknown, fieldName: string): unknown => {
   throw new Error(`${fieldName} deve ser um JSON valido`);
 };
 
+const resolveUploadPath = (filePath: string) => {
+  const uploadsDir = path.resolve(__dirname, "../../uploads");
+  const resolvedPath = path.resolve(filePath);
+
+  if (!resolvedPath.startsWith(uploadsDir)) {
+    throw new Error("Arquivo inválido");
+  }
+
+  if (!fs.existsSync(resolvedPath)) {
+    throw new Error("Documento não encontrado");
+  }
+
+  return resolvedPath;
+};
+
 export const createNormaService = async (data: any, filePath: string) => {
   const {
     codigo,
@@ -49,12 +65,20 @@ export const createNormaService = async (data: any, filePath: string) => {
     normas_relacionadas_ids,
   } = data;
 
-  if (!codigo || !titulo || !orgao_emissor_id || !categoria_id || !data_publicacao) {
-    throw new Error("Campos obrigatórios não preenchidos: codigo, titulo, orgao_emissor_id, categoria_id, data_publicacao");
+  const codigoNormalizado = typeof codigo === "string" ? codigo.trim() : "";
+  const revisaoNormalizada = typeof revisao === "string" ? revisao.trim() : "";
+
+  if (!codigoNormalizado || !titulo || !orgao_emissor_id || !categoria_id || !data_publicacao || !revisaoNormalizada) {
+    throw new Error("Campos obrigatórios não preenchidos: codigo, titulo, orgao_emissor_id, categoria_id, data_publicacao, revisao");
   }
 
+  const sufixoRevisao = `-${revisaoNormalizada}`;
+  const codigoBase = codigoNormalizado.endsWith(sufixoRevisao)
+    ? codigoNormalizado.slice(0, -sufixoRevisao.length)
+    : codigoNormalizado;
+
   const codigoJaExiste = await prisma.norma.findUnique({
-    where: { codigo },
+    where: { codigo: codigoNormalizado },
     select: { codigo: true }
   });
 
@@ -67,19 +91,23 @@ export const createNormaService = async (data: any, filePath: string) => {
   const palavrasChaveJson = parseJsonInput(palavras_chave, "palavras_chave");
   const normasRelacionadasIds = parseNormasRelacionadasInput(normas_relacionadas_ids);
   
+  const arquivoPath = resolveUploadPath(filePath);
+
   const norma = await prisma.norma.create({
     data: {
-      codigo,
+      codigo: codigoNormalizado,
+      codigo_base:     codigoBase,
       titulo,
       orgao_emissor_id: Number(orgao_emissor_id),
       categoria_id:     Number(categoria_id),
       etapa_projeto_id: etapa_projeto_id ? Number(etapa_projeto_id) : null,
-      revisao:          revisao || null,
+      revisao:          revisaoNormalizada,
+      is_vigente:       true,
       status,
       data_publicacao:  dataPublicacao,
       escopo: escopo ?? null,
       palavras_chave: palavrasChaveJson ?? [],
-      arquivo:        filePath,
+      arquivo:        arquivoPath,
     }
   });
 
@@ -99,6 +127,10 @@ export const updateNormaService = async (codigo: string, data: any, newFilePath?
 
   if (!existingNorma) {
     throw new Error("Norma não encontrada");
+  }
+
+  if (existingNorma.status === "Obsoleta") {
+    throw new Error("Normas obsoletas não podem ser editadas");
   }
 
   const hasNotas = Object.prototype.hasOwnProperty.call(data, "notas");
@@ -302,4 +334,109 @@ export const getNormaByCodeService = async (codigo: string) => {
     normas_relacionadas_ids: normasRelacionadasIds,
     palavras_chave: norma.palavras_chave ?? null,
   };
+};
+
+const getFileHash = (filePath: string) => {
+  const fileBuffer = fs.readFileSync(filePath);
+  const hashSum = crypto.createHash("sha256");
+  hashSum.update(fileBuffer);
+  return hashSum.digest("hex");
+};
+
+const getNextRevision = (currentRev: string | null): string => {
+  if (!currentRev || !/^[A-Z]+$/.test(currentRev)) return "A";
+  
+  const nextCode = (s: string): string => {
+    if (s === "") return "A";
+    const last = s.slice(-1);
+    if (last === "Z") return nextCode(s.slice(0, -1)) + "A";
+    return s.slice(0, -1) + String.fromCharCode(last.charCodeAt(0) + 1);
+  };
+  
+  return nextCode(currentRev);
+};
+
+export const createNormaRevisaoService = async (codigo: string, data: any, newFilePath?: string) => {
+  if (!newFilePath) {
+    throw new Error("Arquivo PDF é obrigatório para nova revisão");
+  }
+
+  const existingNorma = await prisma.norma.findUnique({
+    where: { codigo }
+  });
+
+  if (!existingNorma) {
+    throw new Error("Norma não encontrada");
+  }
+
+  if (existingNorma.status === "Obsoleta") {
+    throw new Error("A norma atual já está obsoleta");
+  }
+
+  const oldFilePath = path.resolve(existingNorma.arquivo);
+  if (fs.existsSync(oldFilePath) && fs.existsSync(newFilePath)) {
+    const oldHash = getFileHash(oldFilePath);
+    const newHash = getFileHash(newFilePath);
+    if (oldHash === newHash) {
+      throw new Error("O PDF enviado é idêntico ao da revisão atual");
+    }
+  }
+
+  const novaRevisao = getNextRevision(existingNorma.revisao);
+
+  const novoCodigo = `${existingNorma.codigo_base}-${novaRevisao}`;
+
+  const duplicateRevision = await prisma.norma.findFirst({
+    where: { codigo_base: existingNorma.codigo_base, revisao: novaRevisao }
+  });
+
+  if (duplicateRevision) {
+    throw new Error(`A revisão ${novaRevisao} já existe para esta norma`);
+  }
+
+  const [oldNotas, oldRelacionadas] = await Promise.all([
+    getNormaNotasService(codigo),
+    getNormasRelacionadasIdsService(codigo)
+  ]);
+
+  const [_, novaNorma] = await prisma.$transaction([
+    prisma.norma.update({
+      where: { id: existingNorma.id },
+      data: { status: "Obsoleta", is_vigente: false }
+    }),
+    prisma.norma.create({
+      data: {
+        codigo: novoCodigo,
+        codigo_base: existingNorma.codigo_base,
+        titulo: existingNorma.titulo,
+        orgao_emissor_id: existingNorma.orgao_emissor_id,
+        categoria_id: existingNorma.categoria_id,
+        etapa_projeto_id: existingNorma.etapa_projeto_id,
+        escopo: existingNorma.escopo,
+        palavras_chave: existingNorma.palavras_chave ? JSON.parse(JSON.stringify(existingNorma.palavras_chave)) : [],
+        revisao: novaRevisao,
+        is_vigente: true,
+        status: "Ativa",
+        data_publicacao: data.data_publicacao ? parseBrDate(String(data.data_publicacao), "data_publicacao") : existingNorma.data_publicacao,
+        arquivo: newFilePath,
+      }
+    })
+  ]);
+
+  if (oldNotas.length) {
+    try {
+      await createNormaNotasService(novaNorma.codigo, oldNotas);
+    } catch (e) {}
+  }
+
+  if (oldRelacionadas.length) {
+    try {
+      await replaceNormasRelacionadasService(
+        novaNorma.codigo, 
+        oldRelacionadas.map(r => r.codigo)
+      );
+    } catch (e) {}
+  }
+
+  return novaNorma;
 };

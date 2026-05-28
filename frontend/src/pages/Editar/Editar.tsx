@@ -12,15 +12,18 @@ export default function Editar() {
     };
 
     return (
-        <div className="min-h-screen bg-[#fbfbfb] flex flex-col font-dm">
-            <Header />
+        <div className="flex h-screen w-full overflow-hidden bg-[#fbfbfb] font-dm">
+            <Sidebar />
 
-            <div className="flex flex-1">
-                <Sidebar />
+            <div className="flex-1 flex flex-col">
+                <Header />
 
-                <main className="flex-1">
+                <main className="flex flex-col flex-1 overflow-hidden">
                     <HeaderEditar onSalvar={handleSalvar} />
-                    <BodyEditar ref={bodyRef} />
+
+                    <div className='flex-1 overflow-y-auto'>
+                        <BodyEditar ref={bodyRef} />
+                    </div>
                 </main>
             </div>
         </div>

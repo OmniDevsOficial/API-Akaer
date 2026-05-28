@@ -24,17 +24,17 @@ export default function Solicitar() {
     );
 
     return (
-        <div className="min-h-screen bg-[#fbfbfb] flex flex-col font-dm">
-            <Header />
+        <div className="flex h-screen w-full overflow-hidden bg-[#fbfbfb] font-dm">
+            <Sidebar />
 
-            <div className="flex flex-1">
-                <Sidebar />
+            <div className="flex flex-col flex-1 h-full overflow-hidden">
+                <Header />
 
-                <main className="flex-1 p-8">
+                <main className="flex-1 p-8 overflow-y-auto">
                     <h2 className="text-red-akaer font-bold text-sm tracking-widest mb-2">GERENCIAMENTO</h2>
-                    <h1 className="text-3xl font-dm font-semibold text-dark-title">Solicitações</h1>
+                    <h1 className="text-2xl font-dm font-semibold text-dark-title">Solicitações</h1>
 
-                    <div className="text-sm text-gray-medium flex justify-between gap-3 mt-2">
+                    <div className="text-sm text-gray-medium flex justify-between gap-3 ">
                         <span>Avalie e gerencie as solicitações enviadas pelos usuários</span>
 
                         <div className="flex gap-4 items-center">

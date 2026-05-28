@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Prisma } from "@prisma/client";
-import { buscarSolicitacaoPorId, criarSolicitacao, listarSolicitacoes } from "../services/solicitacao.service";
+import { buscarSolicitacaoPorId, criarSolicitacao, listarSolicitacoes, atualizarStatusSolicitacao } from "../services/solicitacao.service";
 
 type DadosSolicitacao = Record<string, Prisma.InputJsonValue>;
 type TipoSolicitacao = "NOVA_NORMA" | "NOVA_NOTA" | "REPORTE_ERRO";
@@ -151,32 +151,24 @@ export const createSolicitacaoController = async (req: Request, res: Response): 
 export const listSolicitacoesController = async (req: Request, res: Response): Promise<void> => {
   try {
     const status = typeof req.query.status === "string" ? req.query.status : undefined;
-    const tipo =
-      typeof req.query.tipo === "string"
-        ? req.query.tipo
-        : typeof req.query.tipo_solicitacao === "string"
-          ? req.query.tipo_solicitacao
-          : undefined;
-    const criador =
-      typeof req.query.criador === "string"
-        ? req.query.criador
-        : typeof req.query.nome === "string"
-          ? req.query.nome
-          : undefined;
-    const cargo =
-      typeof req.query.cargo === "string"
-        ? req.query.cargo
-        : typeof req.query.role === "string"
-          ? req.query.role
-          : undefined;
+    const tipo = typeof req.query.tipo === "string" ? req.query.tipo
+      : typeof req.query.tipo_solicitacao === "string" ? req.query.tipo_solicitacao : undefined;
+    const criador = typeof req.query.criador === "string" ? req.query.criador
+      : typeof req.query.nome === "string" ? req.query.nome : undefined;
+    const cargo = typeof req.query.cargo === "string" ? req.query.cargo
+      : typeof req.query.role === "string" ? req.query.role : undefined;
     const page = Number(req.query.page ?? 1);
     const limit = Number(req.query.limit ?? 10);
 
-    if (status && !STATUS_SOLICITACAO.includes(status as SolicitacaoStatus)) {
-      res.status(400).json({ error: "Status inválido." });
+    const usuarioId = (req as any).user?.id;
+    const role = (req as any).user?.role;
+
+    if (!usuarioId || !role) {
+      res.status(401).json({ error: "Usuário não autenticado." });
       return;
     }
 
+    // ← validações antes da chamada ao service
     if (tipo && !TIPOS_SOLICITACAO.includes(tipo.toUpperCase() as TipoSolicitacao)) {
       res.status(400).json({ error: "Tipo de solicitação inválido." });
       return;
@@ -197,7 +189,7 @@ export const listSolicitacoesController = async (req: Request, res: Response): P
       return;
     }
 
-    const solicitacoes = await listarSolicitacoes({ status, tipo, criador, cargo, page, limit });
+    const solicitacoes = await listarSolicitacoes({ status, tipo, criador, cargo, page, limit, role, usuarioId });
 
     res.status(200).json(solicitacoes);
   } catch (error) {
@@ -226,5 +218,61 @@ export const getSolicitacaoByIdController = async (req: Request, res: Response):
   } catch (error) {
     console.error("Erro ao buscar a solicitação:", error);
     res.status(500).json({ error: "Erro interno do servidor ao buscar a solicitação." });
+  }
+};
+
+// Atualizar status da solicitação
+export const updateStatusSolicitacaoController = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const id = Number(req.params.id);
+    const { status, motivo_rejeicao, como_resolveu } = req.body;
+
+    if (!Number.isInteger(id) || id < 1) {
+      res.status(400).json({ error: "Id inválido." });
+      return;
+    }
+
+    if (!status || !STATUS_SOLICITACAO.includes(status as SolicitacaoStatus)) {
+      res.status(400).json({ error: "Status inválido." });
+      return;
+    }
+
+    const motivoRejeicao = typeof motivo_rejeicao === "string" ? motivo_rejeicao.trim() : "";
+
+    if (status === "Reprovada" && !motivoRejeicao) {
+      res.status(400).json({ error: "Motivo da reprovação é obrigatório." });
+      return;
+    }
+
+    const solicitacao = await buscarSolicitacaoPorId(id);
+
+    if (!solicitacao) {
+      res.status(404).json({ error: "Solicitação não encontrada." });
+      return;
+    }
+
+    // Validação específica para conclusão de REPORTE_ERRO
+    const comoResolveu = typeof como_resolveu === "string" ? como_resolveu.trim() : "";
+
+    if (
+      status === "Concluida" &&
+      solicitacao.tipo_solicitacao === "REPORTE_ERRO" &&
+      !comoResolveu
+    ) {
+      res.status(400).json({ error: "O campo 'como foi resolvido' é obrigatório para concluir um reporte de erro." });
+      return;
+    }
+
+    await atualizarStatusSolicitacao(
+      id,
+      status as SolicitacaoStatus,
+      status === "Reprovada" ? motivoRejeicao : undefined,
+      comoResolveu || undefined
+    );
+
+    res.status(200).json({ message: "Status atualizado com sucesso." });
+  } catch (error) {
+    console.error("Erro ao atualizar status:", error);
+    res.status(500).json({ error: "Erro interno do servidor ao atualizar o status." });
   }
 };
