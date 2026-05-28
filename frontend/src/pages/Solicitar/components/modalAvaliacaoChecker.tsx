@@ -42,6 +42,7 @@ interface DadosSolicitacao {
     descricao?: string;
     referencia?: string;
     utilidade?: string;
+    como_resolveu?: string;
     dados_norma?: DadosNorma;
 }
 
@@ -64,8 +65,8 @@ interface ModalAvaliacaoCheckerProps {
     modo?: "avaliacao" | "detalhes";
 }
 
-type EtapaModal = 'visualizando' | 'rejeitando' | 'concluido';
-type ResultadoAcao = 'aprovada' | 'reprovada';
+type EtapaModal = 'visualizando' | 'rejeitando' | 'resolvendo' | 'concluido';
+type ResultadoAcao = 'aprovada' | 'reprovada' | 'concluida';
 
 function CampoLeitura({ label, valor }: { label: string; valor?: string | null }) {
     if (!valor) return null;
@@ -252,6 +253,8 @@ export default function ModalAvaliacaoChecker({
     const [resultado, setResultado] = useState<ResultadoAcao | null>(null);
     const [motivoRejeicao, setMotivoRejeicao] = useState('');
     const [erroMotivo, setErroMotivo] = useState<string | null>(null);
+    const [descricaoResolucao, setDescricaoResolucao] = useState('');
+    const [erroResolucao, setErroResolucao] = useState<string | null>(null);
     const [enviando, setEnviando] = useState(false);
     const [listaOrgao, setListaOrgao] = useState<any[]>([]);
     const [listaCategoria, setListaCategoria] = useState<any[]>([]);
@@ -286,6 +289,8 @@ export default function ModalAvaliacaoChecker({
         setEtapa('visualizando');
         setMotivoRejeicao('');
         setErroMotivo(null);
+        setDescricaoResolucao('');
+        setErroResolucao(null);
     };
 
     const handleOpenChange = (nextOpen: boolean) => {
@@ -331,12 +336,72 @@ export default function ModalAvaliacaoChecker({
         }
     };
 
+    const handleConcluir = async () => {
+        if (!solicitacao) return;
+        setEnviando(true);
+        try {
+            await api.patch(`/solicitacoes/${solicitacao.id}/status`, { status: 'Concluida' });
+            setResultado('concluida');
+            setEtapa('concluido');
+            onSuccess(solicitacao.id);
+        } catch (err: any) {
+            alert(err?.response?.data?.error ?? 'Erro ao concluir a solicitação.');
+        } finally {
+            setEnviando(false);
+        }
+    };
+
+    const handleResolver = async () => {
+        if (etapa !== 'resolvendo') {
+            setErroResolucao(null);
+            setEtapa('resolvendo');
+            return;
+        }
+
+        if (!descricaoResolucao.trim()) {
+            setErroResolucao('O preenchimento do campo é obrigatório para concluir.');
+            return;
+        }
+
+        if (!solicitacao) return;
+        setEnviando(true);
+        try {
+            await api.patch(`/solicitacoes/${solicitacao.id}/status`, {
+                status: 'Concluida',
+                como_resolveu: descricaoResolucao.trim(),
+            });
+            setResultado('concluida');
+            setEtapa('concluido');
+            onSuccess(solicitacao.id);
+        } catch (err: any) {
+            alert(err?.response?.data?.error ?? 'Erro ao resolver a solicitação.');
+        } finally {
+            setEnviando(false);
+        }
+    };
+
+    const statusAprovada = detalhes?.status?.toLowerCase() === 'aprovada';
+    const tipoSolicitacao = detalhes?.tipo_solicitacao;
+    const isReporteErro = tipoSolicitacao === 'REPORTE_ERRO';
+    const isAdminAprovadaNotaOuErro = isAdmin
+        && statusAprovada
+        && (tipoSolicitacao === 'NOVA_NOTA' || tipoSolicitacao === 'REPORTE_ERRO');
+    const sucessoConclusao = resultado === 'aprovada' || resultado === 'concluida';
+    const mensagemConclusao = resultado === 'concluida'
+        ? 'Solicitação concluída com sucesso!'
+        : 'Solicitação aprovada com sucesso!';
+
     const renderDados = () => {
         if (carregando) return <div className="flex items-center justify-center py-12 text-gray-400 gap-2"><Spinner /> Carregando...</div>;
         if (erroCarregamento) return <p className="text-sm text-red-akaer py-8 text-center">{erroCarregamento}</p>;
         if (!detalhes) return null;
 
         const { dados_propostos, tipo_solicitacao, data_criacao, status, motivo_rejeicao } = detalhes;
+        const mostrarComoResolveu =
+            modo === 'detalhes'
+            && tipo_solicitacao === 'REPORTE_ERRO'
+            && status.toLowerCase() === 'concluida'
+            && dados_propostos.como_resolveu;
 
         const motivoReprovacao = status.toLowerCase() === 'reprovada' && motivo_rejeicao ? (
             <div className="flex flex-col gap-0.5">
@@ -352,13 +417,25 @@ export default function ModalAvaliacaoChecker({
         if (tipo_solicitacao === 'NOVA_NOTA') return (
             <>
                 <DadosNovaNotaOuErro dados={dados_propostos} criacao={data_criacao} status={status} tipo="Nova Nota" />
-                {motivoReprovacao}
+                {!isAdminAprovadaNotaOuErro && motivoReprovacao}
             </>
         );
         if (tipo_solicitacao === 'REPORTE_ERRO') return (
             <>
                 <DadosNovaNotaOuErro dados={dados_propostos} criacao={data_criacao} status={status} tipo="Reporte de Erro" />
-                {motivoReprovacao}
+                {mostrarComoResolveu && (
+                    <div className="flex flex-col gap-0.5">
+                        <span className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase">
+                            Como foi Resolvido
+                        </span>
+                        <textarea
+                            className="text-sm text-gray-800 bg-gray-50 border border-font-border rounded p-3 whitespace-pre-wrap min-h-[80px]"
+                            value={dados_propostos.como_resolveu}
+                            readOnly
+                        />
+                    </div>
+                )}
+                {!isAdminAprovadaNotaOuErro && motivoReprovacao}
             </>
         );
         if (tipo_solicitacao === 'NOVA_NORMA') return (
@@ -392,7 +469,7 @@ export default function ModalAvaliacaoChecker({
                 <div className="flex items-start mx-7 mt-5 mb-4">
                     <div>
                         <p className="text-xs font-semibold tracking-widest text-red-akaer uppercase">
-                            {modo === "detalhes" ? "Detalhes · Admin" : "Avaliação · Checker"}
+                            {modo === "detalhes" ? "Detalhes · Admin" : `Avaliação · ${isAdmin ? 'Admin' : 'Checker'}`}
                         </p>
                         <h2 className="text-lg font-medium text-dark-title leading-tight">{solicitacao?.tipo || 'Solicitação'}</h2>
                     </div>
@@ -402,11 +479,11 @@ export default function ModalAvaliacaoChecker({
                 {etapa === 'concluido' ? (
                     <>
                         <div className="flex flex-col items-center justify-center py-16 gap-4">
-                            <div className={`w-12 h-12 rounded-full border flex items-center justify-center ${resultado === 'aprovada' ? 'border-green-700/40' : 'border-red-400/40'}`}>
-                                {resultado === 'aprovada' ? <Check className="text-green-700 w-7 h-7" /> : <X className="text-red-akaer w-7 h-7" />}
+                            <div className={`w-12 h-12 rounded-full border flex items-center justify-center ${sucessoConclusao ? 'border-green-700/40' : 'border-red-400/40'}`}>
+                                {sucessoConclusao ? <Check className="text-green-700 w-7 h-7" /> : <X className="text-red-akaer w-7 h-7" />}
                             </div>
                             <h3 className="text-base text-[#3f3f3f] font-semibold">
-                                {resultado === 'aprovada' ? 'Solicitação aprovada com sucesso!' : 'Solicitação reprovada.'}
+                                {sucessoConclusao ? mensagemConclusao : 'Solicitação reprovada.'}
                             </h3>
                         </div>
                         <hr className="border-font-border" />
@@ -433,6 +510,24 @@ export default function ModalAvaliacaoChecker({
                                     {erroMotivo && <span className="text-xs text-red-akaer">{erroMotivo}</span>}
                                 </div>
                             )}
+                            {isAdminAprovadaNotaOuErro && isReporteErro && etapa === 'resolvendo' && (
+                                <div className="flex flex-col gap-2 pt-1 border-t border-font-border">
+                                    <label className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase mt-3">
+                                        Como Foi Resolvido <span className="text-red-akaer">*</span>
+                                    </label>
+                                    <textarea
+                                        value={descricaoResolucao}
+                                        onChange={(e) => {
+                                            setDescricaoResolucao(e.target.value);
+                                            if (erroResolucao) setErroResolucao(null);
+                                        }}
+                                        rows={4}
+                                        placeholder="Descreva como o erro foi resolvido..."
+                                        className={`bg-gray-100/80 border rounded p-3 text-sm outline-none focus:ring-1 focus:ring-gray-400 resize-none ${erroResolucao ? 'border-red-400' : 'border-font-border'}`}
+                                    />
+                                    {erroResolucao && <span className="text-xs text-red-akaer">{erroResolucao}</span>}
+                                </div>
+                            )}
                         </div>
                         <hr className="border-font-border" />
                         <div className="flex justify-between items-center mx-7 my-4 gap-2">
@@ -441,6 +536,40 @@ export default function ModalAvaliacaoChecker({
                                     <Button size="lg" variant="outline" onClick={() => handleOpenChange(false)} className="border-gray-200 text-gray-600">
                                         Fechar
                                     </Button>
+                                </div>
+                            ) : isAdminAprovadaNotaOuErro ? (
+                                <div className="flex justify-end w-full gap-2">
+                                    <Button
+                                        type="button"
+                                        size="lg"
+                                        variant="outline"
+                                        onClick={() => handleOpenChange(false)}
+                                        disabled={enviando}
+                                        className="border-gray-200 text-gray-600 hover:text-dark-title"
+                                    >
+                                        Cancelar
+                                    </Button>
+                                    {isReporteErro ? (
+                                        <Button
+                                            type="button"
+                                            size="lg"
+                                            onClick={handleResolver}
+                                            disabled={enviando}
+                                            className={isAdmin ? "bg-black hover:bg-black/80 text-white" : "bg-green-700 hover:bg-green-800 text-white"}
+                                        >
+                                            <Check className="w-4 h-4 mr-1" /> Resolver
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            type="button"
+                                            size="lg"
+                                            onClick={handleConcluir}
+                                            disabled={enviando}
+                                            className={isAdmin ? "bg-black hover:bg-black/80 text-white" : "bg-green-700 hover:bg-green-800 text-white"}
+                                        >
+                                            <Check className="w-4 h-4 mr-1" /> Concluir
+                                        </Button>
+                                    )}
                                 </div>
                             ) : etapa === 'visualizando' ? (
                                 // Tela inicial — Cancelar | Rejeitar | Aprovar

@@ -225,7 +225,7 @@ export const getSolicitacaoByIdController = async (req: Request, res: Response):
 export const updateStatusSolicitacaoController = async (req: Request, res: Response): Promise<void> => {
   try {
     const id = Number(req.params.id);
-    const { status, motivo_rejeicao } = req.body;
+    const { status, motivo_rejeicao, como_resolveu } = req.body;
 
     if (!Number.isInteger(id) || id < 1) {
       res.status(400).json({ error: "Id inválido." });
@@ -251,10 +251,23 @@ export const updateStatusSolicitacaoController = async (req: Request, res: Respo
       return;
     }
 
+    // Validação específica para conclusão de REPORTE_ERRO
+    const comoResolveu = typeof como_resolveu === "string" ? como_resolveu.trim() : "";
+
+    if (
+      status === "Concluida" &&
+      solicitacao.tipo_solicitacao === "REPORTE_ERRO" &&
+      !comoResolveu
+    ) {
+      res.status(400).json({ error: "O campo 'como foi resolvido' é obrigatório para concluir um reporte de erro." });
+      return;
+    }
+
     await atualizarStatusSolicitacao(
       id,
       status as SolicitacaoStatus,
-      status === "Reprovada" ? motivoRejeicao : undefined
+      status === "Reprovada" ? motivoRejeicao : undefined,
+      comoResolveu || undefined
     );
 
     res.status(200).json({ message: "Status atualizado com sucesso." });

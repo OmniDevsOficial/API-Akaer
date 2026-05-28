@@ -174,13 +174,62 @@ export const buscarSolicitacaoPorId = async (id: number): Promise<SolicitacaoDet
 export const atualizarStatusSolicitacao = async (
   id: number,
   status: SolicitacaoStatus,
-  motivoRejeicao?: string
+  motivoRejeicao?: string,
+  comoResolveu?: string
 ): Promise<void> => {
-  await prisma.solicitacaoNorma.update({
-    where: { id },
-    data: {
+  await prisma.$transaction(async (tx) => {
+    // Busca a solicitação para obter tipo e dados
+    const solicitacao = await tx.solicitacaoNorma.findUniqueOrThrow({
+      where: { id },
+      select: {
+        tipo_solicitacao: true,
+        norma_id: true,
+        dados_propostos: true,
+      },
+    });
+
+    // Monta o objeto de atualização
+    const updateData: Record<string, unknown> = {
       status,
       ...(motivoRejeicao !== undefined ? { motivo_rejeicao: motivoRejeicao } : {}),
-    },
+    };
+
+    // Se estiver concluindo, executa ações específicas por tipo
+    if (status === "Concluida") {
+      const dados = (solicitacao.dados_propostos ?? {}) as Record<string, unknown>;
+
+      if (solicitacao.tipo_solicitacao === "NOVA_NOTA") {
+        const normaCodigo = solicitacao.norma_id;
+        const textoNota = typeof dados.descricao === "string" ? dados.descricao.trim() : "";
+
+        if (normaCodigo && textoNota) {
+          // Calcula próxima ordem
+          const ultimaNota = await tx.normaNota.findFirst({
+            where: { norma_codigo: normaCodigo },
+            orderBy: { ordem: "desc" },
+            select: { ordem: true },
+          });
+          const proximaOrdem = (ultimaNota?.ordem ?? -1) + 1;
+
+          await tx.normaNota.create({
+            data: {
+              norma_codigo: normaCodigo,
+              texto: textoNota,
+              ordem: proximaOrdem,
+            },
+          });
+        }
+      }
+
+      if (solicitacao.tipo_solicitacao === "REPORTE_ERRO" && comoResolveu) {
+        updateData.dados_propostos = { ...dados, como_resolveu: comoResolveu };
+      }
+    }
+
+    // Atualiza tudo em um único update
+    await tx.solicitacaoNorma.update({
+      where: { id },
+      data: updateData,
+    });
   });
 };
