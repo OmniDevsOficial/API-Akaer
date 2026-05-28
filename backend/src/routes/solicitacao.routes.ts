@@ -22,7 +22,7 @@ const handleUpload = (req: Request, res: Response, next: NextFunction) => {
 	});
 };
 router.get("/", authMiddleware, roleMiddleware(["ADMIN", "CHECKER", "VISUALIZADOR"]), listSolicitacoesController);
-router.get("/:id", authMiddleware, roleMiddleware(["ADMIN", "CHECKER"]), getSolicitacaoByIdController);
+router.get("/:id", authMiddleware, roleMiddleware(["ADMIN", "CHECKER", "VISUALIZADOR"]), getSolicitacaoByIdController);
 router.post("/", authMiddleware, roleMiddleware(["VISUALIZADOR", "CHECKER"]), handleUpload, createSolicitacaoController);
 router.patch("/:id/status", authMiddleware, roleMiddleware(["ADMIN", "CHECKER"]), updateStatusSolicitacaoController);
 

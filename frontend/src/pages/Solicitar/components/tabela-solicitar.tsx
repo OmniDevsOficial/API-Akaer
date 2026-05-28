@@ -203,7 +203,7 @@ export default function TabelaSolicitar({
                             const podeAvaliarChecker = isChecker && s.status.toLowerCase() === 'pendente';
                             const podeAvaliarAdmin = isAdmin && s.status.toLowerCase() === 'aprovada';
                             const mostrarBotaoAvaliar = podeAvaliarChecker || podeAvaliarAdmin;
-                            const mostrarBotaoDetalhes = (isAdmin && !podeAvaliarAdmin) || isChecker && s.status.toLowerCase() != 'pendente';
+                            const mostrarBotaoDetalhes = isViewer || (isAdmin && !podeAvaliarAdmin) || isChecker && s.status.toLowerCase() != 'pendente';
 
                             return (
                                 <tr

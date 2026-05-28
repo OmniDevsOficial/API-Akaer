@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { Check, X } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import api from '@/services/api';
+import { getUserRole } from "@/utils/auth";
 import type { Solicitacao } from './tabela-solicitar';
+import api from '@/services/api';
 
 export type TipoSolicitacaoRaw = 'NOVA_NORMA' | 'NOVA_NOTA' | 'REPORTE_ERRO';
 
@@ -256,6 +257,9 @@ export default function ModalAvaliacaoChecker({
     const [listaCategoria, setListaCategoria] = useState<any[]>([]);
     const [listaEtapaProjeto, setListaEtapaProjeto] = useState<any[]>([]);
 
+    const role = getUserRole();
+    const isAdmin = role?.toLowerCase() === 'admin';
+
     useEffect(() => {
         if (!open || !solicitacao) return;
 
@@ -445,9 +449,11 @@ export default function ModalAvaliacaoChecker({
                                         Cancelar
                                     </Button>
                                     <div className="flex gap-2">
-                                        <Button type="button" size="lg" variant="outline" onClick={() => setEtapa('rejeitando')} disabled={enviando || carregando} className="border-red-300 text-red-akaer hover:bg-red-50 hover:text-red-akaer">
-                                            <X className="w-4 h-4 mr-1" /> Rejeitar
-                                        </Button>
+                                        {!isAdmin && (
+                                            <Button type="button" size="lg" variant="outline" onClick={() => setEtapa('rejeitando')} disabled={enviando || carregando} className="border-red-300 text-red-akaer hover:bg-red-50 hover:text-red-akaer">
+                                                <X className="w-4 h-4 mr-1" /> Rejeitar
+                                            </Button>)
+                                        }
                                         <Button type="button" size="lg" onClick={handleAprovar} disabled={enviando || carregando} className="bg-green-700 hover:bg-green-800 text-white">
                                             {enviando ? <Spinner className="mr-2" /> : <Check className="w-4 h-4 mr-1" />} Aprovar
                                         </Button>
