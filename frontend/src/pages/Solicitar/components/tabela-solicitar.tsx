@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import { getUserRole } from "@/utils/auth";
-import api from "@/services/api";
-/* import { useNavigate } from "react-router-dom"; */
+import { Eye } from "lucide-react";
 import type { FiltrosSelecionados } from "@/components/FilterAside/FilterAside";
+import ModalAvaliacaoChecker from "./modalAvaliacaoChecker";
+import AddStandardModal from "@/components/add-standard-modal";
+import ReportErrorModal from "@/pages/Solicitacoes/ReportErrorModal";
+import api from "@/services/api";
 
-// INTEGRAÇÃO: reflete o contrato esperado do endpoint /solicitacoes
 interface SolicitacaoApi {
     id: number;
     nome: string;
@@ -22,7 +24,24 @@ export interface Solicitacao {
     criador: string;
     cargo: string;
     status: string;
-    data_criacao: string; // não sei se está vindo formatado, tem que conferir
+    data_criacao: string;
+}
+
+interface RespostaSolicitacoes {
+    data: SolicitacaoApi[];
+    pagination: {
+        limit: number,
+        page: number,
+        total: number,
+        totalPages: number,
+    };
+}
+
+export interface TabelaSolicitarProps {
+    refreshTrigger?: number;
+    searchText?: string;
+    filtros?: FiltrosSelecionados;
+    filtroStatus?: string;
 }
 
 const STATUS_PARAM_MAP: Record<string, string | undefined> = {
@@ -38,17 +57,10 @@ const TIPO_LABEL_MAP: Record<string, string> = {
     REPORTE_ERRO: "Reporte de erro",
 };
 
-export interface TabelaSolicitarProps {
-    refreshTrigger?: number;
-    searchText?: string;
-    filtros?: FiltrosSelecionados;
-    filtroStatus?: string;
-}
-
 const statusColorClass = (status: string) => {
     const corStatus: Record<string, string> = {
         'pendente': 'bg-gray-500',
-        'aprovada': 'bg-green-500',
+        'aprovada': 'bg-orange-400',
         'concluida': 'bg-green-500',
         'reprovada': 'bg-red-akaer',
     };
@@ -62,27 +74,37 @@ export default function TabelaSolicitar({
 }: TabelaSolicitarProps) {
     const role = getUserRole();
     const isAdmin = role?.toLowerCase() === 'admin';
-    /* const navigate = useNavigate(); */
+    const isChecker = role?.toLowerCase() === 'checker';
+    const isViewer = role?.toLowerCase() === 'visualizador';
+
     const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([]);
     const [carregando, setCarregando] = useState(true);
+
+    const [modalCheckerAberto, setModalCheckerAberto] = useState(false);
+    const [solicitacaoSelecionada, setSolicitacaoSelecionada] = useState<Solicitacao | null>(null);
+    // Adiciona estado separado pro modal de detalhes do admin
+    const [modalDetalhesAberto, setModalDetalhesAberto] = useState(false);
+    const [solicitacaoDetalhes, setSolicitacaoDetalhes] = useState<Solicitacao | null>(null);
+    // Abertura e conclusão para modal de cadastro de norma
+    const [modalCadastroAberto, setModalCadastroAberto] = useState(false);
+    const [solicitacaoParaConcluir, setSolicitacaoParaConcluir] = useState<Solicitacao | null>(null);
+    // Abertura para modal de reportar erro
+    const [modalReporteErro, setModalReporteErro] = useState(false)
 
     useEffect(() => {
         let ativo = true;
 
         const carregarSolicitacoes = async () => {
             setCarregando(true);
-
             try {
                 const statusParam = STATUS_PARAM_MAP[filtroStatus.toLowerCase()];
-                const response = await api.get<SolicitacaoApi[]>("/solicitacoes", {
+                const response = await api.get<RespostaSolicitacoes>("/solicitacoes", {
                     params: statusParam ? { status: statusParam } : undefined,
                 });
 
-                if (!ativo) {
-                    return;
-                }
+                if (!ativo) return;
 
-                const dados = response.data.map((solicitacao) => ({
+                const dados = response.data.data.map((solicitacao) => ({
                     id: solicitacao.id,
                     tipo: TIPO_LABEL_MAP[solicitacao.tipo_solicitacao] ?? solicitacao.tipo_solicitacao,
                     criador: solicitacao.nome,
@@ -94,23 +116,19 @@ export default function TabelaSolicitar({
                 setSolicitacoes(dados);
             } catch (error) {
                 console.error("Erro ao carregar solicitacoes", error);
-
-                if (ativo) {
-                    setSolicitacoes([]);
-                }
+                if (ativo) setSolicitacoes([]);
             } finally {
-                if (ativo) {
-                    setCarregando(false);
-                }
+                if (ativo) setCarregando(false);
             }
         };
 
         carregarSolicitacoes();
-
-        return () => {
-            ativo = false;
-        };
+        return () => { ativo = false; };
     }, [filtroStatus, refreshTrigger]);
+
+    const handleSucessoAvaliacao = (idAprovadoOuRejeitado: number) => {
+        setSolicitacoes(prev => prev.filter(s => s.id !== idAprovadoOuRejeitado));
+    };
 
     const solicitacoesFiltradas = solicitacoes
         .filter((s) => filtroStatus === 'todas' || s.status.toLowerCase() === filtroStatus)
@@ -120,8 +138,44 @@ export default function TabelaSolicitar({
             s.tipo.toLowerCase().includes(searchText.toLowerCase())
         );
 
+    const handleConcluirSolicitacao = (id: number) => {
+        setSolicitacoes(prev =>
+            prev.map(s => s.id === id ? { ...s, status: 'Concluida' } : s)
+        );
+    };
+
     return (
         <div className="border border-font-border rounded-lg overflow-hidden">
+
+            <ModalAvaliacaoChecker
+                open={modalCheckerAberto}
+                onOpenChange={setModalCheckerAberto}
+                solicitacao={solicitacaoSelecionada}
+                onSuccess={handleSucessoAvaliacao}
+            />
+
+            <ModalAvaliacaoChecker
+                open={modalDetalhesAberto}
+                onOpenChange={setModalDetalhesAberto}
+                solicitacao={solicitacaoDetalhes}
+                onSuccess={() => { }}
+                modo="detalhes"
+            />
+
+            <AddStandardModal
+                open={modalCadastroAberto}
+                onOpenChange={setModalCadastroAberto}
+                onSuccess={() => { }}
+                solicitacaoId={solicitacaoParaConcluir?.id}
+                onConcluir={handleConcluirSolicitacao}
+            />
+
+            <ReportErrorModal
+                open={modalReporteErro}
+                onOpenChange={setModalReporteErro}
+                normas={[]}
+            />
+
             <table className="w-full">
                 <thead>
                     <tr className="border-b border-font-border">
@@ -131,50 +185,86 @@ export default function TabelaSolicitar({
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">CARGO</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">STATUS</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">DATA DE CRIAÇÃO</th>
-                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">AÇÕES</th>
+                        {!isViewer && <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">AÇÕES</th>}
                     </tr>
                 </thead>
 
                 <tbody>
                     {carregando ? (
                         <tr>
-                            <td colSpan={7} className="px-6 py-6 text-sm text-gray-medium text-center">Carregando solicitações...</td>
+                            <td className="px-6 py-6 text-sm text-gray-medium text-center">Carregando solicitações...</td>
                         </tr>
                     ) : solicitacoesFiltradas.length === 0 ? (
                         <tr>
-                            <td colSpan={7} className="px-6 py-6 text-sm text-gray-medium text-center">Nenhuma solicitação encontrada.</td>
+                            <td className="px-6 py-6 text-sm text-gray-medium text-center">Nenhuma solicitação encontrada.</td>
                         </tr>
-                    ) : solicitacoesFiltradas.map((s) => (
-                        <tr
-                            key={s.id}
-                            className="border-b border-font-border last:border-none hover:bg-red-50/60 transition-colors"
-                        >
-                            <td className="px-6 py-4 text-sm text-red-akaer font-semibold">{s.id}</td>
-                            <td className="px-6 py-4 text-sm text-gray-900">{s.tipo}</td>
-                            <td className="px-6 py-4 text-sm text-gray-700">{s.criador}</td>
-                            <td className="px-6 py-4 text-sm text-gray-700">{s.cargo}</td>
-                            <td className="px-6 py-4">
-                                <div className="flex items-center gap-1.5">
-                                    <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${statusColorClass(s.status)}`} />
-                                    <span className="text-sm leading-none text-gray-700">{s.status}</span>
-                                </div>
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">
-                                {new Date(s.data_criacao).toLocaleDateString('pt-BR')}
-                            </td>
-                            <td className="px-6 py-4">
-                                {isAdmin && (
-                                    <button
-                                        className="flex items-center gap-1.5 bg-dark-title py-1.5 px-3 rounded-sm text-sm text-white hover:text-gray-medium transition-colors cursor-pointer"
-                                        onClick={() => { }}
-                                    >
-                                        <Check size={15} />
-                                        <span>Avaliar</span>
-                                    </button>
-                                )}
-                            </td>
-                        </tr>
-                    ))}
+                    ) : (
+                        solicitacoesFiltradas.map((s) => {
+                            const podeAvaliarChecker = isChecker && s.status.toLowerCase() === 'pendente';
+                            const podeAvaliarAdmin = isAdmin && s.status.toLowerCase() === 'aprovada';
+                            const mostrarBotaoAvaliar = podeAvaliarChecker || podeAvaliarAdmin;
+                            const mostrarBotaoDetalhes = isViewer || (isAdmin && !podeAvaliarAdmin) || isChecker && s.status.toLowerCase() != 'pendente';
+
+                            return (
+                                <tr
+                                    key={s.id}
+                                    className="border-b border-font-border last:border-none hover:bg-red-50/60 transition-colors"
+                                >
+                                    <td className="px-6 py-4 text-sm text-red-akaer font-semibold">{s.id}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-900">{s.tipo}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-700">{s.criador}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-700">{s.cargo}</td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-1.5">
+                                            <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${statusColorClass(s.status)}`} />
+                                            <span className="text-sm leading-none text-gray-700">{s.status}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-gray-700">
+                                        {new Date(s.data_criacao).toLocaleDateString('pt-BR')}
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        {mostrarBotaoAvaliar && (
+                                            <button
+                                                className="flex items-center gap-1.5 bg-dark-title py-1.5 px-3 rounded-sm text-sm text-white hover:text-gray-medium transition-colors cursor-pointer"
+                                                onClick={() => {
+                                                    if (podeAvaliarChecker) {
+                                                        setSolicitacaoSelecionada(s);
+                                                        setModalCheckerAberto(true);
+                                                    }
+
+                                                    if (podeAvaliarAdmin) {
+                                                        if (s.tipo === 'Nova norma') {
+                                                            setSolicitacaoParaConcluir(s);
+                                                            setModalCadastroAberto(true);
+                                                        }
+                                                        else {
+                                                            setSolicitacaoSelecionada(s);
+                                                            setModalCheckerAberto(true);
+                                                        }
+                                                    }
+                                                }}
+                                            >
+                                                <Check size={15} />
+                                                <span>Avaliar</span>
+                                            </button>
+                                        )}
+                                        {mostrarBotaoDetalhes && (
+                                            <button className="flex items-center gap-1.5 border border-font-border py-1.5 px-3 rounded-sm text-sm text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                                                onClick={() => {
+                                                    setSolicitacaoDetalhes(s);
+                                                    setModalDetalhesAberto(true);
+                                                }}
+                                            >
+                                                <Eye size={15} />
+                                                <span>Detalhes</span>
+                                            </button>
+                                        )}
+                                    </td>
+                                </tr>
+                            );
+                        })
+                    )}
                 </tbody>
             </table>
 

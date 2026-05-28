@@ -206,7 +206,7 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
 
     return (
         <>
-            <div className="min-h-screen bg-[#fbfbfb] p-8 font-dm">
+            <div className="min-h-screen w-full bg-[#fbfbfb] p-8 font-dm">
                 <div className="grid grid-cols-[1fr_400px] gap-6">
 
                     {/* COLUNA ESQUERDA */}

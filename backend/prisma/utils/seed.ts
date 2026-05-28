@@ -23,19 +23,25 @@ async function main() {
     
     const hashedPassword1 = await hashPassword('admin123');
     const hashedPassword2 = await hashPassword('viewer123');
+    const hashedPassword3 = await hashPassword('checker123');
 
     await prisma.user.upsert({
       where: { email: 'admin1@gmail.com' },
       update: {},
       create: { nome: 'Administrador', email: 'admin1@gmail.com', password: hashedPassword1, role: 'ADMIN' },
-    },
-    );
+    });
+    
     await prisma.user.upsert({
       where: { email: 'viewer1@gmail.com' },
       update: {},
       create: { nome: 'Visualizador', email: 'viewer1@gmail.com', password: hashedPassword2, role: 'VISUALIZADOR' },
-    },
-    );
+    });
+
+    await prisma.user.upsert({
+      where: { email: 'checker1@gmail.com' },
+      update: {},
+      create: { nome: 'Verificador', email: 'checker1@gmail.com', password: hashedPassword3, role: 'CHECKER' },
+    });
 
     // 1. Criar Categorias
     const categorias = ['Qualidade', 'Segurança', 'Manutenção'];

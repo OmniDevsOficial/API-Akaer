@@ -11,6 +11,8 @@ interface StandardModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSuccess: () => void;
+    solicitacaoId?: number; // serve para o auto-preenchimento do modal quando houver solicitação
+    onConcluir?: (id: number) => void; // aqui vai atualizar o status da solicitação na tabela
 }
 
 interface NotaCadastro {
@@ -18,7 +20,12 @@ interface NotaCadastro {
     texto: string;
 }
 
-function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps) {
+interface NormaRelacionadaSelecao {
+    codigo: string;
+    titulo: string;
+}
+
+function AddStandardModal({ open, onOpenChange, onSuccess, solicitacaoId, onConcluir }: StandardModalProps) {
     const [titulo, setTitulo] = useState('');
     const [orgaoEmissor, setOrgaoEmissor] = useState('');
     const [status, setStatus] = useState('Ativa');
@@ -32,6 +39,8 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
     const [palavrasChave, setPalavrasChave] = useState<string[]>([]);
     const [notas, setNotas] = useState<NotaCadastro[]>([]);
     const [arquivoNorma, setArquivoNorma] = useState<File | null>(null);
+    const [arquivoNormaUrl, setArquivoNormaUrl] = useState<string | null>(null);
+    const [arquivoNormaPath, setArquivoNormaPath] = useState<string | null>(null);
     const [cadastroConcluido, setCadastroConcluido] = useState(false);
 
     // Opções dinâmicas
@@ -39,7 +48,52 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
     const [listaCategoria, setListaCategoria] = useState<any[]>([]);
     const [listaEtapaProjeto, setListaEtapaProjeto] = useState<any[]>([]);
 
-    const [normasRelacionadas, setNormasRelacionadas] = useState<any[]>([]);
+    const [normasRelacionadas, setNormasRelacionadas] = useState<NormaRelacionadaSelecao[]>([]);
+
+    const resolveArquivoUrl = (arquivo: string) => {
+        const trimmed = arquivo.trim();
+        if (!trimmed) return "";
+        if (/^https?:\/\//.test(trimmed)) return trimmed;
+
+        const normalized = trimmed.replace(/\\/g, "/");
+        const marker = "/uploads/";
+        const idx = normalized.lastIndexOf(marker);
+        const relative = idx >= 0 ? normalized.slice(idx) : normalized;
+        const path = relative.startsWith("/") ? relative : `/${relative}`;
+        const baseUrl = api.defaults.baseURL ?? "";
+
+        if (!baseUrl) return path;
+        return `${baseUrl.replace(/\/$/, "")}${path}`;
+    };
+
+    const parseArray = <T,>(value: unknown): T[] => {
+        if (Array.isArray(value)) return value as T[];
+        if (typeof value === "string") {
+            try {
+                const parsed = JSON.parse(value);
+                return Array.isArray(parsed) ? (parsed as T[]) : [];
+            } catch {
+                return [];
+            }
+        }
+        return [];
+    };
+
+    const parseStringArray = (value: unknown): string[] => {
+        if (Array.isArray(value)) return value.filter(Boolean).map(String);
+        if (typeof value === "string") {
+            try {
+                const parsed = JSON.parse(value);
+                if (Array.isArray(parsed)) return parsed.filter(Boolean).map(String);
+            } catch {
+                return value
+                    .split(",")
+                    .map((item) => item.trim())
+                    .filter(Boolean);
+            }
+        }
+        return [];
+    };
 
     useEffect(() => {
         const getFilterOptions = async () => {
@@ -87,7 +141,14 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
         };
 
         const formData = new FormData();
-        formData.append('file', arquivoNorma!);
+        if (arquivoNorma) {
+            formData.append('file', arquivoNorma);
+        } else if (arquivoNormaPath) {
+            formData.append('arquivo_existente', arquivoNormaPath);
+        } else {
+            alert("O arquivo PDF da norma e obrigatorio.");
+            return;
+        }
 
         Object.entries(payload).forEach(([key, value]) => {
             // 3. CONSERTO DO ERRO 500 SILENCIOSO: Impede envio de IDs vazios
@@ -99,9 +160,18 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
         try {
             const response = await api.post('/normas/create', formData);
             console.log('Norma Cadastrada com Sucesso:', response.data);
+
+            // SE a norma veio de uma solicitação, atualiza a solicitação
+            if (solicitacaoId) {
+                await api.patch(`/solicitacoes/${solicitacaoId}/status`, { status: 'Concluida' });
+                onConcluir?.(solicitacaoId);
+            }
+            
             setCadastroConcluido(true);
             onSuccess();
+
             return response.data;
+
         } catch (error: any) {
             const mensagemErro = 'Erro ao cadastrar norma: ' + (error.response?.data?.error || error.message);
             alert(mensagemErro);
@@ -109,6 +179,7 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
             throw error;
         }
     };
+
 
     const limparFormulario = () => {
         setTitulo('');
@@ -125,6 +196,8 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
         setNotas([]);
         setNormasRelacionadas([]);
         setArquivoNorma(null);
+        setArquivoNormaUrl(null);
+        setArquivoNormaPath(null);
         setCadastroConcluido(false);
         setNormasRelacionadas([]);
     };
@@ -168,6 +241,67 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
         setPalavrasChave(prev => prev.filter((_, i) => i !== index));
     }
 
+    useEffect(() => {
+        if (!open || !solicitacaoId) return;
+
+        let ativo = true;
+
+        api.get(`/solicitacoes/${solicitacaoId}`).then(async (res) => {
+            if (!ativo) return;
+
+            const dn = res.data.dados_propostos?.dados_norma ?? {};
+            if (dn.titulo) setTitulo(dn.titulo);
+            if (dn.codigo) setCodigo(dn.codigo);
+            if (dn.revisao) setRevisao(dn.revisao);
+            if (dn.escopo) setEscopo(dn.escopo);
+            if (dn.status) setStatus(dn.status);
+            if (dn.data_publicacao) setDataPublicacao(dn.data_publicacao);
+            if (dn.orgao_emissor_id) setOrgaoEmissor(String(dn.orgao_emissor_id));
+            if (dn.categoria_id) setCategoria(String(dn.categoria_id));
+            if (dn.etapa_projeto_id) setEtapaProjeto(String(dn.etapa_projeto_id));
+
+            const palavras = parseStringArray(dn.palavras_chave);
+            if (palavras.length > 0) setPalavrasChave(palavras);
+
+            const notasParsed = parseArray<{ texto?: string }>(dn.notas);
+            if (notasParsed.length > 0) {
+                setNotas(
+                    notasParsed.map((nota, index) => ({
+                        id: Date.now() + index,
+                        texto: nota.texto ?? "",
+                    }))
+                );
+            }
+
+            const relacionadas = parseArray<{ relacionada_codigo?: string }>(dn.normas_relacionadas);
+            const relacionadasIds = parseStringArray(dn.normas_relacionadas_ids);
+
+            const codigosRelacionados = [
+                ...relacionadas
+                    .map((rel) => rel.relacionada_codigo)
+                    .filter((codigo): codigo is string => Boolean(codigo)),
+                ...relacionadasIds,
+            ];
+
+            if (codigosRelacionados.length > 0) {
+                setNormasRelacionadas(
+                    codigosRelacionados.map((codigo) => ({ codigo, titulo: codigo }))
+                );
+            }
+
+            if (dn.arquivo && typeof dn.arquivo === "string") {
+                const url = resolveArquivoUrl(dn.arquivo);
+                if (!url) return;
+                setArquivoNormaUrl(url);
+                setArquivoNormaPath(dn.arquivo);
+            }
+        });
+
+        return () => {
+            ativo = false;
+        };
+    }, [open, solicitacaoId]);
+
 
     return (
         <>
@@ -200,7 +334,26 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
                         <form onSubmit={handleSubmit} className="flex flex-col h-full">
                             <div className="overflow-y-auto max-h-[70vh] pr-2">
                                 <div className='mx-5'>
-                                    <FileUpload onFileSelected={setArquivoNorma} />
+                                    <FileUpload
+                                        value={arquivoNorma}
+                                        fileUrl={arquivoNormaUrl ?? undefined}
+                                        existingFile={arquivoNormaUrl ? {
+                                            name: arquivoNormaUrl.split("/").pop() || "documento.pdf",
+                                            url: arquivoNormaUrl,
+                                        } : undefined}
+                                        onClearExisting={() => {
+                                            setArquivoNorma(null);
+                                            setArquivoNormaUrl(null);
+                                            setArquivoNormaPath(null);
+                                        }}
+                                        onFileSelected={(file) => {
+                                            setArquivoNorma(file);
+                                            if (file) {
+                                                setArquivoNormaUrl(null);
+                                                setArquivoNormaPath(null);
+                                            }
+                                        }}
+                                    />
                                 </div>
 
                                 <div className='grid grid-cols-[1fr_auto_1fr] items-center gap-3 mx-8 mb-6'>
@@ -377,7 +530,12 @@ function AddStandardModal({ open, onOpenChange, onSuccess }: StandardModalProps)
 
                                     {/* Notas */}
                                     <div className='col-span-2 my-6'>
-                                        <NotasField label="NOTAS" value={notas} onChange={setNotas} />
+                                        <NotasField
+                                            label="NOTAS"
+                                            value={notas}
+                                            onChange={setNotas}
+                                            autoFocus={!solicitacaoId}
+                                        />
                                     </div>
 
                                     {/* Normas Relacionadas */}

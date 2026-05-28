@@ -14,6 +14,7 @@ app.use("/uploads", express.static(path.resolve(__dirname, "../uploads")));
 
 app.use("/auth", authRoutes);
 app.use("/solicitacoes", solicitacaoRoutes);
+app.use("/api/solicitacoes", solicitacaoRoutes);
 app.use("/normas", normaRoutes);
 app.use("/", optionsRoutes);
 

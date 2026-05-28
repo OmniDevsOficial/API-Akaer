@@ -14,3 +14,9 @@ export function getUserRole(): string | null {
     return null;
   }
 }
+
+export function handleLogout() {
+  localStorage.removeItem("token");
+  sessionStorage.removeItem("token");
+  localStorage.removeItem("userRole");
+}

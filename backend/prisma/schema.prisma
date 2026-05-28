@@ -71,12 +71,27 @@ model EtapaProjeto {
 
 model Norma {
   id               Int          @id @default(autoincrement())
+
+  // Identificador único desta revisão específica (ex: "AERO-001-A").
+  // Mantém compatibilidade com as FKs das tabelas filhas.
   codigo           String       @unique @db.VarChar(50)
+
+  // Critério 1 — Agrupador: identifica que "AERO-001-A" e "AERO-001-B"
+  // são revisões do mesmo documento.
+  codigo_base      String       @db.VarChar(50)
+
   titulo           String       @db.VarChar(255)
   orgao_emissor_id Int
   categoria_id     Int
   etapa_projeto_id Int?
-  revisao          String?      @db.VarChar(20)
+
+  // Revisão torna-se obrigatória para garantir rastreabilidade completa.
+  revisao          String       @db.VarChar(20)
+
+  // Critério 3 — Vigência: apenas uma linha com is_vigente = true
+  // por codigo_base. Controlado via $transaction no service.
+  is_vigente       Boolean      @default(false)
+
   status           norma_status @default(Ativa)
   data_publicacao  DateTime     @db.Date
   arquivo          String       @db.VarChar(500)
@@ -92,6 +107,8 @@ model Norma {
   categoria     Categoria     @relation(fields: [categoria_id], references: [id])
   etapa_projeto EtapaProjeto? @relation(fields: [etapa_projeto_id], references: [id])
 
+  // Impede duplicatas: não pode existir "AERO-001" revisão "A" duas vezes.
+  @@unique([codigo_base, revisao])
   @@map("norma")
 }
 
@@ -126,6 +143,7 @@ model SolicitacaoNorma {
   tipo_solicitacao tipo_solicitacao
   norma_id         String?            @db.VarChar(50)
   dados_propostos  Json?
+  motivo_rejeicao  String?            @db.Text
   data_criacao     DateTime           @default(now())
 
   usuario_id Int

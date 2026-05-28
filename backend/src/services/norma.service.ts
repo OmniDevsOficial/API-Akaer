@@ -33,6 +33,21 @@ const parseJsonInput = (input: unknown, fieldName: string): unknown => {
   throw new Error(`${fieldName} deve ser um JSON valido`);
 };
 
+const resolveUploadPath = (filePath: string) => {
+  const uploadsDir = path.resolve(__dirname, "../../uploads");
+  const resolvedPath = path.resolve(filePath);
+
+  if (!resolvedPath.startsWith(uploadsDir)) {
+    throw new Error("Arquivo inválido");
+  }
+
+  if (!fs.existsSync(resolvedPath)) {
+    throw new Error("Documento não encontrado");
+  }
+
+  return resolvedPath;
+};
+
 export const createNormaService = async (data: any, filePath: string) => {
   const {
     codigo,
@@ -49,12 +64,20 @@ export const createNormaService = async (data: any, filePath: string) => {
     normas_relacionadas_ids,
   } = data;
 
-  if (!codigo || !titulo || !orgao_emissor_id || !categoria_id || !data_publicacao) {
-    throw new Error("Campos obrigatórios não preenchidos: codigo, titulo, orgao_emissor_id, categoria_id, data_publicacao");
+  const codigoNormalizado = typeof codigo === "string" ? codigo.trim() : "";
+  const revisaoNormalizada = typeof revisao === "string" ? revisao.trim() : "";
+
+  if (!codigoNormalizado || !titulo || !orgao_emissor_id || !categoria_id || !data_publicacao || !revisaoNormalizada) {
+    throw new Error("Campos obrigatórios não preenchidos: codigo, titulo, orgao_emissor_id, categoria_id, data_publicacao, revisao");
   }
 
+  const sufixoRevisao = `-${revisaoNormalizada}`;
+  const codigoBase = codigoNormalizado.endsWith(sufixoRevisao)
+    ? codigoNormalizado.slice(0, -sufixoRevisao.length)
+    : codigoNormalizado;
+
   const codigoJaExiste = await prisma.norma.findUnique({
-    where: { codigo },
+    where: { codigo: codigoNormalizado },
     select: { codigo: true }
   });
 
@@ -67,19 +90,22 @@ export const createNormaService = async (data: any, filePath: string) => {
   const palavrasChaveJson = parseJsonInput(palavras_chave, "palavras_chave");
   const normasRelacionadasIds = parseNormasRelacionadasInput(normas_relacionadas_ids);
   
+  const arquivoPath = resolveUploadPath(filePath);
+
   const norma = await prisma.norma.create({
     data: {
-      codigo,
+      codigo: codigoNormalizado,
+      codigo_base:     codigoBase,
       titulo,
       orgao_emissor_id: Number(orgao_emissor_id),
       categoria_id:     Number(categoria_id),
       etapa_projeto_id: etapa_projeto_id ? Number(etapa_projeto_id) : null,
-      revisao:          revisao || null,
+      revisao:          revisaoNormalizada,
       status,
       data_publicacao:  dataPublicacao,
       escopo: escopo ?? null,
       palavras_chave: palavrasChaveJson ?? [],
-      arquivo:        filePath,
+      arquivo:        arquivoPath,
     }
   });
 
