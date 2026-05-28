@@ -127,8 +127,20 @@ function DadosNovaNotaOuErro({ dados, criacao, status, tipo }: { dados: DadosSol
     );
 }
 
-function DadosNovaNorma({ dados, criacao, status }: { dados: DadosSolicitacao; criacao: string; status: string }) {
+function DadosNovaNorma({ dados, criacao, status, listaOrgao, listaCategoria, listaEtapaProjeto }: {
+    dados: DadosSolicitacao;
+    criacao: string;
+    status: string;
+    listaOrgao: any[];
+    listaCategoria: any[];
+    listaEtapaProjeto: any[];
+}) {
     const dn = dados.dados_norma ?? {};
+
+    const nomeOrgao = listaOrgao.find(o => String(o.id) === String(dn.orgao_emissor_id))?.nome;
+    const nomeCategoria = listaCategoria.find(c => String(c.id) === String(dn.categoria_id))?.nome;
+    const nomeEtapa = listaEtapaProjeto.find(e => String(e.id) === String(dn.etapa_projeto_id))?.nome;
+
     return (
         <div className="flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-3 p-4 bg-gray-50 rounded-lg border border-font-border">
@@ -153,9 +165,9 @@ function DadosNovaNorma({ dados, criacao, status }: { dados: DadosSolicitacao; c
                     <CampoLeitura label="Status" valor={dn.status} />
                     <CampoLeitura label="Revisão" valor={dn.revisao} />
                     <CampoLeitura label="Data de publicação" valor={dn.data_publicacao} />
-                    <CampoLeitura label="Órgão emissor" valor={dn.orgao_emissor_id} />
-                    <CampoLeitura label="Categoria" valor={dn.categoria_id} />
-                    <CampoLeitura label="Etapa do projeto" valor={dn.etapa_projeto_id} />
+                    <CampoLeitura label="Órgão Emissor" valor={nomeOrgao} />
+                    <CampoLeitura label="Categoria" valor={nomeCategoria} />
+                    <CampoLeitura label="Etapa do Projeto" valor={nomeEtapa} />
                 </div>
                 {dn.escopo && (
                     <div className="flex flex-col gap-0.5">
@@ -166,7 +178,7 @@ function DadosNovaNorma({ dados, criacao, status }: { dados: DadosSolicitacao; c
                 {dn.arquivo && (
                     <div className="flex flex-col gap-0.5">
                         <span className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase">Arquivo PDF</span>
-                            <a
+                        <a
                             href={resolveArquivoUrl(dn.arquivo)}
                             target="_blank"
                             rel="noreferrer"
@@ -240,6 +252,9 @@ export default function ModalAvaliacaoChecker({
     const [motivoRejeicao, setMotivoRejeicao] = useState('');
     const [erroMotivo, setErroMotivo] = useState<string | null>(null);
     const [enviando, setEnviando] = useState(false);
+    const [listaOrgao, setListaOrgao] = useState<any[]>([]);
+    const [listaCategoria, setListaCategoria] = useState<any[]>([]);
+    const [listaEtapaProjeto, setListaEtapaProjeto] = useState<any[]>([]);
 
     useEffect(() => {
         if (!open || !solicitacao) return;
@@ -254,7 +269,12 @@ export default function ModalAvaliacaoChecker({
             .catch(() => { if (ativo) setErroCarregamento('Não foi possível carregar os detalhes da solicitação.'); })
             .finally(() => { if (ativo) setCarregando(false); });
 
+        api.get('/orgaos-emissores').then(res => setListaOrgao(res.data));
+        api.get('/categorias').then(res => setListaCategoria(res.data));
+        api.get('/etapas-projeto').then(res => setListaEtapaProjeto(res.data));
+
         return () => { ativo = false; };
+
     }, [open, solicitacao?.id]);
 
     const resetModal = () => {
@@ -339,9 +359,25 @@ export default function ModalAvaliacaoChecker({
         );
         if (tipo_solicitacao === 'NOVA_NORMA') return (
             <>
-                <DadosNovaNorma dados={dados_propostos} criacao={data_criacao} status={status} />
+                <DadosNovaNorma
+                    dados={dados_propostos}
+                    criacao={data_criacao}
+                    status={status}
+                    listaOrgao={listaOrgao}
+                    listaCategoria={listaCategoria}
+                    listaEtapaProjeto={listaEtapaProjeto} />
                 {motivoReprovacao}
             </>
+        );
+        if (tipo_solicitacao === 'NOVA_NORMA') return (
+            <DadosNovaNorma
+                dados={dados_propostos}
+                criacao={data_criacao}
+                status={status}
+                listaOrgao={listaOrgao}
+                listaCategoria={listaCategoria}
+                listaEtapaProjeto={listaEtapaProjeto}
+            />
         );
         return null;
     };

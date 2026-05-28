@@ -84,17 +84,6 @@ export default function Header() {
         <header className="h-16 bg-white border-b border-font-border flex items-center justify-between px-8 w-full z-10 relative">
 
             <div className="flex gap-6 items-center">
-                <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#73203A] text-white shadow-sm flex-shrink-0 font-bold text-lg">
-                    <LuLayers size={18} />
-                </div>
-                <div className="flex flex-col leading-tight animate-fade-in">
-                    <span className="font-extrabold text-base tracking-tight text-dark-title">
-                        Plataforma<span className="text-[#73203A]">.</span>
-                    </span>
-                    <span className="text-[10px] font-bold text-gray-medium tracking-widest uppercase">
-                        Normativa
-                    </span>
-                </div>
             </div>
 
             <div className="flex items-center justify-end gap-2">

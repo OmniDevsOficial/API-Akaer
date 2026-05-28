@@ -173,7 +173,7 @@ export default function TabelaSolicitar({
 
             <ReportErrorModal
                 open={modalReporteErro}
-                onOpenChange={setModalCadastroAberto}
+                onOpenChange={setModalReporteErro}
                 normas={[]}
             />
 
