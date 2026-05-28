@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { handleLogout } from '../utils/auth';
-import { LuLogOut, LuLayers } from "react-icons/lu";
+import { LuLogOut } from "react-icons/lu";
 import { FiUser } from "react-icons/fi";
 import api from "@/services/api";
 
@@ -18,7 +18,6 @@ export default function Header() {
     const [menuAberto, setMenuAberto] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
-    const location = useLocation();
 
     const executarLogout = () => {
         handleLogout();

@@ -5,7 +5,6 @@ import { Eye } from "lucide-react";
 import type { FiltrosSelecionados } from "@/components/FilterAside/FilterAside";
 import ModalAvaliacaoChecker from "./modalAvaliacaoChecker";
 import AddStandardModal from "@/components/add-standard-modal";
-import ModalSolicitacaoNota from "@/pages/Solicitacoes/ModalSolicitacaoNota";
 import ReportErrorModal from "@/pages/Solicitacoes/ReportErrorModal";
 import api from "@/services/api";
 
