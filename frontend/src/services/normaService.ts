@@ -63,6 +63,8 @@ export interface RevisaoNorma {
     revisao: string | null;
     status: string;
     arquivo?: string | null;
+    orgao_emissor?: { nome: string } | null;
+    orgao_emissor_id?: { nome: string } | null;
     categoria?: { nome: string } | null;
     categoria_id?: { nome: string } | null;
     data_publicacao?: string | null;

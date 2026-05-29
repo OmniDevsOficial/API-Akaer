@@ -65,13 +65,14 @@ const statusColorClass = (status: string) => {
 };
 
 // Larguras fixas das colunas 
-const COL_CHEVRON   = 'w-10';   
-const COL_CODIGO    = 'w-28';   
-const COL_TITULO    = '';        
-const COL_CATEGORIA = 'w-40';   
-const COL_STATUS    = 'w-36';  
-const COL_DOC       = 'w-36';   
-const COL_ACOES     = 'w-56';   
+const COL_CHEVRON = 'w-10';
+const COL_CODIGO = 'w-28';
+const COL_TITULO = '';
+const COL_ORGAO = '';
+const COL_CATEGORIA = 'w-40';
+const COL_STATUS = 'w-36';
+const COL_DOC = 'w-36';
+const COL_ACOES = 'w-56';
 
 // Accordion de revisões 
 
@@ -109,7 +110,7 @@ function AccordionRevisoes({ codigoPai, isAdmin, onAbrirPdfRevisao }: AccordionR
         carregar();
     }, [codigoPai]);
 
-   
+
     const linhaInfo = (conteudo: React.ReactNode) => (
         <tr className="bg-[#f7f7f7] border-b border-font-border">
             <td colSpan={7} className="pl-14 pr-6 py-3">{conteudo}</td>
@@ -155,6 +156,12 @@ function AccordionRevisoes({ codigoPai, isAdmin, onAbrirPdfRevisao }: AccordionR
                             {rev.revisao && (
                                 <span className="block text-xs text-gray-400/70">Revisão: {rev.revisao}</span>
                             )}
+                        </td>
+
+                        {/* ÓRGÃO EMISSOR */}
+                        <td className={`${COL_ORGAO} px-6 py-3`}>
+                            <span className="block text-sm font-medium text-gray-400">{rev.orgao_emissor?.nome}</span>
+                            <span className="block text-xs text-gray-400/70">{rev.orgao_emissor_id?.nome ?? "—"}</span>
                         </td>
 
                         {/* CATEGORIA */}
@@ -233,24 +240,21 @@ function NormaRow({ norma, isAdmin, onAbrirPdf, onAbrirPdfRevisao }: NormaRowPro
     return (
         <>
             <tr
-                className={`border-b border-font-border last:border-none transition-colors ${
-                    accordionAberto ? 'bg-red-50/40' : ''
-                }`}
+                className={`border-b border-font-border last:border-none transition-colors ${accordionAberto ? 'bg-red-50/40' : ''
+                    }`}
             >
                 {/* Chevron trigger */}
                 <td className={`${COL_CHEVRON} pl-4 pr-0 py-4`}>
                     <button
                         onClick={toggleAccordion}
                         title={accordionAberto ? 'Fechar histórico' : 'Ver histórico de revisões'}
-                        className={`flex items-center justify-center w-5 h-5 rounded transition-colors ${
-                            accordionAberto ? 'text-red-akaer' : 'text-gray-400 hover:text-gray-700'
-                        }`}
+                        className={`flex items-center justify-center w-5 h-5 rounded transition-colors ${accordionAberto ? 'text-red-akaer' : 'text-gray-400 hover:text-gray-700'
+                            }`}
                     >
                         <ChevronRight
                             size={16}
-                            className={`transition-transform duration-300 ease-in-out ${
-                                accordionAberto ? 'rotate-90' : 'rotate-0'
-                            }`}
+                            className={`transition-transform duration-300 ease-in-out ${accordionAberto ? 'rotate-90' : 'rotate-0'
+                                }`}
                         />
                     </button>
                 </td>
@@ -266,6 +270,12 @@ function NormaRow({ norma, isAdmin, onAbrirPdf, onAbrirPdfRevisao }: NormaRowPro
                     <span className="block text-xs text-gray-medium">Revisão atual: {norma.revisao}</span>
                 </td>
 
+                {/* ÓRGÃO EMISSOR */}
+                <td className={`${COL_ORGAO} px-6 py-4`}>
+                    <span className="block text-sm font-medium text-gray-900">{norma.orgao_emissor?.nome}</span>
+                    <span className="block text-sm font-medium text-gray-900">{norma.orgao_emissor_id?.nome}</span>
+                </td>
+
                 {/* CATEGORIA */}
                 <td className={`${COL_CATEGORIA} px-6 py-4`}>
                     <span className="text-sm text-gray-700 truncate block">
@@ -276,8 +286,10 @@ function NormaRow({ norma, isAdmin, onAbrirPdf, onAbrirPdfRevisao }: NormaRowPro
                 {/* STATUS */}
                 <td className={`${COL_STATUS} px-6 py-4`}>
                     <div className="flex items-center gap-1.5">
-                        <span className={`inline-block w-2 h-2 rounded-full ${statusColorClass(norma.status)}`} />
-                        <span className="leading-none text-sm text-gray-700">{norma.status}</span>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200">
+                            <span className={`inline-block w-2 h-2 rounded-full ${statusColorClass(norma.status)}`} />
+                            <span className="leading-none text-sm text-gray-700">{norma.status}</span>
+                        </span>
                     </div>
                 </td>
 
@@ -433,6 +445,7 @@ export default function TabelaNormas({
             codigo: revisao.codigo,
             titulo: revisao.titulo,
             status: revisao.status,
+            orgaoEmissor: revisao.orgao_emissor?.nome ?? revisao.orgao_emissor_id?.nome,
             categoria: revisao.categoria?.nome ?? revisao.categoria_id?.nome,
             revisao: revisao.revisao,
             arquivo: revisao.arquivo ?? null,
@@ -459,6 +472,7 @@ export default function TabelaNormas({
                     <col className={COL_CHEVRON} />
                     <col className={COL_CODIGO} />
                     <col className={COL_TITULO} />
+                    <col className={COL_ORGAO} />
                     <col className={COL_CATEGORIA} />
                     <col className={COL_STATUS} />
                     <col className={COL_DOC} />
@@ -475,6 +489,9 @@ export default function TabelaNormas({
                             TÍTULO
                         </th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">
+                            ÓRGÃO EMISSOR
+                        </th>
+                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">
                             CATEGORIA
                         </th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">
@@ -483,7 +500,7 @@ export default function TabelaNormas({
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">
                             DOCUMENTO
                         </th>
-                        <th className="text-right text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">
+                        <th className="text-center text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">
                             AÇÕES
                         </th>
                     </tr>
