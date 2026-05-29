@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { FileText, Pencil, Eye } from "lucide-react";
+import { FileText, Pencil, Eye, RefreshCw } from "lucide-react";
 import { getUserRole } from '../utils/auth';
 import { useNavigate } from "react-router-dom";
 import { listarNormas, getNormaDetalhes } from "@/services/normaService";
 import type { FiltrosSelecionados } from "@/components/FilterAside/FilterAside";
 import PdfViewerModal from "./pdf-viewer-modal";
+import UpdateVersionModal from "./update-version-modal";
 // import api from "@/services/api";
 // 1. Adicionar getNormaDetalhes ao import existente[cite: 2]
 
@@ -58,6 +59,8 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
     const [carregando, setCarregando] = useState(true);
     const [pdfModalAberto, setPdfModalAberto] = useState(false);
     const [normaSelecionadaPdf, setNormaSelecionadaPdf] = useState<NormaSelecionadaPdf | null>(null);
+    const [updateModalAberto, setUpdateModalAberto] = useState(false);
+    const [normaSelecionadaUpdate, setNormaSelecionadaUpdate] = useState<Norma | null>(null);
 
 
     useEffect(() => {
@@ -133,6 +136,7 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">STATUS</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">DOCUMENTO</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">AÇÕES</th>
+                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">DETALHES</th>
                     </tr>
                 </thead>
 
@@ -140,13 +144,13 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                 <tbody>
                     {carregando ? (
                         <tr>
-                            <td colSpan={isAdmin ? 8 : 7} className="px-6 py-6 text-sm text-gray-medium text-center">
+                            <td colSpan={8} className="px-6 py-6 text-sm text-gray-medium text-center">
                                 Carregando normas...
                             </td>
                         </tr>
                     ) : normas.length === 0 ? (
                         <tr>
-                            <td colSpan={isAdmin ? 8 : 7} className="px-6 py-6 text-sm text-gray-medium text-center">
+                            <td colSpan={8} className="px-6 py-6 text-sm text-gray-medium text-center">
                                 Nenhuma norma encontrada.
                             </td>
                         </tr>
@@ -197,16 +201,31 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                             {/* Botão de edição e visualização */}
 
                             <td className="px-6 py-4">
-                                {isAdmin && (<button className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        navigate(`/normas/editar/${encodeURIComponent(norma.codigo)}`, {
-                                            state: { norma }
-                                        });
-                                    }}>
-                                    <Pencil size={15} />
-                                    <span>Editar</span>
-                                </button>)}
+                                {isAdmin && (<>
+                                    <button className="mb-[0.16rem] flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            navigate(`/normas/editar/${encodeURIComponent(norma.codigo)}`, {
+                                                state: { norma }
+                                            });
+                                        }}>
+                                        <Pencil size={15} />
+                                        <span>Editar Norma</span>
+                                    </button>
+                                    <button className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            setNormaSelecionadaUpdate(norma);
+                                            setUpdateModalAberto(true);
+                                        }}
+                                    >
+                                        <RefreshCw size={15} />
+                                        <span>Atualizar Revisão</span>
+                                    </button>
+                                </>)}
+                            </td>
+
+                            <td className="px-6 py-4">
                                 <button className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
                                     onClick={(event) => {
                                         event.stopPropagation();
@@ -214,7 +233,7 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                                     }}
                                 >
                                     <Eye size={15} />
-                                    <span>Detalhes</span>
+                                    <span>Ver Norma</span>
                                 </button>
                             </td>
 
@@ -232,6 +251,12 @@ export default function TabelaNormas({ refreshTrigger = 0, searchText = '', filt
                 open={pdfModalAberto}
                 onOpenChange={setPdfModalAberto}
                 norma={normaSelecionadaPdf}
+            />
+
+            <UpdateVersionModal
+                open={updateModalAberto}
+                onOpenChange={setUpdateModalAberto}
+                norma={normaSelecionadaUpdate}
             />
         </div>
     );
