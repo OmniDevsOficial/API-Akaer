@@ -1,11 +1,12 @@
 import { useEffect, useState, useRef } from "react";
-import { FileText, Pencil, Eye, ChevronRight } from "lucide-react";
+import { FileText, Pencil, Eye, ChevronRight, RefreshCw } from "lucide-react";
 import { getUserRole } from '../utils/auth';
 import { useNavigate } from "react-router-dom";
 import { listarNormas, getNormaDetalhes, getRevisoesNorma } from "@/services/normaService";
 import type { FiltrosSelecionados } from "@/components/FilterAside/FilterAside";
 import type { RevisaoNorma } from "@/services/normaService";
 import PdfViewerModal from "./pdf-viewer-modal";
+import UpdateVersionModal from "./update-version-modal";
 
 //os dados do accordeon estão mocados em backend/src/routes/norma.routes.ts
 
@@ -64,15 +65,7 @@ const statusColorClass = (status: string) => {
         : 'bg-gray-400';
 };
 
-// Larguras fixas das colunas 
-const COL_CHEVRON = 'w-10';
-const COL_CODIGO = 'w-28';
-const COL_TITULO = '';
-const COL_ORGAO = '';
-const COL_CATEGORIA = 'w-40';
-const COL_STATUS = 'w-36';
-const COL_DOC = 'w-36';
-const COL_ACOES = 'w-56';
+
 
 // Accordion de revisões 
 
@@ -113,7 +106,7 @@ function AccordionRevisoes({ codigoPai, onAbrirPdfRevisao }: AccordionRevisoesPr
 
     const linhaInfo = (conteudo: React.ReactNode) => (
         <tr className="bg-[#f7f7f7] border-b border-font-border">
-            <td colSpan={7} className="pl-14 pr-6 py-3">{conteudo}</td>
+            <td colSpan={9} className="pl-14 pr-6 py-3">{conteudo}</td>
         </tr>
     );
 
@@ -129,92 +122,73 @@ function AccordionRevisoes({ codigoPai, onAbrirPdfRevisao }: AccordionRevisoesPr
 
     return (
         <>
-            {revisoes.map((rev, idx) => {
-                const isObsoleta =
-                    rev.status?.toLowerCase().includes('obsoleta') ||
-                    rev.status?.toLowerCase().includes('obsoleto');
+            {revisoes.map((rev, idx) => (
+                <tr
+                    key={rev.id ?? idx}
+                    className="accordion-row-in bg-[#f7f7f7] border-b border-font-border last:border-none"
+                    style={{ animationDelay: `${idx * 40}ms` }}
+                >
+                    {/* Indentação */}
+                    <td className="pl-4 py-2.5">
+                        {/* <div className="w-0.5 h-5 bg-gray-200 rounded-full mx-auto" /> */}
+                    </td>
 
-                return (
-                    <tr
-                        key={rev.id ?? idx}
-                        className="accordion-row-in bg-[#f7f7f7] border-b border-font-border last:border-none"
-                        style={{ animationDelay: `${idx * 40}ms` }}
-                    >
-                        {/* Indentação */}
-                        <td className={`${COL_CHEVRON} pl-4 py-3`}>
-                            <div className="w-0.5 h-5 bg-gray-200 rounded-full mx-auto" />
-                        </td>
+                    {/* CÓDIGO */}
+                    <td className="px-3 py-3 text-sm text-gray-400 font-semibold whitespace-nowrap">
+                        {rev.codigo}
+                    </td>
 
-                        {/* CÓDIGO */}
-                        <td className={`${COL_CODIGO} px-4 py-3 text-sm text-gray-400 font-semibold whitespace-nowrap`}>
-                            {rev.codigo}
-                        </td>
+                    {/* NORMA (título + revisão) */}
+                    <td className="px-3 py-3">
+                        <span className="block text-sm font-medium text-gray-400">{rev.titulo}</span>
+                        {rev.revisao && <span className="block text-xs text-gray-400/70">Rev.: {rev.revisao}</span>}
+                    </td>
 
-                        {/* TÍTULO */}
-                        <td className={`${COL_TITULO} px-6 py-3`}>
-                            <span className="block text-sm font-medium text-gray-400">{rev.titulo}</span>
-                            {rev.revisao && (
-                                <span className="block text-xs text-gray-400/70">Revisão: {rev.revisao}</span>
-                            )}
-                        </td>
+                    {/* ÓRGÃO — dash para obsoletas */}
+                    <td className="px-3 py-3 text-sm text-gray-400">-</td>
 
-                        {/* ÓRGÃO EMISSOR */}
-                        <td className={`${COL_ORGAO} px-6 py-3`}>
-                            <span className="block text-sm font-medium text-gray-400">{rev.orgao_emissor?.nome}</span>
-                            <span className="block text-xs text-gray-400/70">{rev.orgao_emissor_id?.nome ?? "—"}</span>
-                        </td>
+                    {/* CATEGORIA — dash para obsoletas */}
+                    <td className="px-3 py-3 text-sm text-gray-400">-</td>
 
-                        {/* CATEGORIA */}
-                        <td className={`${COL_CATEGORIA} px-6 py-3`}>
-                            <span className="text-sm text-gray-400 truncate block">
-                                {rev.categoria?.nome ?? rev.categoria_id?.nome ?? '—'}
-                            </span>
-                        </td>
+                    {/* STATUS */}
+                    <td className="px-3 py-3">
+                        <div className="flex items-center gap-1">
+                            <span className={`inline-block w-2 h-2 rounded-full ${statusColorClass(rev.status)}`} />
+                            <span className="leading-none text-sm text-gray-400">{rev.status}</span>
+                        </div>
+                    </td>
 
-                        {/* STATUS */}
-                        <td className={`${COL_STATUS} px-6 py-3`}>
-                            {isObsoleta ? (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200">
-                                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-400 flex-shrink-0" />
-                                    Obsoleta
-                                </span>
-                            ) : (
-                                <div className="flex items-center gap-1.5">
-                                    <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${statusColorClass(rev.status)}`} />
-                                    <span className="text-sm text-gray-400">{rev.status}</span>
-                                </div>
-                            )}
-                        </td>
-
-                        {/* DOCUMENTO */}
-                        <td className={`${COL_DOC} px-6 py-3`}>
-                            {rev.arquivo ? (
-                                <button
-                                    onClick={() => onAbrirPdfRevisao(rev)}
-                                    title="Visualizar PDF"
-                                    className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-red-akaer transition-colors"
-                                >
-                                    <FileText size={14} />
-                                    <span>PDF</span>
-                                </button>
-                            ) : (
-                                <span className="text-xs text-gray-300">—</span>
-                            )}
-                        </td>
-
-                        {/* AÇÕES */}
-                        <td className={`${COL_ACOES} px-6 py-3 text-right whitespace-nowrap`}>
+                    {/* DOCUMENTO */}
+                    <td className="px-3 py-3">
+                        {rev.arquivo ? (
                             <button
-                                onClick={() => navigate(`/normas/ver/${encodeURIComponent(rev.codigo)}`)}
-                                className="inline-flex items-center gap-1.5 text-sm text-gray-400 border border-gray-200 rounded-sm px-3 py-1.5 hover:border-gray-300 hover:text-gray-600 transition-colors bg-white"
+                                onClick={() => onAbrirPdfRevisao(rev)}
+                                title="Visualizar PDF"
+                                className="flex items-center gap-1 text-sm text-gray-400 hover:text-red-akaer transition-colors whitespace-nowrap"
                             >
-                                <Eye size={13} />
-                                <span>Ver</span>
+                                <FileText size={14} />
+                                <span>PDF</span>
                             </button>
-                        </td>
-                    </tr>
-                );
-            })}
+                        ) : (
+                            <span className="text-xs text-gray-300">—</span>
+                        )}
+                    </td>
+
+                    {/* AÇÕES — dash para obsoletas */}
+                    <td className="px-0 py-3 text-sm text-gray-400">-</td>
+
+                    {/* DETALHES */}
+                    <td className="px-3 py-3">
+                        <button
+                            className="flex items-center gap-1 text-sm text-gray-400 hover:text-red-akaer transition-colors whitespace-nowrap"
+                            onClick={() => navigate(`/normas/ver/${encodeURIComponent(rev.codigo)}`)}
+                        >
+                            <Eye size={14} />
+                            <span>Ver Norma</span>
+                        </button>
+                    </td>
+                </tr>
+            ))}
         </>
     );
 }
@@ -226,27 +200,28 @@ interface NormaRowProps {
     isAdmin: boolean;
     onAbrirPdf: (norma: Norma) => void;
     onAbrirPdfRevisao: (revisao: RevisaoNorma) => void;
+    onEditar: (norma: Norma) => void;
+    onAtualizarRevisao: (norma: Norma) => void;
 }
 
-function NormaRow({ norma, isAdmin, onAbrirPdf, onAbrirPdfRevisao }: NormaRowProps) {
+function NormaRow({ norma, isAdmin, onAbrirPdf, onAbrirPdfRevisao, onEditar, onAtualizarRevisao }: NormaRowProps) {
     const navigate = useNavigate();
     const [accordionAberto, setAccordionAberto] = useState(false);
 
-    const toggleAccordion = (e: React.MouseEvent) => {
-        e.stopPropagation();
+    const toggleAccordion = () => {
         setAccordionAberto((prev) => !prev);
     };
 
     return (
         <>
             <tr
-                className={`border-b border-font-border last:border-none transition-colors ${accordionAberto ? 'bg-red-50/40' : ''
+                onClick={toggleAccordion}
+                className={`border-b border-font-border last:border-none hover:bg-red-50/60 transition-colors cursor-pointer ${accordionAberto ? 'bg-red-50/40' : ''
                     }`}
             >
                 {/* Chevron trigger */}
-                <td className={`${COL_CHEVRON} pl-4 pr-0 py-4`}>
-                    <button
-                        onClick={toggleAccordion}
+                <td className="pl-4 pr-0 py-3">
+                    <div
                         title={accordionAberto ? 'Fechar histórico' : 'Ver histórico de revisões'}
                         className={`flex items-center justify-center w-5 h-5 rounded transition-colors ${accordionAberto ? 'text-red-akaer' : 'text-gray-400 hover:text-gray-700'
                             }`}
@@ -256,105 +231,80 @@ function NormaRow({ norma, isAdmin, onAbrirPdf, onAbrirPdfRevisao }: NormaRowPro
                             className={`transition-transform duration-300 ease-in-out ${accordionAberto ? 'rotate-90' : 'rotate-0'
                                 }`}
                         />
-                    </button>
+                    </div>
                 </td>
 
                 {/* CÓDIGO */}
-                <td className={`${COL_CODIGO} px-4 py-4 text-sm text-red-akaer font-semibold whitespace-nowrap`}>
+                <td className="px-3 py-3 text-sm text-red-akaer font-semibold whitespace-nowrap">
                     {norma.codigo}
                 </td>
 
-                {/* TÍTULO */}
-                <td className={`${COL_TITULO} px-6 py-4`}>
+                {/* NORMA (título + revisão) */}
+                <td className="px-3 py-3">
                     <span className="block text-sm font-medium text-gray-900">{norma.titulo}</span>
-                    <span className="block text-xs text-gray-medium">Revisão atual: {norma.revisao}</span>
+                    <span className="block text-xs text-gray-medium">Rev. atual: {norma.revisao}</span>
                 </td>
 
-                {/* ÓRGÃO EMISSOR */}
-                <td className={`${COL_ORGAO} px-6 py-4`}>
-                    <span className="block text-sm font-medium text-gray-900">{norma.orgao_emissor?.nome}</span>
-                    <span className="block text-sm font-medium text-gray-900">{norma.orgao_emissor_id?.nome}</span>
-                </td>
+                {/* ÓRGÃO */}
+                <td className="px-3 py-3 text-sm text-gray-700">{norma.orgao_emissor?.nome || norma.orgao_emissor_id?.nome}</td>
 
                 {/* CATEGORIA */}
-                <td className={`${COL_CATEGORIA} px-6 py-4`}>
-                    <span className="text-sm text-gray-700 truncate block">
-                        {norma.categoria?.nome ?? norma.categoria_id?.nome ?? '—'}
-                    </span>
-                </td>
+                <td className="px-3 py-3 text-sm text-gray-700">{norma.categoria?.nome || norma.categoria_id?.nome}</td>
 
                 {/* STATUS */}
-                <td className={`${COL_STATUS} px-6 py-4`}>
-                    <div className="flex items-center gap-1.5">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200">
-                            <span className={`inline-block w-2 h-2 rounded-full ${statusColorClass(norma.status)}`} />
-                            <span className="leading-none text-sm text-gray-700">{norma.status}</span>
-                        </span>
+                <td className="px-3 py-3">
+                    <div className="flex items-center gap-1">
+                        <span className={`inline-block w-2 h-2 rounded-full ${statusColorClass(norma.status)}`} />
+                        <span className="leading-none text-sm text-gray-700">{norma.status}</span>
                     </div>
                 </td>
 
                 {/* DOCUMENTO */}
-                <td className={`${COL_DOC} px-6 py-4`}>
+                <td className="px-3 py-3">
                     <button
                         onClick={(e) => { e.stopPropagation(); onAbrirPdf(norma); }}
                         title="Visualizar PDF"
-                        className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-red-akaer transition-colors"
+                        className="flex items-center gap-1 text-sm text-gray-700 hover:text-red-akaer transition-colors whitespace-nowrap"
                     >
-                        <FileText size={15} />
+                        <FileText size={14} />
                         <span>PDF</span>
                     </button>
                 </td>
 
                 {/* AÇÕES */}
-                <td className={`${COL_ACOES} px-6 py-4 text-right whitespace-nowrap`}>
-                    {isAdmin ? (
-                        <div className="inline-flex items-center gap-2">
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    navigate(`/normas/ver/${encodeURIComponent(norma.codigo)}`);
-                                }}
-                                className="inline-flex items-center gap-1.5 text-sm text-gray-700 border border-gray-300 rounded-sm px-3 py-1.5 hover:border-gray-400 hover:text-gray-900 transition-colors bg-white"
-                            >
-                                <Eye size={13} />
-                                <span>Ver</span>
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    navigate(`/normas/editar/${encodeURIComponent(norma.codigo)}`, {
-                                        state: {
-                                            norma: {
-                                                id: norma.id,
-                                                codigo: norma.codigo,
-                                                titulo: norma.titulo,
-                                                revisao: norma.revisao,
-                                                status: norma.status,
-                                                arquivo: norma.arquivo,
-                                                orgaoEmissor: norma.orgao_emissor?.nome ?? norma.orgao_emissor_id?.nome,
-                                                categoria: norma.categoria?.nome ?? norma.categoria_id?.nome,
-                                            }
-                                        }
-                                    });
-                                }}
-                                className="inline-flex items-center gap-1.5 text-sm text-gray-700 border border-gray-300 rounded-sm px-3 py-1.5 hover:border-gray-400 hover:text-gray-900 transition-colors bg-white"
-                            >
-                                <Pencil size={13} />
-                                <span>Editar</span>
-                            </button>
-                        </div>
-                    ) : (
-                        <button
+                <td className="px-0 py-4">
+                    {isAdmin && (<>
+                        <button className="mb-[0.16rem] flex items-center gap-1 text-sm text-gray-700 hover:text-red-akaer transition-colors whitespace-nowrap"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                navigate(`/normas/ver/${encodeURIComponent(norma.codigo)}`);
-                            }}
-                            className="inline-flex items-center gap-1.5 text-sm text-gray-700 border border-gray-300 rounded-sm px-3 py-1.5 hover:border-gray-400 hover:text-gray-900 transition-colors bg-white"
-                        >
-                            <Eye size={13} />
-                            <span>Ver</span>
+                                onEditar(norma);
+                            }}>
+                            <Pencil size={14} />
+                            <span>Editar Norma</span>
                         </button>
-                    )}
+                        <button className="flex items-center gap-1 text-sm text-gray-700 hover:text-red-akaer transition-colors whitespace-nowrap"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onAtualizarRevisao(norma);
+                            }}
+                        >
+                            <RefreshCw size={14} />
+                            <span>Atualizar Revisão</span>
+                        </button>
+                    </>)}
+                </td>
+
+                {/* DETALHES */}
+                <td className="px-3 py-3">
+                    <button className="flex items-center gap-1 text-sm text-gray-700 hover:text-red-akaer transition-colors whitespace-nowrap"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/normas/ver/${encodeURIComponent(norma.codigo)}`);
+                        }}
+                    >
+                        <Eye size={14} />
+                        <span>Ver Norma</span>
+                    </button>
                 </td>
             </tr>
 
@@ -376,6 +326,7 @@ export default function TabelaNormas({
     searchText = '',
     filtros,
 }: TabelaNormasProps) {
+    const navigate = useNavigate();
     const role = getUserRole();
     const isAdmin = role?.toLowerCase() === 'admin';
 
@@ -384,6 +335,8 @@ export default function TabelaNormas({
     const [carregando, setCarregando] = useState(true);
     const [pdfModalAberto, setPdfModalAberto] = useState(false);
     const [normaSelecionadaPdf, setNormaSelecionadaPdf] = useState<NormaSelecionadaPdf | null>(null);
+    const [updateModalAberto, setUpdateModalAberto] = useState(false);
+    const [normaSelecionadaUpdate, setNormaSelecionadaUpdate] = useState<Norma | null>(null);
 
     useEffect(() => {
         const carregarNormas = async () => {
@@ -465,57 +418,55 @@ export default function TabelaNormas({
         }
     };
 
-    return (
-        <div className="border border-font-border rounded-lg overflow-hidden">
-            <table className="w-full table-fixed">
-                <colgroup>
-                    <col className={COL_CHEVRON} />
-                    <col className={COL_CODIGO} />
-                    <col className={COL_TITULO} />
-                    <col className={COL_ORGAO} />
-                    <col className={COL_CATEGORIA} />
-                    <col className={COL_STATUS} />
-                    <col className={COL_DOC} />
-                    <col className={COL_ACOES} />
-                </colgroup>
+    const handleEditar = (norma: Norma) => {
+        navigate(`/normas/editar/${encodeURIComponent(norma.codigo)}`, {
+            state: {
+                norma: {
+                    id: norma.id,
+                    codigo: norma.codigo,
+                    titulo: norma.titulo,
+                    revisao: norma.revisao,
+                    status: norma.status,
+                    arquivo: norma.arquivo,
+                    orgaoEmissor: norma.orgao_emissor?.nome ?? norma.orgao_emissor_id?.nome,
+                    categoria: norma.categoria?.nome ?? norma.categoria_id?.nome,
+                }
+            }
+        });
+    };
 
+    const handleAtualizarRevisao = (norma: Norma) => {
+        setNormaSelecionadaUpdate(norma);
+        setUpdateModalAberto(true);
+    };
+
+    return (
+        <div className="border border-font-border rounded-lg overflow-x-auto">
+            <table className="w-full min-w-[920px]">
                 <thead>
                     <tr className="border-b border-font-border">
                         <th className="w-10" />
-                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-4 py-3">
-                            CÓDIGO
-                        </th>
-                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">
-                            TÍTULO
-                        </th>
-                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">
-                            ÓRGÃO EMISSOR
-                        </th>
-                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">
-                            CATEGORIA
-                        </th>
-                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">
-                            STATUS
-                        </th>
-                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">
-                            DOCUMENTO
-                        </th>
-                        <th className="text-center text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">
-                            AÇÕES
-                        </th>
+                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-3 py-3 whitespace-nowrap">CÓDIGO</th>
+                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-3 py-3 whitespace-nowrap">NORMA</th>
+                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-3 py-3 whitespace-nowrap">ÓRGÃO</th>
+                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-3 py-3 whitespace-nowrap">CATEGORIA</th>
+                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-3 py-3 whitespace-nowrap">STATUS</th>
+                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-3 py-3 whitespace-nowrap">DOCUMENTO</th>
+                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-0 py-3 whitespace-nowrap">AÇÕES</th>
+                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-3 py-3 whitespace-nowrap">DETALHES</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     {carregando ? (
                         <tr>
-                            <td colSpan={7} className="px-6 py-6 text-sm text-gray-medium text-center">
+                            <td colSpan={9} className="px-6 py-6 text-sm text-gray-medium text-center">
                                 Carregando normas...
                             </td>
                         </tr>
                     ) : normas.length === 0 ? (
                         <tr>
-                            <td colSpan={7} className="px-6 py-6 text-sm text-gray-medium text-center">
+                            <td colSpan={9} className="px-6 py-6 text-sm text-gray-medium text-center">
                                 Nenhuma norma encontrada.
                             </td>
                         </tr>
@@ -527,6 +478,8 @@ export default function TabelaNormas({
                                 isAdmin={isAdmin}
                                 onAbrirPdf={abrirPdf}
                                 onAbrirPdfRevisao={abrirPdfRevisao}
+                                onEditar={handleEditar}
+                                onAtualizarRevisao={handleAtualizarRevisao}
                             />
                         ))
                     )}
@@ -543,6 +496,12 @@ export default function TabelaNormas({
                 open={pdfModalAberto}
                 onOpenChange={setPdfModalAberto}
                 norma={normaSelecionadaPdf}
+            />
+
+            <UpdateVersionModal
+                open={updateModalAberto}
+                onOpenChange={setUpdateModalAberto}
+                norma={normaSelecionadaUpdate}
             />
         </div>
     );

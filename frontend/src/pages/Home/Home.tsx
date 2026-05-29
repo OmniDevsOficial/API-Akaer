@@ -64,7 +64,7 @@ export default function Home() {
                 <div className="flex flex-col flex-1 h-full overflow-hidden">
                     <Header />
 
-                    <main className="flex-1 p-8">
+                    <main className="flex-1 min-h-0 overflow-y-auto p-8">
                         <h2 className="text-red-akaer font-bold text-sm tracking-widest mb-2">GERENCIAMENTO</h2>
 
                         <div className='flex justify-between items-center'>
