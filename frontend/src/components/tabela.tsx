@@ -82,7 +82,7 @@ interface AccordionRevisoesProps {
     onAbrirPdfRevisao: (revisao: RevisaoNorma) => void;
 }
 
-function AccordionRevisoes({ codigoPai, isAdmin, onAbrirPdfRevisao }: AccordionRevisoesProps) {
+function AccordionRevisoes({ codigoPai, onAbrirPdfRevisao }: AccordionRevisoesProps) {
     const navigate = useNavigate();
     const [revisoes, setRevisoes] = useState<RevisaoNorma[]>([]);
     const [carregando, setCarregando] = useState(true);
