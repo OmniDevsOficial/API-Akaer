@@ -31,6 +31,8 @@ export default function Home() {
         (v) => Array.isArray(v) && v.length > 0
     );
 
+    const [ordem, setOrdem] = useState<'recentes' | 'antigas' | 'az' | 'za'>('recentes');
+
     const handleCadastroSucesso = () => {
         setRecarregarTabela((anterior) => anterior + 1);
     };
@@ -119,6 +121,8 @@ export default function Home() {
                             onBuscaChange={setBuscaNorma}
                             onOpenFilters={() => setFiltroModalOpen(true)}
                             filtrosAtivos={filtrosAtivos}
+                            onOrdenar={(novaOrdem) => setOrdem(novaOrdem)}
+                            ordemAtual={ordem}
                         />
 
                         <FilterAside
@@ -131,6 +135,7 @@ export default function Home() {
                             refreshTrigger={recarregarTabela}
                             searchText={buscaNorma}
                             filtros={filtrosSelecionados}
+                            ordem={ordem}
                         />
                     </main>
                 </div>

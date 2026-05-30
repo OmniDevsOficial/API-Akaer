@@ -8,7 +8,7 @@ import type { RevisaoNorma } from "@/services/normaService";
 import PdfViewerModal from "./pdf-viewer-modal";
 import UpdateVersionModal from "./update-version-modal";
 
-//os dados do accordeon estão mocados em backend/src/routes/norma.routes.ts
+//os dados do accordion estão mocados em backend/src/routes/norma.routes.ts
 
 export interface Norma {
     id: number;
@@ -40,6 +40,7 @@ export interface TabelaNormasProps {
     refreshTrigger?: number;
     searchText?: string;
     filtros?: FiltrosSelecionados;
+    ordem: 'recentes' | 'antigas' | 'az' | 'za';
 }
 
 
@@ -153,8 +154,10 @@ function AccordionRevisoes({ codigoPai, onAbrirPdfRevisao }: AccordionRevisoesPr
                     {/* STATUS */}
                     <td className="px-3 py-3">
                         <div className="flex items-center gap-1">
-                            <span className={`inline-block w-2 h-2 rounded-full ${statusColorClass(rev.status)}`} />
-                            <span className="leading-none text-sm text-gray-400">{rev.status}</span>
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200">
+                                <span className={`inline-block w-2 h-2 rounded-full ${statusColorClass(rev.status)}`} />
+                                <span className="leading-none text-sm text-gray-400">{rev.status}</span>
+                            </span>
                         </div>
                     </td>
 
@@ -254,8 +257,10 @@ function NormaRow({ norma, isAdmin, onAbrirPdf, onAbrirPdfRevisao, onEditar, onA
                 {/* STATUS */}
                 <td className="px-3 py-3">
                     <div className="flex items-center gap-1">
-                        <span className={`inline-block w-2 h-2 rounded-full ${statusColorClass(norma.status)}`} />
-                        <span className="leading-none text-sm text-gray-700">{norma.status}</span>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200">
+                            <span className={`inline-block w-2 h-2 rounded-full ${statusColorClass(norma.status)}`} />
+                            <span className="leading-none text-sm text-gray-700">{norma.status}</span>
+                        </span>
                     </div>
                 </td>
 
@@ -325,6 +330,7 @@ export default function TabelaNormas({
     refreshTrigger = 0,
     searchText = '',
     filtros,
+    ordem,
 }: TabelaNormasProps) {
     const navigate = useNavigate();
     const role = getUserRole();
@@ -337,6 +343,38 @@ export default function TabelaNormas({
     const [normaSelecionadaPdf, setNormaSelecionadaPdf] = useState<NormaSelecionadaPdf | null>(null);
     const [updateModalAberto, setUpdateModalAberto] = useState(false);
     const [normaSelecionadaUpdate, setNormaSelecionadaUpdate] = useState<Norma | null>(null);
+
+
+    const normasFiltradas = normas.filter((norma) => {
+        if (!searchText.trim()) return true;
+
+        const textoBusca = searchText.toLowerCase();
+        // Garante que não vai quebrar se a norma vier sem título ou código
+        const titulo = norma.titulo ? norma.titulo.toLowerCase() : '';
+        const codigo = norma.codigo ? norma.codigo.toLowerCase() : '';
+
+        return titulo.includes(textoBusca) || codigo.includes(textoBusca);
+    });
+
+    // ORDENAR OS DADOS FILTRADOS
+    const normasOrdenadas = [...normasFiltradas].sort((a, b) => {
+        if (ordem === 'az') {
+            return a.titulo.localeCompare(b.titulo);
+        }
+        if (ordem === 'za') {
+            return b.titulo.localeCompare(a.titulo);
+        }
+        if (ordem === 'recentes') {
+            // Se não tem data, o ID maior é o cadastro mais novo
+            return b.id - a.id;
+        }
+        if (ordem === 'antigas') {
+            // ID menor é o cadastro mais velho
+            return a.id - b.id;
+        }
+
+        return 0;
+    });
 
     useEffect(() => {
         const carregarNormas = async () => {
@@ -471,7 +509,7 @@ export default function TabelaNormas({
                             </td>
                         </tr>
                     ) : (
-                        normas.map((norma) => (
+                        normasOrdenadas.map((norma) => (
                             <NormaRow
                                 key={norma.id}
                                 norma={norma}
