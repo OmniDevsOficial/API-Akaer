@@ -140,7 +140,7 @@ export default function TabelaSolicitar({
 
     const handleConcluirSolicitacao = (id: number) => {
         setSolicitacoes(prev =>
-            prev.map(s => s.id === id ? { ...s, status: 'Concluida' } : s)
+            prev.map(s => s.id === id ? { ...s, status: 'Concluída' } : s)
         );
     };
 
@@ -216,8 +216,11 @@ export default function TabelaSolicitar({
                                     <td className="px-6 py-4 text-sm text-gray-700">{s.cargo}</td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-1.5">
-                                            <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${statusColorClass(s.status)}`} />
-                                            <span className="text-sm leading-none text-gray-700">{s.status}</span>
+                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200">
+
+                                                <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${statusColorClass(s.status)}`} />
+                                                <span className="text-sm leading-none text-gray-700">{s.status}</span>
+                                            </span>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-700">

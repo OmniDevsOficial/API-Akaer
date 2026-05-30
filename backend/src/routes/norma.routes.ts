@@ -17,6 +17,46 @@ const handleUpload = (req: Request, res: Response, next: NextFunction) => {
   });
 };
 
+// dados mocados para teste de visualização de normas obsoletas.
+router.get("/:codigo/revisoes", authMiddleware, (req: Request, res: Response) => {
+  const { codigo } = req.params;
+
+  const revisoesMock = [
+    {
+      id: 901,
+      codigo: `${codigo} (REV-A)`,
+      titulo: `${codigo} (Obsoleta)`,
+      revisao: "A",
+      status: "Obsoleta",
+      arquivo: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      categoria: { nome: "Qualidade" },
+      data_publicacao: "2021-03-15",
+    },
+    {
+      id: 902,
+      codigo: `${codigo} (REV-B)`,
+      titulo: `${codigo} (Obsoleta)`,
+      revisao: "B",
+      status: "Obsoleta",
+      arquivo: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      categoria: { nome: "Qualidade" },
+      data_publicacao: "2022-07-20",
+    },
+    {
+      id: 903,
+      codigo: `${codigo} (REV-C)`,
+      titulo: `${codigo} (Obsoleta)`,
+      revisao: "C",
+      status: "Obsoleta",
+      arquivo: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      categoria: { nome: "Manutenção" },
+      data_publicacao: "2023-11-01",
+    },
+  ];
+
+  res.json(revisoesMock);
+});
+
 router.get("/listar", authMiddleware, searchNormas);
 router.get("/:codigo/documento", authMiddleware, getNormaDocumento);
 router.get("/:codigo", getNormaByCode);
