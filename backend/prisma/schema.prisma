@@ -40,6 +40,8 @@ model User {
   ativo     Boolean  @default(true)
   criado_em DateTime @default(now())
 
+  // Relacionamentos mapeados localmente
+  normas       Norma[]
   solicitacoes SolicitacaoNorma[]
 
   @@map("users")
@@ -71,32 +73,23 @@ model EtapaProjeto {
 
 model Norma {
   id               Int          @id @default(autoincrement())
-
-  // Identificador único desta revisão específica (ex: "AERO-001-A").
-  // Mantém compatibilidade com as FKs das tabelas filhas.
   codigo           String       @unique @db.VarChar(50)
-
-  // Critério 1 — Agrupador: identifica que "AERO-001-A" e "AERO-001-B"
-  // são revisões do mesmo documento.
   codigo_base      String       @db.VarChar(50)
-
   titulo           String       @db.VarChar(255)
   orgao_emissor_id Int
   categoria_id     Int
   etapa_projeto_id Int?
-
-  // Revisão torna-se obrigatória para garantir rastreabilidade completa.
   revisao          String       @db.VarChar(20)
-
-  // Critério 3 — Vigência: apenas uma linha com is_vigente = true
-  // por codigo_base. Controlado via $transaction no service.
   is_vigente       Boolean      @default(false)
-
   status           norma_status @default(Ativa)
   data_publicacao  DateTime     @db.Date
   arquivo          String       @db.VarChar(500)
   escopo           String?
   palavras_chave   Json?
+
+  // Chave estrangeira e relação com o usuário criador (Inclusão local)
+  criador_id       Int
+  criador          User         @relation(fields: [criador_id], references: [id])
 
   notas               NormaNota[]
   normas_relacionadas NormaRelacionada[] @relation("NormaRelacionadasOrigem")
@@ -107,7 +100,6 @@ model Norma {
   categoria     Categoria     @relation(fields: [categoria_id], references: [id])
   etapa_projeto EtapaProjeto? @relation(fields: [etapa_projeto_id], references: [id])
 
-  // Impede duplicatas: não pode existir "AERO-001" revisão "A" duas vezes.
   @@unique([codigo_base, revisao])
   @@map("norma")
 }
@@ -146,9 +138,13 @@ model SolicitacaoNorma {
   motivo_rejeicao  String?            @db.Text
   data_criacao     DateTime           @default(now())
 
-  usuario_id Int
-  usuario    User   @relation(fields: [usuario_id], references: [id])
-  norma      Norma? @relation(fields: [norma_id], references: [codigo])
+  // Novas colunas obrigatórias (Inclusão local)
+  telefone         String             @db.VarChar(30)
+  cargo            String             @db.VarChar(40)
+
+  usuario_id       Int
+  usuario          User   @relation(fields: [usuario_id], references: [id])
+  norma            Norma? @relation(fields: [norma_id], references: [codigo])
 
   @@map("solicitacoes_normas")
 }
