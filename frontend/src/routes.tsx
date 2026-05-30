@@ -3,17 +3,20 @@ import LoginPage from "./pages/Login/Login";
 import Home from './pages/Home/Home';
 import Solicitar from './pages/Solicitar/solicitar';
 import Visualizar from "./pages/Normas/Visualizar";
-import Editar from './pages/Editar/Editar'
-import Usuario from './pages/usuario/usuario'
+import Editar from './pages/Editar/Editar';
+import Usuario from './pages/usuario/usuario';
+import Perfil from './pages/perfil/perfil';
 
 const routes = [
-    {element: <LoginPage />, path: "/"},
-    {element: <Home />, path: "/home"},
-    {element: <Solicitar />, path: "/solicitar"},
-    {element: <Visualizar />, path: "/normas/ver/:codigo"},
-    {element: <Editar />, path: "/normas/editar/:codigo"},
-    { element: <Usuario />, path: "/usuario" }
+    { element: <LoginPage />, path: "/" },
+    { element: <Home />, path: "/home" },
+    { element: <Solicitar />, path: "/solicitar" },
+    { element: <Visualizar />, path: "/normas/ver/:codigo" },
+    { element: <Editar />, path: "/normas/editar/:codigo" },
+    { element: <Usuario />, path: "/usuario" },
+    { element: <Perfil />, path: "/perfil" },
 ];
+
 const Router = () => {
     return (
         <BrowserRouter>
@@ -23,7 +26,7 @@ const Router = () => {
                 ))}
             </Routes>
         </BrowserRouter>
-    )
-}
+    );
+};
 
 export default Router;
