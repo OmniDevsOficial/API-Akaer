@@ -1,31 +1,25 @@
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from './ui/button';
-import { Check } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { FileUpload } from './ui/file-upload';
 import type { Norma } from './tabela';
+import api from '@/services/api';
 
-// ── Dados mockados ──────────────────────────────────────────────────────────
-const MOCK_NORMA = {
-    codigo: 'SAE ARP 4754A',
-    titulo: 'Certificação de Gestão de Sistemas e Equipamentos',
-    orgaoEmissor: 'SAE International',
-    categoria: 'Aeronavegabilidade',
-    status: 'Ativa',
-    etapaProjeto: 'Projeto Conceitual',
-    revisaoAtual: 'C',
-    escopo:
-        'Estabelece diretrizes para a certificação de sistemas e equipamentos em aeronaves, garantindo conformidade com padrões internacionais de segurança e qualidade.',
-    palavrasChave: ['certificação', 'gestão', 'segurança'],
-    notas: [
-        { id: 1, texto: 'Norma revisada conforme última atualização do órgão emissor.' },
-        { id: 2, texto: 'Aplicável a projetos em fase conceitual e de desenvolvimento.' },
-    ],
-    normasRelacionadas: [
-        { codigo: 'SAE ARP 4761', titulo: 'Safety Assessment Process' },
-        { codigo: 'DO-178C', titulo: 'Software Considerations in Airborne Systems' },
-    ],
-};
+interface NormaDetalhe {
+    id: number;
+    codigo: string;
+    titulo: string;
+    revisao?: string | null;
+    orgao_emissor?: { nome: string };
+    categoria?: { nome: string };
+    status: string;
+    etapa_projeto?: string;
+    escopo?: string;
+    palavras_chave?: string[];
+    notas?: { id: number; texto: string }[];
+    normas_relacionadas?: { codigo: string; titulo: string }[];
+}
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -59,54 +53,90 @@ interface UpdateVersionModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     norma: Norma | null;
+    onSuccess?: () => void;
 }
 
 // ── Componente ───────────────────────────────────────────────────────────────
 
-export default function UpdateVersionModal({ 
-    open, 
-    onOpenChange, 
-    // norma
- }: UpdateVersionModalProps) {
+export default function UpdateVersionModal({
+    open,
+    onOpenChange,
+    norma,
+    onSuccess
+}: UpdateVersionModalProps) {
+    const [detalhe, setDetalhe] = useState<NormaDetalhe | null>(null);
+    const [loadingDetalhe, setLoadingDetalhe] = useState(false);
+
     const [dataPublicacao, setDataPublicacao] = useState('');
     const [arquivoNorma, setArquivoNorma] = useState<File | null>(null);
     const [concluido, setConcluido] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [erro, setErro] = useState<string | null>(null);
 
-    // Dados mockados (ignora a norma real da tabela)
-    const mock = MOCK_NORMA;
-    const proximaRevisao = calcularProximaRevisao(mock.revisaoAtual);
+    const proximaRevisao = calcularProximaRevisao(detalhe?.revisao);
 
     // Limpa estado ao abrir/fechar
     useEffect(() => {
-        if (open) {
-            setDataPublicacao('');
-            setArquivoNorma(null);
-            setConcluido(false);
-        }
-    }, [open]);
+        if (!open || !norma) return;
 
-    const handleSubmit = (e: React.FormEvent) => {
+        setDataPublicacao('');
+        setArquivoNorma(null);
+        setConcluido(false);
+        setErro(null);
+        setDetalhe(null);
+
+        const fetchDetalhe = async () => {
+            try {
+                setLoadingDetalhe(true);
+                const { data } = await api.get<NormaDetalhe>(`/normas/${norma.codigo}`);
+                setDetalhe(data);
+            } catch {
+                setErro('Não foi possível carregar os dados da norma.');
+            } finally {
+                setLoadingDetalhe(false);
+            }
+        };
+
+        fetchDetalhe();
+    }, [open, norma]);
+
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        ;
         e.preventDefault();
+        setErro(null);
+
+        if (!detalhe) return;
 
         if (!arquivoNorma) {
-            alert('É obrigatório enviar o novo PDF da revisão.');
+            setErro('É obrigatório enviar o novo PDF da revisão.');
             return;
         }
 
         if (dataPublicacao.length !== 10) {
-            alert('A data de publicação deve estar no formato completo: DD/MM/AAAA');
+            setErro('A data de publicação deve estar no formato completo: DD/MM/AAAA');
             return;
         }
 
-        console.log('✅ Revisão atualizada (mock):', {
-            codigo: mock.codigo,
-            titulo: mock.titulo,
-            novaRevisao: proximaRevisao,
-            dataPublicacao,
-            arquivo: arquivoNorma.name,
+        const formData = new FormData(); const arquivoLimpo = new File([arquivoNorma], arquivoNorma.name, {
+            type: arquivoNorma.type,
         });
+        formData.append('file', arquivoLimpo)
 
-        setConcluido(true);
+        try {
+            setIsLoading(true);
+            await api.post(`/normas/${encodeURIComponent(detalhe.codigo)}/revisao`, formData);
+            setConcluido(true);
+            onSuccess?.();
+        } catch (err: any) {
+            setErro(
+                err?.response?.data?.error ||
+                err?.response?.data?.message ||
+                'Erro ao atualizar a revisão. Tente novamente.'
+            );
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleOpenChange = (nextOpen: boolean) => {
@@ -114,6 +144,8 @@ export default function UpdateVersionModal({
             setDataPublicacao('');
             setArquivoNorma(null);
             setConcluido(false);
+            setErro(null);
+            setDetalhe(null);
         }
         onOpenChange(nextOpen);
     };
@@ -123,6 +155,8 @@ export default function UpdateVersionModal({
         'bg-gray-200/80 border rounded h-10 px-2 text-gray-500 cursor-not-allowed';
     const disabledTextareaClass =
         'bg-gray-200/80 border rounded p-3 min-h-24 text-gray-500 cursor-not-allowed resize-none';
+
+    if (!norma) return null;
 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -137,7 +171,11 @@ export default function UpdateVersionModal({
                 </div>
                 <hr className="!mt-0" />
 
-                {concluido ? (
+                {loadingDetalhe ? (
+                    <div className="flex items-center justify-center py-32">
+                        <Loader2 className="animate-spin w-8 h-8 text-gray-400" />
+                    </div>
+                ) : concluido ? (
                     <>
                         {/* Tela de sucesso */}
                         <div className="flex flex-col items-center justify-center py-24 gap-4">
@@ -155,10 +193,7 @@ export default function UpdateVersionModal({
                         <hr />
 
                         <div className="flex justify-end mx-8 items-center mb-4">
-                            <Button
-                                size="lg"
-                                className="hover:bg-black/80"
-                                onClick={() => handleOpenChange(false)}
+                            <Button size="lg" className="hover:bg-black/80" onClick={() => handleOpenChange(false)}
                             >
                                 Fechar
                             </Button>
@@ -186,44 +221,26 @@ export default function UpdateVersionModal({
                                     {/* Título — bloqueado */}
                                     <div className="flex flex-col text-start gap-1">
                                         <label className="text-lg text-gray-600 mb-0 leading-none">TÍTULO</label>
-                                        <input
-                                            className={disabledInputClass}
-                                            value={mock.titulo}
-                                            disabled
-                                        />
+                                        <input className={disabledInputClass} value={detalhe?.titulo ?? ''} disabled />
                                     </div>
 
                                     {/* Órgão Emissor — bloqueado */}
                                     <div className="flex flex-col text-start gap-1">
                                         <label className="text-lg text-gray-600 mb-0 leading-none">ÓRGÃO EMISSOR</label>
-                                        <input
-                                            className={disabledInputClass}
-                                            value={mock.orgaoEmissor}
-                                            disabled
-                                        />
+                                        <input className={disabledInputClass} value={detalhe?.orgao_emissor?.nome ?? ''} disabled />
                                     </div>
 
                                     {/* Status — bloqueado */}
                                     <div className="flex flex-col text-start gap-1">
                                         <label className="text-lg text-gray-600 mb-0 leading-none">STATUS</label>
-                                        <input
-                                            className={disabledInputClass}
-                                            value={mock.status}
-                                            disabled
-                                        />
+                                        <input className={disabledInputClass} value={detalhe?.status ?? ''} disabled />
                                     </div>
 
                                     {/* Etapa do Projeto — bloqueado */}
                                     <div className="flex flex-col text-start gap-1">
                                         <label className="text-lg text-gray-600 mb-0 leading-none">ETAPA DO PROJETO</label>
-                                        <input
-                                            className={disabledInputClass}
-                                            value={mock.etapaProjeto}
-                                            disabled
-                                        />
-                                        <span className="text-xs text-gray-400 invisible" aria-hidden="true">
-                                            Espaco reservado
-                                        </span>
+                                        <input className={disabledInputClass} value={detalhe?.etapa_projeto ?? ''} disabled />
+                                        <span className="text-xs text-gray-400 invisible" aria-hidden="true">Espaço reservado</span>
                                     </div>
                                 </div>
 
@@ -232,21 +249,13 @@ export default function UpdateVersionModal({
                                     {/* Código — bloqueado */}
                                     <div className="flex flex-col text-start gap-1">
                                         <label className="text-lg text-gray-600 mb-0 leading-none">CÓDIGO</label>
-                                        <input
-                                            className={disabledInputClass}
-                                            value={mock.codigo}
-                                            disabled
-                                        />
+                                        <input className={disabledInputClass} value={detalhe?.codigo ?? ''} disabled />
                                     </div>
 
                                     {/* Categoria — bloqueado */}
                                     <div className="flex flex-col text-start gap-1">
                                         <label className="text-lg text-gray-600 mb-0 leading-none">CATEGORIA</label>
-                                        <input
-                                            className={disabledInputClass}
-                                            value={mock.categoria}
-                                            disabled
-                                        />
+                                        <input className={disabledInputClass} value={detalhe?.categoria?.nome ?? ''} disabled />
                                     </div>
 
                                     {/* Data de Publicação — EDITÁVEL */}
@@ -258,9 +267,7 @@ export default function UpdateVersionModal({
                                             className="bg-gray-100/80 border rounded h-10 px-2"
                                             placeholder="Ex: dd/mm/aaaa"
                                             value={dataPublicacao}
-                                            onChange={(e) =>
-                                                setDataPublicacao(formatarDataBrasileira(e.target.value))
-                                            }
+                                            onChange={(e) => setDataPublicacao(formatarDataBrasileira(e.target.value))}
                                             inputMode="numeric"
                                             maxLength={10}
                                             required
@@ -272,38 +279,27 @@ export default function UpdateVersionModal({
                                         <label className="text-lg text-gray-600 mb-0 leading-none">
                                             REVISÃO <span className="text-red-akaer">*</span>
                                         </label>
-                                        <input
-                                            className={disabledInputClass}
-                                            value={proximaRevisao}
-                                            disabled
-                                        />
+                                        <input className={disabledInputClass} value={proximaRevisao} disabled />
                                         <span className="text-xs text-gray-400">
-                                            Revisão atual: {mock.revisaoAtual} → Nova: {proximaRevisao}
+                                            Revisão atual: {detalhe?.revisao ?? '—'} → Nova: {proximaRevisao}
                                         </span>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Escopo — bloqueado */}
+                            {/* Escopo, palavras-chave, notas, normas correlacionadas */}
                             <div className="mx-8 mt-6">
                                 <div className="flex flex-col text-start gap-1 mb-5">
                                     <label className="text-lg text-gray-600">ESCOPO</label>
-                                    <textarea
-                                        className={disabledTextareaClass}
-                                        value={mock.escopo}
-                                        disabled
-                                    />
+                                    <textarea className={disabledTextareaClass} value={detalhe?.escopo ?? ''} disabled />
                                 </div>
 
                                 {/* Palavras-chave — bloqueado */}
                                 <div className="flex flex-col text-start mb-5">
                                     <label className="text-lg text-gray-600">PALAVRAS-CHAVE</label>
                                     <div className="flex flex-wrap gap-2 border rounded p-3 bg-gray-200/60 cursor-not-allowed">
-                                        {mock.palavrasChave.map((item, index) => (
-                                            <div
-                                                key={index}
-                                                className="px-2 py-1 rounded bg-red-50 text-sm flex items-center gap-2 text-gray-500"
-                                            >
+                                        {(detalhe?.palavras_chave ?? []).map((item: string, index: number) => (
+                                            <div key={index} className="px-2 py-1 rounded bg-red-50 text-sm flex items-center gap-2 text-gray-500">
                                                 {item}
                                             </div>
                                         ))}
@@ -315,11 +311,8 @@ export default function UpdateVersionModal({
                                     <label className="text-lg text-gray-600">NOTAS</label>
                                     <div className="rounded-md border border-gray-200 bg-gray-100/60 p-3 cursor-not-allowed">
                                         <ul className="flex flex-col gap-1.5">
-                                            {mock.notas.map((nota, index) => (
-                                                <li
-                                                    key={nota.id}
-                                                    className="flex items-start gap-2.5 rounded-md border border-gray-200 bg-white px-3 py-2.5"
-                                                >
+                                            {(detalhe?.notas ?? []).map((nota, index) => (
+                                                <li key={nota.id} className="flex items-start gap-2.5 rounded-md border border-gray-200 bg-white px-3 py-2.5">
                                                     <span className="mt-0.5 shrink-0 rounded bg-gray-200 px-1.5 py-0.5 text-[11px] text-black select-none">
                                                         {index + 1}
                                                     </span>
@@ -336,11 +329,8 @@ export default function UpdateVersionModal({
                                 <div className="flex flex-col text-start my-6">
                                     <label className="text-lg text-gray-600">NORMAS CORRELACIONADAS</label>
                                     <div className="flex flex-wrap gap-2 mt-1 cursor-not-allowed">
-                                        {mock.normasRelacionadas.map((n) => (
-                                            <div
-                                                key={n.codigo}
-                                                className="flex items-center gap-2 px-2 py-1 rounded bg-[#FAF9F7] text-gray-500 text-sm border border-font-border rounded-sm"
-                                            >
+                                        {(detalhe?.normas_relacionadas ?? []).map((n) => (
+                                            <div key={n.codigo} className="flex items-center gap-2 px-2 py-1 rounded bg-[#FAF9F7] text-gray-500 text-sm border border-font-border">
                                                 {n.codigo} - {n.titulo}
                                             </div>
                                         ))}
@@ -349,24 +339,31 @@ export default function UpdateVersionModal({
                             </div>
                         </div>
 
+                        {/* Mensagem de erro */}
+                        {erro && (
+                            <p className="mx-8 text-sm text-red-500 text-start -mb-2">{erro}</p>
+                        )}
+
                         {/* Footer */}
                         <div className="grid grid-cols-2 mx-8 items-center py-4 border-t">
                             <div className="text-start">
                                 Campos com <span className="text-red-akaer">*</span> são Obrigatórios
                             </div>
                             <div className="flex justify-end">
-                                <Button
-                                    type="button"
-                                    size="lg"
-                                    className="ml-auto border border-gray-600/40 hover:bg-gray-200"
-                                    variant="secondary"
-                                    onClick={() => handleOpenChange(false)}
+                                <Button type="button" size="lg" className="ml-auto border border-gray-600/40 hover:bg-gray-200"
+                                    variant="secondary" onClick={() => handleOpenChange(false)}
+                                    disabled={isLoading}
                                 >
                                     Cancelar
                                 </Button>
-                                <Button size="lg" className="ml-2 hover:bg-black/80" type="submit">
-                                    <Check />
-                                    Confirmar Revisão
+                                <Button size="lg" className="ml-2 hover:bg-black/80" type="submit" disabled={isLoading}>
+                                    {isLoading
+                                        ?
+                                        <Loader2 className="animate-spin w-4 h-4" />
+                                        :
+                                        <Check />
+                                    }
+                                    {isLoading ? 'Salvando...' : 'Confirmar Revisão'}
                                 </Button>
                             </div>
                         </div>

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { FileText, Pencil, Eye, ChevronRight, RefreshCw } from "lucide-react";
 import { getUserRole } from '../utils/auth';
 import { useNavigate } from "react-router-dom";
@@ -344,6 +344,40 @@ export default function TabelaNormas({
     const [updateModalAberto, setUpdateModalAberto] = useState(false);
     const [normaSelecionadaUpdate, setNormaSelecionadaUpdate] = useState<Norma | null>(null);
 
+    // Função de fetch extraída para poder ser reutilizada no onSuccess
+    const fetchNormas = useCallback(async () => {
+        setCarregando(true);
+        try {
+            const data = await listarNormas({
+                page: 1,
+                texto: searchText.trim(),
+                filtros,
+            });
+            const itens = Array.isArray(data?.itens) ? data.itens : [];
+            const total = data?.paginacao?.total ?? itens.length;
+            setNormas(itens);
+            setTotalNormas(total);
+        } catch (error) {
+            console.error('Erro ao listar normas:', error);
+            setNormas([]);
+            setTotalNormas(0);
+        } finally {
+            setCarregando(false);
+        }
+    }, [searchText, filtros]);
+
+
+    // useEffect existente passa a usar fetchNormas
+    useEffect(() => {
+        fetchNormas();
+    }, [fetchNormas, refreshTrigger]);
+
+    // Handler para abrir o modal com a norma certa
+    const handleAtualizarRevisao = (norma: Norma) => {
+        setNormaSelecionadaUpdate(norma);
+        setUpdateModalAberto(true);
+    };
+
 
     const normasFiltradas = normas.filter((norma) => {
         if (!searchText.trim()) return true;
@@ -473,11 +507,6 @@ export default function TabelaNormas({
         });
     };
 
-    const handleAtualizarRevisao = (norma: Norma) => {
-        setNormaSelecionadaUpdate(norma);
-        setUpdateModalAberto(true);
-    };
-
     return (
         <div className="border border-font-border rounded-lg overflow-x-auto">
             <table className="w-full min-w-[920px]">
@@ -540,6 +569,7 @@ export default function TabelaNormas({
                 open={updateModalAberto}
                 onOpenChange={setUpdateModalAberto}
                 norma={normaSelecionadaUpdate}
+                onSuccess={fetchNormas}
             />
         </div>
     );
