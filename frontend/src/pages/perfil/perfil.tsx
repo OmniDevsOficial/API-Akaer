@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Star, IdCard } from 'lucide-react';
-import {LuGitPullRequestArrow} from "react-icons/lu";
+import { LuGitPullRequestArrow } from "react-icons/lu";
 import Sidebar from '../../components/sidebar';
-import { getUserName, getUserEmail, getUserCargo, getUserTelefone, /* getUserRole, */ getUserNivelAcesso } from '../../utils/auth';
+import api from '../../services/api';
 
 interface PerfilDados {
     nome: string;
@@ -14,13 +14,19 @@ interface PerfilDados {
     cadastradoEm: string;
 }
 
+type RoleAPI = 'ADMIN' | 'CHECKER' | 'VISUALIZADOR';
+
+const mapRoleParaNivel = (role: RoleAPI): string => {
+    const mapa: Record<RoleAPI, string> = {
+        ADMIN: 'Administrador',
+        CHECKER: 'Checker',
+        VISUALIZADOR: 'Visualizador',
+    };
+    return mapa[role] ?? role;
+};
+
 function getIniciais(nome: string) {
-    return nome
-        .split(' ')
-        .filter(Boolean)
-        .slice(0, 2)
-        .map(p => p[0].toUpperCase())
-        .join('');
+    return nome.split(' ').filter(Boolean).slice(0, 2).map(p => p[0].toUpperCase()).join('');
 }
 
 function getMesAno(dataStr: string) {
@@ -30,16 +36,12 @@ function getMesAno(dataStr: string) {
     return `${meses[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-function Campo({ label, valor }: {
-    label: string;
-    valor: string;
-}) {
+function Campo({ label, valor }: { label: string; valor: string }) {
     return (
         <div>
             <p className="text-[10px] font-bold text-gray-400 tracking-widest uppercase mb-1">{label}</p>
-            <div
-                className="w-full border border-gray-200 focus:border-[#73203A] rounded px-3 py-2 text-sm outline-none bg-white text-dark-title transition-colors">
-                {valor}
+            <div className="w-full border border-gray-200 rounded px-3 py-2 text-sm bg-white text-dark-title">
+                {valor || '—'}
             </div>
         </div>
     );
@@ -58,36 +60,61 @@ function NivelBadge({ nivel }: { nivel: string }) {
     );
 }
 
-
 export default function Perfil() {
-    /*const role = getUserRole?.() ?? '';
-         const isAdmin = role?.toLowerCase() === 'admin';
-     */
-    const [dados, /* setDados */] = useState<PerfilDados>({
-        nome: getUserName?.() ?? 'Manuel Gomes',
-        email: getUserEmail?.() ?? 'gomes@gmail.com',
-        cargo: getUserCargo?.() ?? 'Engenheiro de Sistemas',
-        telefone: getUserTelefone?.() ?? '(20) 98820-9074',
-        nivelAcesso: getUserNivelAcesso?.() ?? 'Administrador',
-        status: 'Ativo',
-        cadastradoEm: '2026-01-25',
-    });
+    const [dados, setDados] = useState<PerfilDados | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+        if (!token) { setLoading(false); return; }
+
+        try {
+            const payload = JSON.parse(atob(token.split(".")[1]));
+            api.get(`/api/usuarios/${payload.id}`)
+                .then(res => {
+                    const u = res.data;
+                    setDados({
+                        nome: u.nome,
+                        email: u.email,
+                        cargo: u.cargo ?? '',
+                        telefone: u.telefone ?? '',
+                        nivelAcesso: mapRoleParaNivel(u.role),
+                        status: u.ativo ? 'Ativo' : 'Inativo',
+                        cadastradoEm: u.criado_em,
+                    });
+                })
+                .catch(() => alert('Erro ao carregar dados do perfil.'))
+                .finally(() => setLoading(false));
+        } catch {
+            setLoading(false);
+        }
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="flex h-screen w-full overflow-hidden bg-[#fbfbfb] font-dm">
+                <Sidebar />
+                <div className="flex flex-1 items-center justify-center">
+                    <p className="text-sm text-gray-400">Carregando perfil...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!dados) return null;
 
     const iniciais = getIniciais(dados.nome);
 
     return (
         <div className="flex h-screen w-full overflow-hidden bg-[#fbfbfb] font-dm">
             <Sidebar />
-
             <div className="flex flex-col flex-1 h-full overflow-hidden">
-
                 <main className="flex-1 min-h-0 overflow-y-auto p-8">
                     <p className="text-[#73203A] font-bold text-xs tracking-widest mb-1">CONTA</p>
                     <div className="flex items-center justify-between mb-6">
                         <h1 className="text-2xl font-semibold text-dark-title">Meu Perfil</h1>
                     </div>
 
-                    {/* Card de identidade */}
                     <div className="bg-white border border-font-border rounded-xl p-5 mb-4 flex items-center gap-5">
                         <div className="w-14 h-14 rounded-xl bg-[#73203A] flex items-center justify-center flex-shrink-0">
                             <span className="text-white text-lg font-bold">{iniciais}</span>
@@ -99,7 +126,7 @@ export default function Perfil() {
                                 <NivelBadge nivel={dados.nivelAcesso} />
                                 <div className="flex items-center gap-1 text-xs text-gray-medium border border-font-border rounded-full px-2.5 py-0.5">
                                     <Star size={10} className="text-yellow-400 fill-yellow-400" />
-                                    {dados.cargo}
+                                    {dados.cargo || '—'}
                                 </div>
                                 <div className="flex items-center gap-1 text-xs text-green-700 border border-green-500 rounded-full px-2.5 py-0.5 bg-green-50">
                                     <Star size={10} className="text-green-500 fill-green-400" />
@@ -109,10 +136,7 @@ export default function Perfil() {
                         </div>
                     </div>
 
-                    {/* Grid principal */}
                     <div className="grid grid-cols-3 gap-4">
-
-                        {/* Informações pessoais */}
                         <div className="col-span-2 bg-white border border-font-border rounded-xl p-5">
                             <p className="text-xs font-bold text-gray-400 tracking-widest uppercase mb-4 flex items-center gap-1.5">
                                 <IdCard size={14} /> Informações Pessoais
@@ -133,8 +157,8 @@ export default function Perfil() {
                                 <div>
                                     <p className="text-[10px] font-bold text-gray-400 tracking-widest uppercase mb-1">Status</p>
                                     <div className="border border-font-border rounded px-3 py-2 text-sm bg-white flex items-center gap-1.5">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                                        <span className="text-green-600 font-medium">{dados.status}</span>
+                                        <span className={`w-1.5 h-1.5 rounded-full ${dados.status === 'Ativo' ? 'bg-green-500' : 'bg-red-400'}`} />
+                                        <span className={`font-medium ${dados.status === 'Ativo' ? 'text-green-600' : 'text-red-500'}`}>{dados.status}</span>
                                     </div>
                                 </div>
                                 <div>
@@ -146,17 +170,15 @@ export default function Perfil() {
                             </div>
                         </div>
 
-                        {/* Solicitações criadas */}
                         <div className="bg-white border border-font-border rounded-xl p-5">
                             <p className="text-xs font-bold text-gray-400 tracking-widest uppercase mb-4 flex items-center gap-1.5">
-                                <LuGitPullRequestArrow size={14} />Solicitações Criadas
+                                <LuGitPullRequestArrow size={14} /> Solicitações Criadas
                             </p>
                             <div className="flex items-center justify-center h-32">
                                 <p className="text-xs text-gray-medium text-center">Nenhuma Solicitação Foi Criada por Você</p>
                             </div>
                         </div>
                     </div>
-
                 </main>
             </div>
         </div>

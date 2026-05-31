@@ -1,15 +1,11 @@
 import { useState } from 'react';
 import { X, Eye, EyeOff, Settings, CheckSquare, BookOpen } from 'lucide-react';
 
-
-
 export type NivelAcesso = 'Administrador' | 'Checker' | 'Visualizador';
 
 export interface NovoUsuarioDados {
     nome: string;
     email: string;
-    cargo: string;
-    telefone: string;
     nivelAcesso: NivelAcesso;
     senha: string;
 }
@@ -17,8 +13,6 @@ export interface NovoUsuarioDados {
 interface Form {
     nome: string;
     email: string;
-    cargo: string;
-    telefone: string;
     nivelAcesso: NivelAcesso | '';
     senha: string;
     confirmarSenha: string;
@@ -31,15 +25,13 @@ interface Props {
     emailsExistentes: string[];
 }
 
-
-
 const niveisConfig: { valor: NivelAcesso; label: string; descricao: string; icone: React.ReactNode }[] = [
     { valor: 'Administrador', label: 'Administrador', descricao: 'Acesso total', icone: <Settings size={18} className="text-gray-500" /> },
     { valor: 'Checker', label: 'Checker', descricao: 'Revisão e aprovação', icone: <CheckSquare size={18} className="text-gray-500" /> },
     { valor: 'Visualizador', label: 'Visualizador', descricao: 'Somente leitura', icone: <BookOpen size={18} className="text-gray-500" /> },
 ];
 
-function NivelCard({ /* valor, */ label, descricao, icone, selecionado, onClick }: {
+function NivelCard({ label, descricao, icone, selecionado, onClick }: {
     valor: NivelAcesso; label: string; descricao: string; icone: React.ReactNode;
     selecionado: boolean; onClick: () => void;
 }) {
@@ -50,7 +42,6 @@ function NivelCard({ /* valor, */ label, descricao, icone, selecionado, onClick 
             className={`flex-1 flex flex-col items-start gap-1 border rounded-md p-3 text-left transition-colors cursor-pointer relative
                 ${selecionado ? 'border-[#73203A] bg-[#73203A]/5' : 'border-gray-200 hover:border-gray-300 bg-white'}`}
         >
-            {/* checkbox top-right */}
             <span className={`absolute top-2 right-2 w-3.5 h-3.5 rounded-sm border flex items-center justify-center
                 ${selecionado ? 'bg-[#73203A] border-[#73203A]' : 'border-gray-300 bg-white'}`}>
                 {selecionado && (
@@ -66,26 +57,8 @@ function NivelCard({ /* valor, */ label, descricao, icone, selecionado, onClick 
     );
 }
 
-const formatTelefone = (digits: string) => {
-    if (!digits) return '';
-    if (digits.length <= 10) {
-        return digits.replace(/^(\d{2})(\d{0,4})(\d{0,4}).*/, (_m, p1, p2, p3) => {
-            const part1 = p1 || '';
-            const part2 = p2 || '';
-            const part3 = p3 || '';
-            return `${part1 ? `(${part1}) ` : ''}${part2}${part3 ? `-${part3}` : ''}`.trim();
-        });
-    }
-    return digits.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, (_m, p1, p2, p3) => {
-        const part1 = p1 || '';
-        const part2 = p2 || '';
-        const part3 = p3 || '';
-        return `${part1 ? `(${part1}) ` : ''}${part2}${part3 ? `-${part3}` : ''}`;
-    });
-};
-
 export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExistentes }: Props) {
-    const inicial: Form = { nome: '', email: '', cargo: '', telefone: '', nivelAcesso: '', senha: '', confirmarSenha: '' };
+    const inicial: Form = { nome: '', email: '', nivelAcesso: '', senha: '', confirmarSenha: '' };
     const [form, setForm] = useState<Form>(inicial);
     const [erros, setErros] = useState<Partial<Record<keyof Form, string>>>({});
     const [mostrarSenha, setMostrarSenha] = useState(false);
@@ -95,20 +68,6 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
     if (!open) return null;
 
     const set = (campo: keyof Form, valor: string) => {
-
-        if (campo === 'telefone') {
-            const prevRaw = form.telefone || '';
-            const prevDigits = prevRaw.replace(/\D/g, '');
-            const newRaw = valor || '';
-            const newDigits = newRaw.replace(/\D/g, '').slice(0, 11);
-
-            if (newRaw.length < prevRaw.length && newDigits === prevDigits) {
-                valor = newRaw.replace(/[^0-9()\s-]/g, '');
-            } else {
-                valor = formatTelefone(newDigits);
-            }
-        }
-
         const novo = { ...form, [campo]: valor };
         setForm(novo);
         if (enviado) validar(novo);
@@ -124,7 +83,6 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
         } else if (emailsExistentes.includes(dados.email.toLowerCase())) {
             e.email = 'Este e-mail já está cadastrado.';
         }
-        if (!dados.cargo.trim()) e.cargo = 'Cargo é obrigatório.';
         if (!dados.nivelAcesso) e.nivelAcesso = 'Selecione um nível de acesso.';
         if (!dados.senha.trim()) {
             e.senha = 'Senha é obrigatória.';
@@ -146,10 +104,8 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
         onSalvar({
             nome: form.nome.trim(),
             email: form.email.trim().toLowerCase(),
-            cargo: form.cargo.trim(),
-            telefone: form.telefone.trim(),
             nivelAcesso: form.nivelAcesso as NivelAcesso,
-            senha: form.senha
+            senha: form.senha,
         });
         setForm(inicial);
         setErros({});
@@ -176,7 +132,7 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
 
                 {/* Header */}
                 <div className="px-5 pt-5 pb-3 border-b border-gray-100 flex items-start justify-between">
-                    <div className=' '>
+                    <div>
                         <span className="text-xs font-medium text-red-akaer tracking-widest uppercase">CADASTRO</span>
                         <br />
                         <span className="text-lg font-medium text-gray-800">Novo usuário</span>
@@ -194,9 +150,13 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
                         <label className="block text-xs font-semibold text-gray-600 mb-1">
                             NOME COMPLETO <span className="text-red-akaer">*</span>
                         </label>
-                        <input type="text" placeholder="Ex: Ana Julia Costa"
-                            value={form.nome} onChange={e => set('nome', e.target.value)}
-                            className={inputBase('nome')} />
+                        <input
+                            type="text"
+                            placeholder="Ex: Ana Julia Costa"
+                            value={form.nome}
+                            onChange={e => set('nome', e.target.value)}
+                            className={inputBase('nome')}
+                        />
                         {erros.nome && <p className="text-red-akaer text-xs mt-0.5">{erros.nome}</p>}
                     </div>
 
@@ -205,29 +165,14 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
                         <label className="block text-xs font-semibold text-gray-600 mb-1">
                             E-MAIL <span className="text-red-akaer">*</span>
                         </label>
-                        <input type="email" placeholder="Ex: usuário@akaer.com.br"
-                            value={form.email} onChange={e => set('email', e.target.value)}
-                            className={inputBase('email')} />
+                        <input
+                            type="email"
+                            placeholder="Ex: usuario@akaer.com.br"
+                            value={form.email}
+                            onChange={e => set('email', e.target.value)}
+                            className={inputBase('email')}
+                        />
                         {erros.email && <p className="text-red-akaer text-xs mt-0.5">{erros.email}</p>}
-                    </div>
-
-                    {/* Cargo + Telefone */}
-                    <div className="flex gap-3">
-                        <div className="flex-1">
-                            <label className="block text-xs font-semibold text-gray-600 mb-1">
-                                CARGO <span className="text-red-akaer">*</span>
-                            </label>
-                            <input type="text" placeholder="Ex: Engenheiro de Sistemas"
-                                value={form.cargo} onChange={e => set('cargo', e.target.value)}
-                                className={inputBase('cargo')} />
-                            {erros.cargo && <p className="text-red-akaer text-xs mt-0.5">{erros.cargo}</p>}
-                        </div>
-                        <div className="flex-1">
-                            <label className="block text-xs font-semibold text-gray-600 mb-1">TELEFONE</label>
-                            <input type="text" placeholder="Ex: (21) 98820-3074"
-                                value={form.telefone} onChange={e => set('telefone', e.target.value)}
-                                className={inputBase('telefone')} />
-                        </div>
                     </div>
 
                     {/* Nível de Acesso */}
@@ -237,7 +182,9 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
                         </label>
                         <div className="flex gap-2">
                             {niveisConfig.map(n => (
-                                <NivelCard key={n.valor} {...n}
+                                <NivelCard
+                                    key={n.valor}
+                                    {...n}
                                     selecionado={form.nivelAcesso === n.valor}
                                     onClick={() => set('nivelAcesso', n.valor)}
                                 />
@@ -253,10 +200,13 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
                                 SENHA <span className="text-red-akaer">*</span>
                             </label>
                             <div className="relative">
-                                <input type={mostrarSenha ? 'text' : 'password'}
+                                <input
+                                    type={mostrarSenha ? 'text' : 'password'}
                                     placeholder="Mínimo de 8 caracteres"
-                                    value={form.senha} onChange={e => set('senha', e.target.value)}
-                                    className={`${inputBase('senha')} pr-9`} />
+                                    value={form.senha}
+                                    onChange={e => set('senha', e.target.value)}
+                                    className={`${inputBase('senha')} pr-9`}
+                                />
                                 <button type="button" onClick={() => setMostrarSenha(v => !v)}
                                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                                     {mostrarSenha ? <EyeOff size={14} /> : <Eye size={14} />}
@@ -269,10 +219,13 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
                                 CONFIRMAR SENHA <span className="text-red-akaer">*</span>
                             </label>
                             <div className="relative">
-                                <input type={mostrarConfirmar ? 'text' : 'password'}
+                                <input
+                                    type={mostrarConfirmar ? 'text' : 'password'}
                                     placeholder="Repita a senha"
-                                    value={form.confirmarSenha} onChange={e => set('confirmarSenha', e.target.value)}
-                                    className={`${inputBase('confirmarSenha')} pr-9`} />
+                                    value={form.confirmarSenha}
+                                    onChange={e => set('confirmarSenha', e.target.value)}
+                                    className={`${inputBase('confirmarSenha')} pr-9`}
+                                />
                                 <button type="button" onClick={() => setMostrarConfirmar(v => !v)}
                                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                                     {mostrarConfirmar ? <EyeOff size={14} /> : <Eye size={14} />}

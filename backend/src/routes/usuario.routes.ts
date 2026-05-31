@@ -2,28 +2,31 @@ import { Router } from "express";
 import { authMiddleware } from "../middlewares/authMiddleware";
 import { roleMiddleware } from "../middlewares/roleMiddleware";
 import {
+  listarUsuariosController,
   alternarStatusUsuarioController,
   atualizarUsuarioController,
   criarUsuarioController,
-  listarUsuariosController,
   buscarPerfilController
 } from "../controllers/usuario.controller";
 
 const usuarioRoutes = Router();
 
+// Listagem de usuários
 usuarioRoutes.get(
   "/", 
   authMiddleware, 
   roleMiddleware(["ADMIN"]), 
-  (req, res) => listarUsuariosController(req, res)
+  listarUsuariosController as any
 );
 
+// Buscar perfil do usuário
 usuarioRoutes.get(
   "/:id", 
   authMiddleware, 
-  (req, res) => buscarPerfilController(req, res)
+  buscarPerfilController as any
 );
 
+// Criar usuário
 usuarioRoutes.post(
   "/",
   authMiddleware,
@@ -31,6 +34,7 @@ usuarioRoutes.post(
   criarUsuarioController as any
 );
 
+// Edição de usuário
 usuarioRoutes.put(
   "/:id",
   authMiddleware,
@@ -38,6 +42,7 @@ usuarioRoutes.put(
   atualizarUsuarioController as any
 );
 
+// Alternância de status (Ativar/Desativar)
 usuarioRoutes.patch(
   "/:id/status",
   authMiddleware,
