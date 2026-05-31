@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Search, Pencil, RefreshCw, PowerOff } from 'lucide-react';
 import { getUserRole } from '../../utils/auth';
-import Header from '../../components/header';
+import api from '../../services/api';
 import Sidebar from '../../components/sidebar';
 import ModalNovoUsuario, { type NovoUsuarioDados, type NivelAcesso } from '../../components/ModalNovoUsuario';
 import ModalEditarUsuario, { type UsuarioEditar } from '../../components/ModalEditarUsuario';
@@ -55,7 +55,6 @@ export default function Usuario() {
             <div className="flex h-screen w-full overflow-hidden bg-[#fbfbfb] font-dm">
                 <Sidebar />
                 <div className="flex flex-col flex-1 h-full overflow-hidden">
-                    <Header />
                     <main className="flex-1 flex items-center justify-center">
                         <div className="text-center">
                             <p className="text-2xl font-semibold text-dark-title">Acesso Restrito</p>
@@ -69,9 +68,35 @@ export default function Usuario() {
 
     const emailsExistentes = usuarios.map(u => u.email.toLowerCase());
 
-    const handleSalvar = (dados: NovoUsuarioDados) => {
-        const novo: Usuario = { id: usuarios.length + 1, status: 'Ativo', ...dados };
-        setUsuarios(prev => [...prev, novo]);
+    const handleSalvar = async (dados: NovoUsuarioDados) => {
+        try {
+            let role = 'VISUALIZADOR';
+            if (dados.nivelAcesso === 'Administrador') role = 'ADMIN';
+            else if (dados.nivelAcesso === 'Checker') role = 'CHECKER';
+
+            const response = await api.post('/api/usuarios', {
+                nome: dados.nome,
+                email: dados.email,
+                cargo: dados.cargo,
+                telefone: dados.telefone,
+                role: role,
+                senha: dados.senha
+            });
+
+            const novoBackend = response.data.usuario;
+            const novo: Usuario = { 
+                id: novoBackend.id, 
+                nome: novoBackend.nome,
+                email: novoBackend.email,
+                cargo: novoBackend.cargo || '',
+                telefone: novoBackend.telefone || '',
+                nivelAcesso: dados.nivelAcesso,
+                status: novoBackend.ativo ? 'Ativo' : 'Inativo'
+            };
+            setUsuarios(prev => [novo, ...prev]);
+        } catch (error: any) {
+            alert(error.response?.data?.error || 'Erro ao criar usuário');
+        }
     };
 
     const handleEditar = (dados: UsuarioEditar) => {
@@ -101,7 +126,6 @@ export default function Usuario() {
             <Sidebar />
 
             <div className="flex flex-col flex-1 h-full overflow-hidden">
-                <Header />
 
                 <main className="flex-1 min-h-0 overflow-y-auto p-8">
                     <p className="text-[#73203A] font-bold text-xs tracking-widest mb-2">GERENCIAMENTO</p>

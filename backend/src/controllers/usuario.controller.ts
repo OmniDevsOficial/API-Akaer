@@ -1,15 +1,48 @@
 import { Request, Response } from "express";
 import { Role } from "@prisma/client";
-import { atualizarUsuario, alternarStatusUsuario } from "../services/usuario.service";
+import { atualizarUsuario, alternarStatusUsuario, criarUsuario } from "../services/usuario.service";
 
 const isRoleValida = (role: unknown): role is Role => {
   return typeof role === "string" && (Object.values(Role) as string[]).includes(role);
 };
 
+export const criarUsuarioController = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { nome, email, cargo, telefone, role, senha } = req.body;
+
+    if (!nome || !email || !cargo || !role || !senha) {
+      res.status(400).json({ error: "Campos obrigatórios: nome, email, cargo, role, senha." });
+      return;
+    }
+
+    if (!isRoleValida(role)) {
+      res.status(400).json({ error: "Role inválida." });
+      return;
+    }
+
+    const usuario = await criarUsuario({
+      nome: nome.trim(),
+      email: email.trim().toLowerCase(),
+      cargo: cargo.trim(),
+      telefone: telefone ? telefone.trim() : "",
+      role,
+      senhaHash: senha,
+    });
+
+    res.status(201).json({
+      message: "Usuário criado com sucesso.",
+      usuario,
+    });
+  } catch (error: any) {
+    const status = error.message === "Email já cadastrado" ? 409 : 400;
+    res.status(status).json({ error: error.message });
+  }
+};
+
 export const atualizarUsuarioController = async (req: Request, res: Response): Promise<void> => {
   try {
     const id = Number(req.params.id);
-    const { nome, role } = req.body;
+    const { nome, role, cargo, telefone } = req.body;
 
     if (!Number.isInteger(id)) {
       res.status(400).json({ error: "ID inválido." });
@@ -21,6 +54,11 @@ export const atualizarUsuarioController = async (req: Request, res: Response): P
       return;
     }
 
+    if (typeof cargo !== "string" || !cargo.trim()) {
+      res.status(400).json({ error: "Cargo é obrigatório." });
+      return;
+    }
+
     if (!isRoleValida(role)) {
       res.status(400).json({ error: "Role inválida." });
       return;
@@ -29,6 +67,8 @@ export const atualizarUsuarioController = async (req: Request, res: Response): P
     const usuario = await atualizarUsuario(id, {
       nome: nome.trim(),
       role,
+      cargo,
+      telefone,
     });
 
     res.status(200).json({

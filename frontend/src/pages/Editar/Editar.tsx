@@ -1,5 +1,4 @@
 import { useRef } from 'react';
-import Header from '../../components/header';
 import { HeaderEditar } from './components/headerEditar';
 import BodyEditar, { type BodyEditarHandle } from './components/bodyEditar';
 import Sidebar from '../../components/sidebar';
@@ -16,8 +15,6 @@ export default function Editar() {
             <Sidebar />
 
             <div className="flex-1 flex flex-col">
-                <Header />
-
                 <main className="flex flex-col flex-1 overflow-hidden">
                     <HeaderEditar onSalvar={handleSalvar} />
 

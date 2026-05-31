@@ -16,7 +16,8 @@ export const createNorma = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Arquivo é obrigatório" });
     }
 
-    const norma = await createNormaService(req.body, filePath);
+    const criador_id = (req as any).user?.id;
+    const norma = await createNormaService({ ...req.body, criador_id }, filePath);
 
     return res.status(201).json(norma);
   } catch (error: any) {
@@ -214,7 +215,8 @@ export const createNormaRevisao = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Código da norma inválido" });
     }
 
-    const novaNorma = await createNormaRevisaoService(codigoParam, req.body, file.path);
+    const criador_id = (req as any).user?.id;
+    const novaNorma = await createNormaRevisaoService(codigoParam, { ...req.body, criador_id }, file.path);
 
     return res.status(201).json(novaNorma);
   } catch (error: any) {

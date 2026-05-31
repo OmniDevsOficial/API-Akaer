@@ -4,9 +4,17 @@ import { roleMiddleware } from "../middlewares/roleMiddleware";
 import {
   alternarStatusUsuarioController,
   atualizarUsuarioController,
+  criarUsuarioController,
 } from "../controllers/usuario.controller";
 
 const usuarioRoutes = Router();
+
+usuarioRoutes.post(
+  "/",
+  authMiddleware,
+  roleMiddleware(["ADMIN"]),
+  criarUsuarioController as any
+);
 
 usuarioRoutes.put(
   "/:id",

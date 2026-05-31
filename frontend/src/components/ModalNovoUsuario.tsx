@@ -11,6 +11,7 @@ export interface NovoUsuarioDados {
     cargo: string;
     telefone: string;
     nivelAcesso: NivelAcesso;
+    senha: string;
 }
 
 interface Form {
@@ -65,7 +66,23 @@ function NivelCard({ /* valor, */ label, descricao, icone, selecionado, onClick 
     );
 }
 
-
+const formatTelefone = (digits: string) => {
+    if (!digits) return '';
+    if (digits.length <= 10) {
+        return digits.replace(/^(\d{2})(\d{0,4})(\d{0,4}).*/, (_m, p1, p2, p3) => {
+            const part1 = p1 || '';
+            const part2 = p2 || '';
+            const part3 = p3 || '';
+            return `${part1 ? `(${part1}) ` : ''}${part2}${part3 ? `-${part3}` : ''}`.trim();
+        });
+    }
+    return digits.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, (_m, p1, p2, p3) => {
+        const part1 = p1 || '';
+        const part2 = p2 || '';
+        const part3 = p3 || '';
+        return `${part1 ? `(${part1}) ` : ''}${part2}${part3 ? `-${part3}` : ''}`;
+    });
+};
 
 export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExistentes }: Props) {
     const inicial: Form = { nome: '', email: '', cargo: '', telefone: '', nivelAcesso: '', senha: '', confirmarSenha: '' };
@@ -78,6 +95,20 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
     if (!open) return null;
 
     const set = (campo: keyof Form, valor: string) => {
+
+        if (campo === 'telefone') {
+            const prevRaw = form.telefone || '';
+            const prevDigits = prevRaw.replace(/\D/g, '');
+            const newRaw = valor || '';
+            const newDigits = newRaw.replace(/\D/g, '').slice(0, 11);
+
+            if (newRaw.length < prevRaw.length && newDigits === prevDigits) {
+                valor = newRaw.replace(/[^0-9()\s-]/g, '');
+            } else {
+                valor = formatTelefone(newDigits);
+            }
+        }
+
         const novo = { ...form, [campo]: valor };
         setForm(novo);
         if (enviado) validar(novo);
@@ -118,6 +149,7 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
             cargo: form.cargo.trim(),
             telefone: form.telefone.trim(),
             nivelAcesso: form.nivelAcesso as NivelAcesso,
+            senha: form.senha
         });
         setForm(inicial);
         setErros({});
@@ -182,7 +214,9 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
                     {/* Cargo + Telefone */}
                     <div className="flex gap-3">
                         <div className="flex-1">
-                            <label className="block text-xs font-semibold text-gray-600 mb-1">CARGO</label>
+                            <label className="block text-xs font-semibold text-gray-600 mb-1">
+                                CARGO <span className="text-red-akaer">*</span>
+                            </label>
                             <input type="text" placeholder="Ex: Engenheiro de Sistemas"
                                 value={form.cargo} onChange={e => set('cargo', e.target.value)}
                                 className={inputBase('cargo')} />
