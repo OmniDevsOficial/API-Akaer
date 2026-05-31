@@ -63,6 +63,7 @@ export const createNormaService = async (data: any, filePath: string) => {
     notas,
     palavras_chave,
     normas_relacionadas_ids,
+    criador_id,
   } = data;
 
   const codigoNormalizado = typeof codigo === "string" ? codigo.trim() : "";
@@ -70,6 +71,10 @@ export const createNormaService = async (data: any, filePath: string) => {
 
   if (!codigoNormalizado || !titulo || !orgao_emissor_id || !categoria_id || !data_publicacao || !revisaoNormalizada) {
     throw new Error("Campos obrigatórios não preenchidos: codigo, titulo, orgao_emissor_id, categoria_id, data_publicacao, revisao");
+  }
+
+  if (!criador_id) {
+    throw new Error("Usuário criador não identificado.");
   }
 
   const sufixoRevisao = `-${revisaoNormalizada}`;
@@ -111,6 +116,7 @@ export const createNormaService = async (data: any, filePath: string) => {
       escopo: escopo ?? null,
       palavras_chave: palavrasChaveJson ?? [],
       arquivo:        arquivoPath,
+      criador_id:     Number(criador_id),
     }
   });
 
@@ -402,6 +408,11 @@ export const createNormaRevisaoService = async (codigo: string, data: any, newFi
     throw new Error("Arquivo PDF é obrigatório para nova revisão");
   }
 
+  const criador_id = data.criador_id;
+  if (!criador_id) {
+    throw new Error("Usuário criador não identificado.");
+  }
+
   const existingNorma = await prisma.norma.findUnique({
     where: { codigo }
   });
@@ -460,6 +471,7 @@ export const createNormaRevisaoService = async (codigo: string, data: any, newFi
         status: "Ativa",
         data_publicacao: data.data_publicacao ? parseBrDate(String(data.data_publicacao), "data_publicacao") : existingNorma.data_publicacao,
         arquivo: newFilePath,
+        criador_id: Number(criador_id),
       }
     })
   ]);
