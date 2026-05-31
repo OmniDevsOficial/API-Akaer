@@ -4,22 +4,7 @@ import { Check, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { FileUpload } from './ui/file-upload';
 import type { Norma } from './tabela';
-import api from '@/services/api';
-
-interface NormaDetalhe {
-    id: number;
-    codigo: string;
-    titulo: string;
-    revisao?: string | null;
-    orgao_emissor?: { nome: string };
-    categoria?: { nome: string };
-    status: string;
-    etapa_projeto?: { nome: string };
-    escopo?: string;
-    palavras_chave?: string[];
-    notas?: { id: number; texto: string }[];
-    normas_relacionadas?: { codigo: string; titulo: string }[];
-}
+import { criarRevisaoNorma, getNormaDetalhes, type NormaDetalhes } from '@/services/normaService';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -64,7 +49,7 @@ export default function UpdateVersionModal({
     norma,
     onSuccess
 }: UpdateVersionModalProps) {
-    const [detalhe, setDetalhe] = useState<NormaDetalhe | null>(null);
+    const [detalhe, setDetalhe] = useState<NormaDetalhes | null>(null);
     const [loadingDetalhe, setLoadingDetalhe] = useState(false);
 
     const [dataPublicacao, setDataPublicacao] = useState('');
@@ -88,7 +73,7 @@ export default function UpdateVersionModal({
         const fetchDetalhe = async () => {
             try {
                 setLoadingDetalhe(true);
-                const { data } = await api.get<NormaDetalhe>(`/normas/${norma.codigo}`);
+                const data = await getNormaDetalhes(norma.codigo);
                 setDetalhe(data);
             } catch {
                 setErro('Não foi possível carregar os dados da norma.');
@@ -102,7 +87,6 @@ export default function UpdateVersionModal({
 
 
     const handleSubmit = async (e: React.FormEvent) => {
-        ;
         e.preventDefault();
         setErro(null);
 
@@ -120,13 +104,12 @@ export default function UpdateVersionModal({
 
         const formData = new FormData();
         formData.append('data_publicacao', dataPublicacao);
-        formData.append('revisao', proximaRevisao);
         const arquivoLimpo = new File([arquivoNorma], arquivoNorma.name, { type: arquivoNorma.type });
         formData.append('file', arquivoLimpo);
 
         try {
             setIsLoading(true);
-            await api.post(`/normas/${encodeURIComponent(detalhe.codigo)}/revisao`, formData);
+            await criarRevisaoNorma(detalhe.codigo, formData);
             setConcluido(true);
             onSuccess?.();
         } catch (err: any) {
@@ -298,43 +281,55 @@ export default function UpdateVersionModal({
                                 {/* Palavras-chave — bloqueado */}
                                 <div className="flex flex-col text-start mb-5">
                                     <label className="text-lg text-gray-600">PALAVRAS-CHAVE</label>
-                                    <div className="flex flex-wrap gap-2 border rounded p-3 bg-gray-200/60 cursor-not-allowed">
-                                        {(detalhe?.palavras_chave ?? []).map((item: string, index: number) => (
-                                            <div key={index} className="px-2 py-1 rounded bg-red-50 text-sm flex items-center gap-2 text-gray-500">
-                                                {item}
-                                            </div>
-                                        ))}
+                                    <div className="flex flex-wrap gap-2 border rounded p-3 min-h-[42px] bg-gray-200/60 cursor-not-allowed">
+                                        {(detalhe?.palavras_chave ?? []).length > 0 ? (
+                                            (detalhe?.palavras_chave ?? []).map((item: string, index: number) => (
+                                                <div key={index} className="px-2 py-1 rounded bg-red-50 text-sm flex items-center gap-2 text-gray-500">
+                                                    {item}
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <span className="text-sm text-gray-400">Nenhuma palavra-chave cadastrada</span>
+                                        )}
                                     </div>
                                 </div>
 
                                 {/* Notas — bloqueado (visualização estática) */}
                                 <div className="flex flex-col text-start gap-1 mb-5">
                                     <label className="text-lg text-gray-600">NOTAS</label>
-                                    <div className="rounded-md border border-gray-200 bg-gray-100/60 p-3 cursor-not-allowed">
-                                        <ul className="flex flex-col gap-1.5">
-                                            {(detalhe?.notas ?? []).map((nota, index) => (
-                                                <li key={nota.id} className="flex items-start gap-2.5 rounded-md border border-gray-200 bg-white px-3 py-2.5">
-                                                    <span className="mt-0.5 shrink-0 rounded bg-gray-200 px-1.5 py-0.5 text-[11px] text-black select-none">
-                                                        {index + 1}
-                                                    </span>
-                                                    <p className="text-sm text-gray-500 leading-relaxed whitespace-pre-wrap break-words">
-                                                        {nota.texto}
-                                                    </p>
-                                                </li>
-                                            ))}
-                                        </ul>
+                                    <div className="rounded-md border border-gray-200 bg-gray-100/60 p-3 min-h-[42px] cursor-not-allowed">
+                                        {(detalhe?.notas ?? []).length > 0 ? (
+                                            <ul className="flex flex-col gap-1.5">
+                                                {(detalhe?.notas ?? []).map((nota, index) => (
+                                                    <li key={nota.id} className="flex items-start gap-2.5 rounded-md border border-gray-200 bg-white px-3 py-2.5">
+                                                        <span className="mt-0.5 shrink-0 rounded bg-gray-200 px-1.5 py-0.5 text-[11px] text-black select-none">
+                                                            {index + 1}
+                                                        </span>
+                                                        <p className="text-sm text-gray-500 leading-relaxed whitespace-pre-wrap break-words">
+                                                            {nota.texto}
+                                                        </p>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <span className="text-sm text-gray-400">Nenhuma nota cadastrada</span>
+                                        )}
                                     </div>
                                 </div>
 
                                 {/* Normas Correlacionadas — bloqueado (visualização estática) */}
                                 <div className="flex flex-col text-start my-6">
                                     <label className="text-lg text-gray-600">NORMAS CORRELACIONADAS</label>
-                                    <div className="flex flex-wrap gap-2 mt-1 cursor-not-allowed">
-                                        {(detalhe?.normas_relacionadas ?? []).map((n) => (
-                                            <div key={n.codigo} className="flex items-center gap-2 px-2 py-1 rounded bg-[#FAF9F7] text-gray-500 text-sm border border-font-border">
-                                                {n.codigo} - {n.titulo}
-                                            </div>
-                                        ))}
+                                    <div className="flex flex-wrap gap-2 mt-1 border rounded p-3 min-h-[42px] bg-gray-200/60 cursor-not-allowed">
+                                        {(detalhe?.normas_relacionadas_ids ?? []).length > 0 ? (
+                                            (detalhe?.normas_relacionadas_ids ?? []).map((n) => (
+                                                <div key={n.codigo} className="flex items-center gap-2 px-2 py-1 rounded bg-[#FAF9F7] text-gray-500 text-sm border border-font-border">
+                                                    {n.codigo}{n.titulo ? ` - ${n.titulo}` : ''}
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <span className="text-sm text-gray-400">Nenhuma norma correlacionada</span>
+                                        )}
                                     </div>
                                 </div>
                             </div>
