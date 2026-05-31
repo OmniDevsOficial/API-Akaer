@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Role } from "@prisma/client";
-import { atualizarUsuario, alternarStatusUsuario, criarUsuario } from "../services/usuario.service";
+import { atualizarUsuario, alternarStatusUsuario, criarUsuario, listarUsuarios, buscarUsuarioPorId } from "../services/usuario.service";
 
 const isRoleValida = (role: unknown): role is Role => {
   return typeof role === "string" && (Object.values(Role) as string[]).includes(role);
@@ -113,3 +113,40 @@ export const alternarStatusUsuarioController = async (req: Request, res: Respons
     res.status(status).json({ error: error.message });
   }
 };
+
+export const listarUsuariosController = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const users = await listarUsuarios();
+    res.json(users);
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+export const buscarPerfilController = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const targetId = parseInt(req.params.id as string, 10);
+
+    if (isNaN(targetId)) {
+      res.status(400).json({ error: "ID de usuário inválido." });
+      return;
+    }
+
+    const userReq = (req as any).user;
+
+    if (userReq.role !== "ADMIN" && userReq.id !== targetId) {
+      res.status(403).json({ error: "Acesso negado." });
+      return;
+    }
+
+    const user = await buscarUsuarioPorId(targetId);
+    res.json(user);
+  } catch (error: any) {
+    if (error.message === "Usuário não encontrado") {
+      res.status(404).json({ error: error.message });
+      return;
+    }
+    res.status(500).json({ error: "Erro ao buscar usuário" });
+  }
+};
+

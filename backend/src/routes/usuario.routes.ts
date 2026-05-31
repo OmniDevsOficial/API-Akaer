@@ -5,9 +5,24 @@ import {
   alternarStatusUsuarioController,
   atualizarUsuarioController,
   criarUsuarioController,
+  listarUsuariosController,
+  buscarPerfilController
 } from "../controllers/usuario.controller";
 
 const usuarioRoutes = Router();
+
+usuarioRoutes.get(
+  "/", 
+  authMiddleware, 
+  roleMiddleware(["ADMIN"]), 
+  (req, res) => listarUsuariosController(req, res)
+);
+
+usuarioRoutes.get(
+  "/:id", 
+  authMiddleware, 
+  (req, res) => buscarPerfilController(req, res)
+);
 
 usuarioRoutes.post(
   "/",
