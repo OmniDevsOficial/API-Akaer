@@ -182,7 +182,9 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
                     {/* Cargo + Telefone */}
                     <div className="flex gap-3">
                         <div className="flex-1">
-                            <label className="block text-xs font-semibold text-gray-600 mb-1">CARGO</label>
+                            <label className="block text-xs font-semibold text-gray-600 mb-1">
+                                CARGO <span className="text-red-akaer">*</span>
+                                </label>
                             <input type="text" placeholder="Ex: Engenheiro de Sistemas"
                                 value={form.cargo} onChange={e => set('cargo', e.target.value)}
                                 className={inputBase('cargo')} />

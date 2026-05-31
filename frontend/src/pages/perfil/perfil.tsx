@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Star, IdCard } from 'lucide-react';
 import {LuGitPullRequestArrow} from "react-icons/lu";
-import Header from '../../components/header';
 import Sidebar from '../../components/sidebar';
 import { getUserName, getUserEmail, getUserCargo, getUserTelefone, /* getUserRole, */ getUserNivelAcesso } from '../../utils/auth';
 
@@ -81,7 +80,6 @@ export default function Perfil() {
             <Sidebar />
 
             <div className="flex flex-col flex-1 h-full overflow-hidden">
-                <Header />
 
                 <main className="flex-1 min-h-0 overflow-y-auto p-8">
                     <p className="text-[#73203A] font-bold text-xs tracking-widest mb-1">CONTA</p>

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Search, Pencil, RefreshCw, PowerOff } from 'lucide-react';
 import { getUserRole } from '../../utils/auth';
-import Header from '../../components/header';
 import Sidebar from '../../components/sidebar';
 import ModalNovoUsuario, { type NovoUsuarioDados, type NivelAcesso } from '../../components/ModalNovoUsuario';
 import ModalEditarUsuario, { type UsuarioEditar } from '../../components/ModalEditarUsuario';
@@ -55,7 +54,6 @@ export default function Usuario() {
             <div className="flex h-screen w-full overflow-hidden bg-[#fbfbfb] font-dm">
                 <Sidebar />
                 <div className="flex flex-col flex-1 h-full overflow-hidden">
-                    <Header />
                     <main className="flex-1 flex items-center justify-center">
                         <div className="text-center">
                             <p className="text-2xl font-semibold text-dark-title">Acesso Restrito</p>
@@ -101,7 +99,6 @@ export default function Usuario() {
             <Sidebar />
 
             <div className="flex flex-col flex-1 h-full overflow-hidden">
-                <Header />
 
                 <main className="flex-1 min-h-0 overflow-y-auto p-8">
                     <p className="text-[#73203A] font-bold text-xs tracking-widest mb-2">GERENCIAMENTO</p>
