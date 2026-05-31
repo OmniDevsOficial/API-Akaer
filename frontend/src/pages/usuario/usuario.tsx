@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Search, Pencil, RefreshCw, PowerOff } from 'lucide-react';
+import { getUserRole } from '../../utils/auth';
 import Header from '../../components/header';
 import Sidebar from '../../components/sidebar';
 import ModalNovoUsuario, { type NovoUsuarioDados, type NivelAcesso } from '../../components/ModalNovoUsuario';
 import ModalEditarUsuario, { type UsuarioEditar } from '../../components/ModalEditarUsuario';
-import { getUserRole } from '../../utils/auth';
 
 
 
@@ -70,9 +70,9 @@ export default function Usuario() {
     const emailsExistentes = usuarios.map(u => u.email.toLowerCase());
 
     const handleSalvar = (dados: NovoUsuarioDados) => {
-    const novo: Usuario = { id: usuarios.length + 1, status: 'Ativo', ...dados };
-    setUsuarios(prev => [...prev, novo]);
-};
+        const novo: Usuario = { id: usuarios.length + 1, status: 'Ativo', ...dados };
+        setUsuarios(prev => [...prev, novo]);
+    };
 
     const handleEditar = (dados: UsuarioEditar) => {
         setUsuarios(prev => prev.map(u => u.id === dados.id ? { ...u, ...dados } : u));
@@ -117,17 +117,27 @@ export default function Usuario() {
                         </button>
                     </div>
 
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="relative w-72">
+                    <div className="grid grid-cols-[1fr_auto] gap-4 mb-4 items-center">
+                        <div className="relative">
                             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                            <input type="text" placeholder="Buscar por nome ou e-mail"
-                                value={busca} onChange={e => setBusca(e.target.value)}
-                                className="w-full border border-font-border rounded-md pl-8 pr-3 py-2 text-sm outline-none focus:border-[#73203A] bg-white" />
+                            <input
+                                type="text"
+                                placeholder="Buscar por nome ou e-mail"
+                                value={busca}
+                                onChange={e => setBusca(e.target.value)}
+                                className="w-full border border-font-border rounded-md pl-8 pr-3 py-2 text-sm outline-none focus:border-[#73203A] bg-white"
+                            />
                         </div>
-                        <div className="flex items-center gap-4 text-xs text-gray-medium">
-                            {(Object.entries(contadores) as [NivelAcesso, number][]).map(([nivel, qtd]) => (
-                                <span key={nivel}><span className="text-dark-title font-semibold">+{qtd}</span> {nivel}</span>
-                            ))}
+
+                        <div className="flex items-center justify-end gap-4 text-xs text-gray-medium">
+                            {(Object.entries(contadores) as [NivelAcesso, number][]).map(
+                                ([nivel, qtd]) => (
+                                    <span key={nivel}>
+                                        <span className="text-dark-title font-semibold">+{qtd}</span>{" "}
+                                        {nivel}
+                                    </span>
+                                )
+                            )}
                         </div>
                     </div>
 
@@ -147,12 +157,16 @@ export default function Usuario() {
                             <tbody>
                                 {filtrados.map((u) => (
                                     <tr key={u.id} className="border-b border-font-border hover:bg-gray-50/60 transition-colors">
-                                        <td className="px-4 py-3 text-gray-medium">{u.id}</td>
+                                        <td className="px-4 py-3 font-semibold text-red-akaer">{u.id}</td>
                                         <td className="px-4 py-3 font-semibold text-dark-title">{u.nome}</td>
                                         <td className="px-4 py-3 text-gray-medium">{u.email}</td>
                                         <td className="px-4 py-3 text-dark-title">{u.cargo}</td>
                                         <td className="px-4 py-3 text-dark-title">{u.nivelAcesso}</td>
-                                        <td className="px-4 py-3"><StatusBadge status={u.status} /></td>
+                                        <td className="px-4 py-3">
+                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100/40 text-gray-500 border border-gray-200">
+                                                <StatusBadge status={u.status} />
+                                            </span>
+                                        </td>
                                         <td className="px-4 py-3">
                                             <div className="flex flex-col gap-1">
                                                 <button onClick={() => abrirEditar(u)}
@@ -171,8 +185,10 @@ export default function Usuario() {
                                 ))}
                             </tbody>
                         </table>
-                        <div className="px-4 py-3 text-xs text-gray-medium border-t border-font-border">
-                            Exibindo {filtrados.length} de {usuarios.length} Usuários
+                        <div className="px-4 py-3 text-xs text-gray-medium">
+                            <span className='text-xs text-gray-medium'>
+                                Exibindo {filtrados.length} de {usuarios.length} Usuários
+                            </span>
                         </div>
                     </div>
                 </main>

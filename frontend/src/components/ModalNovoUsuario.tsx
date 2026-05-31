@@ -38,7 +38,7 @@ const niveisConfig: { valor: NivelAcesso; label: string; descricao: string; icon
     { valor: 'Visualizador', label: 'Visualizador', descricao: 'Somente leitura', icone: <BookOpen size={18} className="text-gray-500" /> },
 ];
 
-function NivelCard({ valor, label, descricao, icone, selecionado, onClick }: {
+function NivelCard({ /* valor, */ label, descricao, icone, selecionado, onClick }: {
     valor: NivelAcesso; label: string; descricao: string; icone: React.ReactNode;
     selecionado: boolean; onClick: () => void;
 }) {
@@ -134,7 +134,7 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
 
     const inputBase = (campo: keyof Form) =>
         `w-full border rounded px-3 py-2 text-sm outline-none bg-white transition-colors placeholder:text-gray-300
-        ${erros[campo] ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#73203A]'}`;
+        ${erros[campo] ? 'border-red-400 focus:border-red-akaer' : 'border-gray-200 focus:border-[#73203A]'}`;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -144,9 +144,10 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
 
                 {/* Header */}
                 <div className="px-5 pt-5 pb-3 border-b border-gray-100 flex items-start justify-between">
-                    <div>
-                        <p className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">CADASTRO</p>
-                        <p className="text-sm font-semibold text-gray-800">Novo usuário</p>
+                    <div className=' '>
+                        <span className="text-xs font-medium text-red-akaer tracking-widest uppercase">CADASTRO</span>
+                        <br />
+                        <span className="text-lg font-medium text-gray-800">Novo usuário</span>
                     </div>
                     <button onClick={handleClose} className="text-gray-400 hover:text-gray-600 transition-colors mt-0.5">
                         <X size={16} />
@@ -159,23 +160,23 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
                     {/* Nome completo */}
                     <div>
                         <label className="block text-xs font-semibold text-gray-600 mb-1">
-                            NOME COMPLETO <span className="text-red-500">*</span>
+                            NOME COMPLETO <span className="text-red-akaer">*</span>
                         </label>
                         <input type="text" placeholder="Ex: Ana Julia Costa"
                             value={form.nome} onChange={e => set('nome', e.target.value)}
                             className={inputBase('nome')} />
-                        {erros.nome && <p className="text-red-500 text-xs mt-0.5">{erros.nome}</p>}
+                        {erros.nome && <p className="text-red-akaer text-xs mt-0.5">{erros.nome}</p>}
                     </div>
 
                     {/* E-mail */}
                     <div>
                         <label className="block text-xs font-semibold text-gray-600 mb-1">
-                            E-MAIL <span className="text-red-500">*</span>
+                            E-MAIL <span className="text-red-akaer">*</span>
                         </label>
                         <input type="email" placeholder="Ex: usuário@akaer.com.br"
                             value={form.email} onChange={e => set('email', e.target.value)}
                             className={inputBase('email')} />
-                        {erros.email && <p className="text-red-500 text-xs mt-0.5">{erros.email}</p>}
+                        {erros.email && <p className="text-red-akaer text-xs mt-0.5">{erros.email}</p>}
                     </div>
 
                     {/* Cargo + Telefone */}
@@ -185,7 +186,7 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
                             <input type="text" placeholder="Ex: Engenheiro de Sistemas"
                                 value={form.cargo} onChange={e => set('cargo', e.target.value)}
                                 className={inputBase('cargo')} />
-                            {erros.cargo && <p className="text-red-500 text-xs mt-0.5">{erros.cargo}</p>}
+                            {erros.cargo && <p className="text-red-akaer text-xs mt-0.5">{erros.cargo}</p>}
                         </div>
                         <div className="flex-1">
                             <label className="block text-xs font-semibold text-gray-600 mb-1">TELEFONE</label>
@@ -198,7 +199,7 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
                     {/* Nível de Acesso */}
                     <div>
                         <label className="block text-xs font-semibold text-gray-600 mb-1">
-                            NÍVEL DE ACESSO <span className="text-red-500">*</span>
+                            NÍVEL DE ACESSO <span className="text-red-akaer">*</span>
                         </label>
                         <div className="flex gap-2">
                             {niveisConfig.map(n => (
@@ -208,14 +209,14 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
                                 />
                             ))}
                         </div>
-                        {erros.nivelAcesso && <p className="text-red-500 text-xs mt-0.5">{erros.nivelAcesso}</p>}
+                        {erros.nivelAcesso && <p className="text-red-akaer text-xs mt-0.5">{erros.nivelAcesso}</p>}
                     </div>
 
                     {/* Senha + Confirmar */}
                     <div className="flex gap-3">
                         <div className="flex-1">
                             <label className="block text-xs font-semibold text-gray-600 mb-1">
-                                SENHA <span className="text-red-500">*</span>
+                                SENHA <span className="text-red-akaer">*</span>
                             </label>
                             <div className="relative">
                                 <input type={mostrarSenha ? 'text' : 'password'}
@@ -227,11 +228,11 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
                                     {mostrarSenha ? <EyeOff size={14} /> : <Eye size={14} />}
                                 </button>
                             </div>
-                            {erros.senha && <p className="text-red-500 text-xs mt-0.5">{erros.senha}</p>}
+                            {erros.senha && <p className="text-red-akaer text-xs mt-0.5">{erros.senha}</p>}
                         </div>
                         <div className="flex-1">
                             <label className="block text-xs font-semibold text-gray-600 mb-1">
-                                CONFIRMAR SENHA <span className="text-red-500">*</span>
+                                CONFIRMAR SENHA <span className="text-red-akaer">*</span>
                             </label>
                             <div className="relative">
                                 <input type={mostrarConfirmar ? 'text' : 'password'}
@@ -243,14 +244,14 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
                                     {mostrarConfirmar ? <EyeOff size={14} /> : <Eye size={14} />}
                                 </button>
                             </div>
-                            {erros.confirmarSenha && <p className="text-red-500 text-xs mt-0.5">{erros.confirmarSenha}</p>}
+                            {erros.confirmarSenha && <p className="text-red-akaer text-xs mt-0.5">{erros.confirmarSenha}</p>}
                         </div>
                     </div>
                 </div>
 
                 {/* Footer */}
                 <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100">
-                    <p className="text-[10px] text-gray-400">Campos com <span className="text-red-500">*</span> são obrigatórios</p>
+                    <p className="text-xs text-gray-400">Campos com <span className="text-red-akaer">*</span> são obrigatórios</p>
                     <div className="flex gap-2">
                         <button onClick={handleClose}
                             className="px-4 py-1.5 text-sm text-gray-600 border border-gray-200 rounded hover:bg-gray-50 transition-colors">
