@@ -142,14 +142,14 @@ function AccordionRevisoes({ codigoPai, onAbrirPdfRevisao }: AccordionRevisoesPr
                     {/* NORMA (título + revisão) */}
                     <td className="px-3 py-3">
                         <span className="block text-sm font-medium text-gray-400">{rev.titulo}</span>
-                        {rev.revisao && <span className="block text-xs text-gray-400/70">Rev.: {rev.revisao}</span>}
+                        {rev.revisao && <span className="block text-xs text-gray-400/70">Revisão: {rev.revisao}</span>}
                     </td>
 
                     {/* ÓRGÃO — dash para obsoletas */}
-                    <td className="px-3 py-3 text-sm text-gray-400">-</td>
+                    <td className="px-3 py-3 text-sm text-gray-400">{rev.orgao_emissor?.nome || '-'}</td>
 
                     {/* CATEGORIA — dash para obsoletas */}
-                    <td className="px-3 py-3 text-sm text-gray-400">-</td>
+                    <td className="px-3 py-3 text-sm text-gray-400">{rev.categoria?.nome || '-'}</td>
 
                     {/* STATUS */}
                     <td className="px-3 py-3">
@@ -245,7 +245,7 @@ function NormaRow({ norma, isAdmin, onAbrirPdf, onAbrirPdfRevisao, onEditar, onA
                 {/* NORMA (título + revisão) */}
                 <td className="px-3 py-3">
                     <span className="block text-sm font-medium text-gray-900">{norma.titulo}</span>
-                    <span className="block text-xs text-gray-medium">Rev. atual: {norma.revisao}</span>
+                    <span className="block text-xs text-gray-medium">Revisão atual: {norma.revisao}</span>
                 </td>
 
                 {/* ÓRGÃO */}
