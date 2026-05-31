@@ -14,7 +14,7 @@ interface NormaDetalhe {
     orgao_emissor?: { nome: string };
     categoria?: { nome: string };
     status: string;
-    etapa_projeto?: string;
+    etapa_projeto?: { nome: string };
     escopo?: string;
     palavras_chave?: string[];
     notas?: { id: number; texto: string }[];
@@ -240,7 +240,7 @@ export default function UpdateVersionModal({
                                     {/* Etapa do Projeto — bloqueado */}
                                     <div className="flex flex-col text-start gap-1">
                                         <label className="text-lg text-gray-600 mb-0 leading-none">ETAPA DO PROJETO</label>
-                                        <input className={disabledInputClass} value={detalhe?.etapa_projeto ?? ''} disabled />
+                                        <input className={disabledInputClass} value={detalhe?.etapa_projeto?.nome ?? ''} disabled />
                                         <span className="text-xs text-gray-400 invisible" aria-hidden="true">Espaço reservado</span>
                                     </div>
                                 </div>
