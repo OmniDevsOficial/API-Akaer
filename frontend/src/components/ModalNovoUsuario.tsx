@@ -11,6 +11,7 @@ export interface NovoUsuarioDados {
     cargo: string;
     telefone: string;
     nivelAcesso: NivelAcesso;
+    senha: string;
 }
 
 interface Form {
@@ -148,6 +149,7 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
             cargo: form.cargo.trim(),
             telefone: form.telefone.trim(),
             nivelAcesso: form.nivelAcesso as NivelAcesso,
+            senha: form.senha
         });
         setForm(inicial);
         setErros({});
