@@ -118,10 +118,11 @@ export default function UpdateVersionModal({
             return;
         }
 
-        const formData = new FormData(); const arquivoLimpo = new File([arquivoNorma], arquivoNorma.name, {
-            type: arquivoNorma.type,
-        });
-        formData.append('file', arquivoLimpo)
+        const formData = new FormData();
+        formData.append('data_publicacao', dataPublicacao);
+        formData.append('revisao', proximaRevisao);
+        const arquivoLimpo = new File([arquivoNorma], arquivoNorma.name, { type: arquivoNorma.type });
+        formData.append('file', arquivoLimpo);
 
         try {
             setIsLoading(true);

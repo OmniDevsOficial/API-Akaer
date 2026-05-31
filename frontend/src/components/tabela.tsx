@@ -131,7 +131,7 @@ function AccordionRevisoes({ codigoPai, onAbrirPdfRevisao }: AccordionRevisoesPr
                 >
                     {/* Indentação */}
                     <td className="pl-4 py-2.5">
-                        {/* <div className="w-0.5 h-5 bg-gray-200 rounded-full mx-auto" /> */}
+                       {/*  {<div className="w-0.5 h-5 bg-gray-200 rounded-full mx-auto" />} */}
                     </td>
 
                     {/* CÓDIGO */}
@@ -409,33 +409,6 @@ export default function TabelaNormas({
 
         return 0;
     });
-
-    useEffect(() => {
-        const carregarNormas = async () => {
-            setCarregando(true);
-            try {
-                const data = await listarNormas({
-                    page: 1,
-                    texto: searchText.trim(),
-                    filtros,
-                });
-
-                const itens = Array.isArray(data?.itens) ? data.itens : [];
-                const total = data?.paginacao?.total ?? itens.length;
-
-                setNormas(itens);
-                setTotalNormas(total);
-            } catch (error) {
-                console.error('Erro ao listar normas:', error);
-                setNormas([]);
-                setTotalNormas(0);
-            } finally {
-                setCarregando(false);
-            }
-        };
-
-        carregarNormas();
-    }, [refreshTrigger, searchText, filtros]);
 
     const quantidadeExibida = normas.length;
     const quantidadeTotal = totalNormas || quantidadeExibida;
