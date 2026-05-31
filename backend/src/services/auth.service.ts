@@ -9,6 +9,7 @@ export const loginService = async (email: string, password: string) => {
 
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) throw new Error("Usuário ou senha incorretos");
+  if (!user.ativo) throw new Error("Conta desativada");
 
   const validPassword = await comparePassword(password, user.password);
   if (!validPassword) throw new Error("Usuário ou senha incorretos");
