@@ -1,15 +1,38 @@
 import { IoReorderFour } from "react-icons/io5";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, LogOut } from "lucide-react";
 import { LuLayers } from "react-icons/lu";
 import { HiOutlineUsers } from "react-icons/hi2";
 import { BsJournalText } from "react-icons/bs";
 import { useRecolher } from "../utils/functions";
 import { useNavigate, useLocation, matchPath } from "react-router-dom";
+import { getUserName, getUserCargo, /* getUserRole,*/ clearAuth } from "../utils/auth";
 
 export default function Sidebar() {
     const { recolher, alternar } = useRecolher();
     const navigate = useNavigate();
     const location = useLocation();
+
+    const nomeCompleto = getUserName?.() ?? 'Manoel Gomes';
+    const cargo = getUserCargo?.() ?? 'Projetista';
+   /* const role = getUserRole?.() ?? ''; descomentar essa linha e sua importação na hora de fazer a integração*/
+
+    const iniciais = nomeCompleto
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((p: string) => p[0].toUpperCase())
+        .join('');
+
+
+    const partes = nomeCompleto.trim().split(' ').filter(Boolean);
+    const nomeAbreviado = partes.length >= 2
+        ? `${partes[0]} ${partes[partes.length - 1][0]}.`
+        : partes[0] ?? 'Usuário';
+
+    const handleSair = () => {
+        clearAuth?.();
+        navigate('/');
+    };
 
     const itemSidebar = [
         {
@@ -30,7 +53,7 @@ export default function Sidebar() {
             id: 3,
             nome: 'Usuários',
             rota: '/usuario',
-            rotaAtiva: ['/usuario'], // mudar quando tiver a página de usuários
+            rotaAtiva: ['/usuario'],
             icone: <HiOutlineUsers className="text-lg" />
         }
     ];
@@ -52,7 +75,7 @@ export default function Sidebar() {
                 {!recolher && (
                     <div className="flex flex-col leading-none animate-fade-in truncate mt-1">
                         <span className="font-extrabold text-base tracking-tight text-dark-title">
-                            Plataforma<span className="text-[#73203A]"></span>
+                            Plataforma
                         </span>
                         <span className="text-[9px] font-bold text-gray-medium tracking-widest uppercase mt-0.5">
                             Normativa
@@ -74,7 +97,7 @@ export default function Sidebar() {
                             onClick={() => navigate(item.rota)}
                             className={`flex items-center gap-2 px-3 py-2 text-left text-sm rounded-md w-full font-medium transition-colors duration-150 ease-in-out cursor-pointer
                     ${isAtivo
-                                    ? 'bg-[#73203A] text-white'
+                                    ? 'bg-red-akaer text-white'
                                     : 'text-dark-title hover:bg-gray-medium/20 hover:text-dark-title'
                                 }
                     ${recolher ? "justify-center" : ""}`}
@@ -83,9 +106,61 @@ export default function Sidebar() {
                             <span className="flex-shrink-0">{item.icone}</span>
                             {!recolher && <span>{item.nome}</span>}
                         </button>
-                    )
+                    );
                 })}
             </nav>
-        </aside >
-    )
+
+            {/* Rodapé — Perfil + Sair */}
+            <div className="mt-auto flex flex-col gap-1">
+                {(() => {
+                    const isPerfilAtivo = matchPath({ path: '/perfil', end: false }, location.pathname);
+                    
+                    return (
+                        <>
+                            {/* Botão de perfil */ }
+                            <button
+                                onClick={() => navigate('/perfil')}
+                                className={`flex items-center gap-2.5 w-full rounded-md px-2 py-2 border border-font-border hover:bg-gray-medium/10 transition-colors cursor-pointer
+                                ${isPerfilAtivo
+                                    ? 'border-[#73203A] bg-[#73203A]/5 shadow-sm ring-1 ring-[#73203A]/20'
+                                    : 'border-font-border hover:bg-gray-medium/10'
+                                }
+                                ${recolher ? "justify-center" : ""}`}
+                                title={recolher ? nomeAbreviado : undefined}
+                            >
+                                {/* Avatar com iniciais */}
+                                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors
+                                    ${isPerfilAtivo ? 'bg-[#73203A] text-white' : 'bg-[#73203A]/15 text-[#73203A]'}`}>
+                                    <span className="text-[11px] font-bold">{iniciais || '?'}</span>
+                                </div>
+
+                                {!recolher && (
+                                    <div className="flex flex-col items-start leading-none truncate">
+                                        <span className={`text-sm font-semibold truncate max-w-[120px] transition-colors
+                                            ${isPerfilAtivo ? 'text-[#73203A]' : 'text-dark-title'}`}>
+                                            {nomeAbreviado}
+                                        </span>
+                                        <span className="text-[10px] text-gray-medium mt-0.5 truncate max-w-[120px]">
+                                            {cargo}
+                                        </span>
+                                    </div>
+                                )}
+                            </button>
+
+                            {/* Sair da plataforma */}
+                            <button
+                                onClick={handleSair}
+                                className={`flex items-center gap-2 px-2 py-3 w-full rounded-md text-sm text-gray-medium hover:text-red-500 hover:bg-red-50 transition-colors cursor-pointer
+                                ${recolher ? "justify-center" : ""}`}
+                                title={recolher ? 'Sair da plataforma' : undefined}
+                            >
+                                <LogOut size={14} className="flex-shrink-0" />
+                                {!recolher && <span className="text-xs font-medium">Sair da plataforma</span>}
+                            </button>
+                        </>
+                    );
+                })()}
+            </div>
+        </aside>
+    );
 }

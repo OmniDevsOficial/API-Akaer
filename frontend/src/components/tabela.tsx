@@ -1,18 +1,17 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { FileText, Pencil, Eye, ChevronRight, RefreshCw } from "lucide-react";
 import { getUserRole } from '../utils/auth';
 import { useNavigate } from "react-router-dom";
-import { listarNormas, getNormaDetalhes, getRevisoesNorma } from "@/services/normaService";
+import { listarNormas, getNormaDetalhes } from "@/services/normaService";
 import type { FiltrosSelecionados } from "@/components/FilterAside/FilterAside";
 import type { RevisaoNorma } from "@/services/normaService";
 import PdfViewerModal from "./pdf-viewer-modal";
 import UpdateVersionModal from "./update-version-modal";
 
-//os dados do accordion estão mocados em backend/src/routes/norma.routes.ts
-
 export interface Norma {
     id: number;
     codigo: string;
+    codigo_base?: string;
     titulo: string;
     arquivo?: string;
     revisao?: string | null;
@@ -21,6 +20,7 @@ export interface Norma {
     categoria?: { nome: string };
     categoria_id?: { nome: string };
     status: string;
+    revisoes?: RevisaoNorma[];
 }
 
 export interface NormaSelecionadaPdf {
@@ -68,58 +68,15 @@ const statusColorClass = (status: string) => {
 
 
 
-// Accordion de revisões 
-
 interface AccordionRevisoesProps {
-    codigoPai: string;
-    isAdmin: boolean;
+    revisoes: RevisaoNorma[];
     onAbrirPdfRevisao: (revisao: RevisaoNorma) => void;
 }
 
-function AccordionRevisoes({ codigoPai, onAbrirPdfRevisao }: AccordionRevisoesProps) {
+function AccordionRevisoes({ revisoes, onAbrirPdfRevisao }: AccordionRevisoesProps) {
     const navigate = useNavigate();
-    const [revisoes, setRevisoes] = useState<RevisaoNorma[]>([]);
-    const [carregando, setCarregando] = useState(true);
-    const [erro, setErro] = useState(false);
-    const jaCarregou = useRef(false);
 
-    useEffect(() => {
-        if (jaCarregou.current) return;
-        jaCarregou.current = true;
-
-        const carregar = async () => {
-            setCarregando(true);
-            setErro(false);
-            try {
-                const dados = await getRevisoesNorma(codigoPai);
-                setRevisoes(Array.isArray(dados) ? dados : []);
-            } catch {
-                setErro(true);
-                setRevisoes([]);
-            } finally {
-                setCarregando(false);
-            }
-        };
-
-        carregar();
-    }, [codigoPai]);
-
-
-    const linhaInfo = (conteudo: React.ReactNode) => (
-        <tr className="bg-[#f7f7f7] border-b border-font-border">
-            <td colSpan={9} className="pl-14 pr-6 py-3">{conteudo}</td>
-        </tr>
-    );
-
-    if (carregando) return linhaInfo(
-        <span className="text-xs text-gray-medium animate-pulse">Carregando histórico de revisões...</span>
-    );
-    if (erro) return linhaInfo(
-        <span className="text-xs text-red-400">Não foi possível carregar o histórico de revisões.</span>
-    );
-    if (revisoes.length === 0) return linhaInfo(
-        <span className="text-xs text-gray-medium">Nenhuma revisão anterior encontrada para esta norma.</span>
-    );
+    if (revisoes.length === 0) return null;
 
     return (
         <>
@@ -131,25 +88,24 @@ function AccordionRevisoes({ codigoPai, onAbrirPdfRevisao }: AccordionRevisoesPr
                 >
                     {/* Indentação */}
                     <td className="pl-4 py-2.5">
-                        {/* <div className="w-0.5 h-5 bg-gray-200 rounded-full mx-auto" /> */}
                     </td>
 
                     {/* CÓDIGO */}
                     <td className="px-3 py-3 text-sm text-gray-400 font-semibold whitespace-nowrap">
-                        {rev.codigo}
+                        {rev.codigo_base || rev.codigo}
+                        <span className="font-normal block text-xs text-gray-400/70">Revisão: <span className="font-semibold text-red-akaer/60">{rev.revisao}</span></span>
                     </td>
 
                     {/* NORMA (título + revisão) */}
                     <td className="px-3 py-3">
                         <span className="block text-sm font-medium text-gray-400">{rev.titulo}</span>
-                        {rev.revisao && <span className="block text-xs text-gray-400/70">Rev.: {rev.revisao}</span>}
                     </td>
 
                     {/* ÓRGÃO — dash para obsoletas */}
-                    <td className="px-3 py-3 text-sm text-gray-400">-</td>
+                    <td className="px-3 py-3 text-sm text-gray-400">{rev.orgao_emissor?.nome || '-'}</td>
 
                     {/* CATEGORIA — dash para obsoletas */}
-                    <td className="px-3 py-3 text-sm text-gray-400">-</td>
+                    <td className="px-3 py-3 text-sm text-gray-400">{rev.categoria?.nome || '-'}</td>
 
                     {/* STATUS */}
                     <td className="px-3 py-3">
@@ -211,41 +167,50 @@ function NormaRow({ norma, isAdmin, onAbrirPdf, onAbrirPdfRevisao, onEditar, onA
     const navigate = useNavigate();
     const [accordionAberto, setAccordionAberto] = useState(false);
 
+    const revisoes = norma.revisoes ?? [];
+    const temRevisoes = revisoes.length > 0;
+
     const toggleAccordion = () => {
-        setAccordionAberto((prev) => !prev);
+        if (temRevisoes) {
+            setAccordionAberto((prev) => !prev);
+        }
     };
 
     return (
         <>
             <tr
                 onClick={toggleAccordion}
-                className={`border-b border-font-border last:border-none hover:bg-red-50/60 transition-colors cursor-pointer ${accordionAberto ? 'bg-red-50/40' : ''
-                    }`}
+                className={`border-b border-font-border last:border-none hover:bg-red-50/60 transition-colors ${
+                    temRevisoes ? 'cursor-pointer' : ''
+                } ${accordionAberto ? 'bg-red-50/40' : ''}`}
             >
-                {/* Chevron trigger */}
+                {/* Chevron trigger — só aparece se tem revisões */}
                 <td className="pl-4 pr-0 py-3">
-                    <div
-                        title={accordionAberto ? 'Fechar histórico' : 'Ver histórico de revisões'}
-                        className={`flex items-center justify-center w-5 h-5 rounded transition-colors ${accordionAberto ? 'text-red-akaer' : 'text-gray-400 hover:text-gray-700'
-                            }`}
-                    >
-                        <ChevronRight
-                            size={16}
-                            className={`transition-transform duration-300 ease-in-out ${accordionAberto ? 'rotate-90' : 'rotate-0'
+                    {temRevisoes && (
+                        <div
+                            title={accordionAberto ? 'Fechar histórico' : 'Ver histórico de revisões'}
+                            className={`flex items-center justify-center w-5 h-5 rounded transition-colors ${accordionAberto ? 'text-red-akaer' : 'text-gray-400 hover:text-gray-700'
                                 }`}
-                        />
-                    </div>
+                        >
+                            <ChevronRight
+                                size={16}
+                                className={`transition-transform duration-300 ease-in-out ${accordionAberto ? 'rotate-90' : 'rotate-0'
+                                    }`}
+                            />
+                        </div>
+                    )}
                 </td>
 
                 {/* CÓDIGO */}
                 <td className="px-3 py-3 text-sm text-red-akaer font-semibold whitespace-nowrap">
-                    {norma.codigo}
+                    {norma.codigo_base || norma.codigo}
+                    <span className="font-normal block text-xs text-gray-medium">Revisão atual: <span className="font-semibold text-red-akaer">{norma.revisao}</span></span>
                 </td>
 
                 {/* NORMA (título + revisão) */}
                 <td className="px-3 py-3">
                     <span className="block text-sm font-medium text-gray-900">{norma.titulo}</span>
-                    <span className="block text-xs text-gray-medium">Rev. atual: {norma.revisao}</span>
+                    
                 </td>
 
                 {/* ÓRGÃO */}
@@ -313,10 +278,9 @@ function NormaRow({ norma, isAdmin, onAbrirPdf, onAbrirPdfRevisao, onEditar, onA
                 </td>
             </tr>
 
-            {accordionAberto && (
+            {accordionAberto && temRevisoes && (
                 <AccordionRevisoes
-                    codigoPai={norma.codigo}
-                    isAdmin={isAdmin}
+                    revisoes={revisoes}
                     onAbrirPdfRevisao={onAbrirPdfRevisao}
                 />
             )}
@@ -409,33 +373,6 @@ export default function TabelaNormas({
 
         return 0;
     });
-
-    useEffect(() => {
-        const carregarNormas = async () => {
-            setCarregando(true);
-            try {
-                const data = await listarNormas({
-                    page: 1,
-                    texto: searchText.trim(),
-                    filtros,
-                });
-
-                const itens = Array.isArray(data?.itens) ? data.itens : [];
-                const total = data?.paginacao?.total ?? itens.length;
-
-                setNormas(itens);
-                setTotalNormas(total);
-            } catch (error) {
-                console.error('Erro ao listar normas:', error);
-                setNormas([]);
-                setTotalNormas(0);
-            } finally {
-                setCarregando(false);
-            }
-        };
-
-        carregarNormas();
-    }, [refreshTrigger, searchText, filtros]);
 
     const quantidadeExibida = normas.length;
     const quantidadeTotal = totalNormas || quantidadeExibida;

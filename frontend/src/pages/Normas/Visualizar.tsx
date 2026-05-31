@@ -11,7 +11,6 @@ import {
     Tag,
 } from "lucide-react";
 
-import Header from "../../components/header";
 import Sidebar from "../../components/sidebar";
 import PdfViewerModal from "../../components/pdf-viewer-modal";
 import {
@@ -157,7 +156,6 @@ export default function Visualizar() {
                 <Sidebar />
 
                 <div className="flex-1 flex flex-col">
-                    <Header />
                     
                     <div className="flex flex-wrap items-center gap-4 border-b border-font-border bg-white px-7 py-6">
                         <div className="flex items-center gap-4">

@@ -40,6 +40,10 @@ model User {
   ativo     Boolean  @default(true)
   criado_em DateTime @default(now())
 
+  // Novas colunas obrigatórias (Inclusão local)
+  telefone         String?             @db.VarChar(30)
+  cargo            String              @db.VarChar(40)
+
   // Relacionamentos mapeados localmente
   normas       Norma[]
   solicitacoes SolicitacaoNorma[]
@@ -137,10 +141,6 @@ model SolicitacaoNorma {
   dados_propostos  Json?
   motivo_rejeicao  String?            @db.Text
   data_criacao     DateTime           @default(now())
-
-  // Novas colunas obrigatórias (Inclusão local)
-  telefone         String             @db.VarChar(30)
-  cargo            String             @db.VarChar(40)
 
   usuario_id       Int
   usuario          User   @relation(fields: [usuario_id], references: [id])
