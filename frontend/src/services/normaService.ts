@@ -45,6 +45,7 @@ export const atualizarNorma = async (
 export interface Norma {
     id: number;
     codigo: string;
+    codigo_base?: string;
     titulo: string;
     arquivo?: string;
     revisao?: string | null;
@@ -53,12 +54,14 @@ export interface Norma {
     categoria?: { nome: string };
     categoria_id?: { nome: string };
     status: string;
+    revisoes?: RevisaoNorma[];
 }
 
 // Representa uma revisão obsoleta de uma norma
 export interface RevisaoNorma {
     id: number;
     codigo: string;
+    codigo_base?: string;
     titulo: string;
     revisao: string | null;
     status: string;
@@ -118,12 +121,12 @@ export async function listarNormas({
 }
 
 /**
- * Busca o histórico de revisões obsoletas de uma norma pelo seu código.
- * Retorna uma lista de revisões anteriores (status obsoleto/inativo).
+ * Cria uma nova revisão de uma norma existente.
+ * Envia o PDF e a data de publicação via FormData.
  */
-export async function getRevisoesNorma(codigo: string): Promise<RevisaoNorma[]> {
-    const response = await api.get<RevisaoNorma[]>(
-        `/normas/${encodeURIComponent(codigo)}/revisoes`
-    );
-    return response.data;
-}
+export const criarRevisaoNorma = async (
+    codigo: string,
+    payload: FormData
+): Promise<void> => {
+    await api.post(`/normas/${encodeURIComponent(codigo)}/revisao`, payload);
+};

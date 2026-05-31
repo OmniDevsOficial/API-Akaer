@@ -77,8 +77,11 @@ export const createNormaService = async (data: any, filePath: string) => {
     ? codigoNormalizado.slice(0, -sufixoRevisao.length)
     : codigoNormalizado;
 
+  // Garante que o código salvo sempre inclua o sufixo da revisão
+  const codigoFinal = `${codigoBase}-${revisaoNormalizada}`;
+
   const codigoJaExiste = await prisma.norma.findUnique({
-    where: { codigo: codigoNormalizado },
+    where: { codigo: codigoFinal },
     select: { codigo: true }
   });
 
@@ -95,7 +98,7 @@ export const createNormaService = async (data: any, filePath: string) => {
 
   const norma = await prisma.norma.create({
     data: {
-      codigo: codigoNormalizado,
+      codigo: codigoFinal,
       codigo_base:     codigoBase,
       titulo,
       orgao_emissor_id: Number(orgao_emissor_id),
@@ -112,11 +115,11 @@ export const createNormaService = async (data: any, filePath: string) => {
   });
 
   if (notasNormalizadas.length) {
-    await createNormaNotasService(codigo, notasNormalizadas);
+    await createNormaNotasService(codigoFinal, notasNormalizadas);
   }
 
   if (normasRelacionadasIds.length) {
-    await replaceNormasRelacionadasService(codigo, normasRelacionadasIds);
+    await replaceNormasRelacionadasService(codigoFinal, normasRelacionadasIds);
   }
 
   return norma;
@@ -191,6 +194,30 @@ export const updateNormaService = async (codigo: string, data: any, newFilePath?
   };
 };
 
+const revisoesDaNorma = async (codigoBase: string, codigoVigente: string) => {
+  const revisoes = await prisma.norma.findMany({
+    where: {
+      codigo_base: codigoBase,
+      codigo: { not: codigoVigente },
+    },
+    orderBy: { revisao: "desc" },
+    select: {
+      id: true,
+      codigo: true,
+      codigo_base: true,
+      titulo: true,
+      revisao: true,
+      status: true,
+      arquivo: true,
+      orgao_emissor: { select: { nome: true } },
+      categoria: { select: { nome: true } },
+      data_publicacao: true,
+    },
+  });
+
+  return revisoes;
+};
+
 export const searchNormasService = async (
   texto: string,
   pagina: number,
@@ -202,7 +229,9 @@ export const searchNormasService = async (
   const LIMITE_POR_PAGINA = 8;
   const termo = texto.trim();
 
-  const whereClause: any = {};
+  const whereClause: any = {
+    is_vigente: true,
+  };
 
   if (termo) {
     whereClause.OR = [
@@ -237,7 +266,9 @@ export const searchNormasService = async (
       skip,
       take: LIMITE_POR_PAGINA,
       select: {
+        id: true,
         codigo: true,
+        codigo_base: true,
         titulo: true,
         status: true,
         revisao: true,
@@ -250,10 +281,20 @@ export const searchNormasService = async (
     }),
   ]);
 
+  const itensComRevisoes = await Promise.all(
+    normas.map(async (norma) => {
+      const revisoes = await revisoesDaNorma(norma.codigo_base, norma.codigo);
+      return {
+        ...norma,
+        revisoes,
+      };
+    })
+  );
+
   const totalPaginas = Math.max(1, Math.ceil(total / LIMITE_POR_PAGINA));
 
   return {
-    itens: normas,
+    itens: itensComRevisoes,
     paginacao: {
       pagina,
       limite:            LIMITE_POR_PAGINA,
