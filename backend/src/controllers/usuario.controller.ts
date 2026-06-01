@@ -3,7 +3,10 @@ import { Role } from "@prisma/client";
 import { atualizarUsuario, alternarStatusUsuario, criarUsuario, listarUsuarios, buscarUsuarioPorId } from "../services/usuario.service";
 
 const isRoleValida = (role: unknown): role is Role => {
-  return typeof role === "string" && (Object.values(Role) as string[]).includes(role);
+  return (
+    typeof role === "string" &&
+    (Object.values(Role) as string[]).includes(role)
+  );
 };
 
 export const criarUsuarioController = async (req: Request, res: Response): Promise<void> => {
@@ -81,7 +84,10 @@ export const atualizarUsuarioController = async (req: Request, res: Response): P
   }
 };
 
-export const alternarStatusUsuarioController = async (req: Request, res: Response): Promise<void> => {
+export const alternarStatusUsuarioController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const id = Number(req.params.id);
     const usuarioLogadoId = (req as any).user?.id;
@@ -99,7 +105,9 @@ export const alternarStatusUsuarioController = async (req: Request, res: Respons
     const usuario = await alternarStatusUsuario(id, usuarioLogadoId);
 
     res.status(200).json({
-      message: usuario.ativo ? "Usuário reativado com sucesso." : "Usuário desativado com sucesso.",
+      message: usuario.ativo
+        ? "Usuário reativado com sucesso."
+        : "Usuário desativado com sucesso.",
       usuario,
     });
   } catch (error: any) {
@@ -149,4 +157,3 @@ export const buscarPerfilController = async (req: Request, res: Response): Promi
     res.status(500).json({ error: "Erro ao buscar usuário" });
   }
 };
-

@@ -2,21 +2,16 @@ import { useState, useEffect } from 'react';
 import { X, Eye, EyeOff, Settings, CheckSquare, BookOpen } from 'lucide-react';
 import type { NivelAcesso } from './ModalNovoUsuario';
 
-
 export interface UsuarioEditar {
     id: number;
     nome: string;
     email: string;
-    cargo: string;
-    telefone: string;
     nivelAcesso: NivelAcesso;
 }
 
 interface Form {
     nome: string;
     email: string;
-    cargo: string;
-    telefone: string;
     nivelAcesso: NivelAcesso | '';
     novaSenha: string;
     confirmarNovaSenha: string;
@@ -29,8 +24,6 @@ interface Props {
     usuario: UsuarioEditar | null;
     emailsExistentes: string[];
 }
-
-
 
 const niveisConfig: { valor: NivelAcesso; label: string; descricao: string; icone: React.ReactNode }[] = [
     { valor: 'Administrador', label: 'Administrador', descricao: 'Acesso total', icone: <Settings size={18} className="text-gray-500" /> },
@@ -61,27 +54,9 @@ function NivelCard({ label, descricao, icone, selecionado, onClick }: {
     );
 }
 
-const formatTelefone = (digits: string) => {
-    if (!digits) return '';
-    if (digits.length <= 10) {
-        return digits.replace(/^(\d{2})(\d{0,4})(\d{0,4}).*/, (_m, p1, p2, p3) => {
-            const part1 = p1 || '';
-            const part2 = p2 || '';
-            const part3 = p3 || '';
-            return `${part1 ? `(${part1}) ` : ''}${part2}${part3 ? `-${part3}` : ''}`.trim();
-        });
-    }
-    return digits.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, (_m, p1, p2, p3) => {
-        const part1 = p1 || '';
-        const part2 = p2 || '';
-        const part3 = p3 || '';
-        return `${part1 ? `(${part1}) ` : ''}${part2}${part3 ? `-${part3}` : ''}`;
-    });
-};
-
 export default function ModalEditarUsuario({ open, onClose, onSalvar, usuario, emailsExistentes }: Props) {
     const [form, setForm] = useState<Form>({
-        nome: '', email: '', cargo: '', telefone: '', nivelAcesso: '', novaSenha: '', confirmarNovaSenha: ''
+        nome: '', email: '', nivelAcesso: '', novaSenha: '', confirmarNovaSenha: ''
     });
     const [erros, setErros] = useState<Partial<Record<keyof Form, string>>>({});
     const [mostrarSenha, setMostrarSenha] = useState(false);
@@ -93,8 +68,6 @@ export default function ModalEditarUsuario({ open, onClose, onSalvar, usuario, e
             setForm({
                 nome: usuario.nome,
                 email: usuario.email,
-                cargo: usuario.cargo,
-                telefone: usuario.telefone,
                 nivelAcesso: usuario.nivelAcesso,
                 novaSenha: '',
                 confirmarNovaSenha: '',
@@ -107,21 +80,6 @@ export default function ModalEditarUsuario({ open, onClose, onSalvar, usuario, e
     if (!open || !usuario) return null;
 
     const set = (campo: keyof Form, valor: string) => {
-
-        if (campo === 'telefone') {
-            const prevRaw = form.telefone || '';
-            const prevDigits = prevRaw.replace(/\D/g, '');
-            const newRaw = valor || '';
-            const newDigits = newRaw.replace(/\D/g, '').slice(0, 11);
-
-            if (newRaw.length < prevRaw.length && newDigits === prevDigits) {
-                // user deleted a formatting char — keep raw change but strip unexpected chars
-                valor = newRaw.replace(/[^0-9()\s-]/g, '');
-            } else {
-                valor = formatTelefone(newDigits);
-            }
-        }
-
         const novo = { ...form, [campo]: valor };
         setForm(novo);
         if (enviado) validar(novo);
@@ -134,11 +92,12 @@ export default function ModalEditarUsuario({ open, onClose, onSalvar, usuario, e
             e.email = 'E-mail é obrigatório.';
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(dados.email)) {
             e.email = 'E-mail inválido.';
-        } else if (dados.email.toLowerCase() !== usuario.email.toLowerCase() &&
-            emailsExistentes.includes(dados.email.toLowerCase())) {
+        } else if (
+            dados.email.toLowerCase() !== usuario.email.toLowerCase() &&
+            emailsExistentes.includes(dados.email.toLowerCase())
+        ) {
             e.email = 'Este e-mail já está cadastrado.';
         }
-        if (!dados.cargo.trim()) e.cargo = 'Cargo é obrigatório.';
         if (!dados.nivelAcesso) e.nivelAcesso = 'Selecione um nível de acesso.';
         if (dados.novaSenha && dados.novaSenha.length < 8) {
             e.novaSenha = 'Mínimo de 8 caracteres.';
@@ -157,8 +116,6 @@ export default function ModalEditarUsuario({ open, onClose, onSalvar, usuario, e
             id: usuario.id,
             nome: form.nome.trim(),
             email: form.email.trim().toLowerCase(),
-            cargo: form.cargo.trim(),
-            telefone: form.telefone.trim(),
             nivelAcesso: form.nivelAcesso as NivelAcesso,
         });
         onClose();
@@ -200,9 +157,12 @@ export default function ModalEditarUsuario({ open, onClose, onSalvar, usuario, e
                         <label className="block text-xs font-semibold text-gray-600 mb-1">
                             NOME COMPLETO <span className="text-red-akaer">*</span>
                         </label>
-                        <input type="text" value={form.nome}
+                        <input
+                            type="text"
+                            value={form.nome}
                             onChange={e => set('nome', e.target.value)}
-                            className={inputBase('nome')} />
+                            className={inputBase('nome')}
+                        />
                         {erros.nome && <p className="text-red-akaer text-xs mt-0.5">{erros.nome}</p>}
                     </div>
 
@@ -211,27 +171,13 @@ export default function ModalEditarUsuario({ open, onClose, onSalvar, usuario, e
                         <label className="block text-xs font-semibold text-gray-600 mb-1">
                             E-MAIL <span className="text-red-akaer">*</span>
                         </label>
-                        <input type="email" value={form.email}
+                        <input
+                            type="email"
+                            value={form.email}
                             onChange={e => set('email', e.target.value)}
-                            className={inputBase('email')} />
+                            className={inputBase('email')}
+                        />
                         {erros.email && <p className="text-red-akaer text-xs mt-0.5">{erros.email}</p>}
-                    </div>
-
-                    {/* Cargo + Telefone */}
-                    <div className="flex gap-3">
-                        <div className="flex-1">
-                            <label className="block text-xs font-semibold text-gray-600 mb-1">CARGO <span className="text-red-akaer">*</span></label>
-                            <input type="text" value={form.cargo}
-                                onChange={e => set('cargo', e.target.value)}
-                                className={inputBase('cargo')} />
-                            {erros.cargo && <p className="text-red-akaer text-xs mt-0.5">{erros.cargo}</p>}
-                        </div>
-                        <div className="flex-1">
-                            <label className="block text-xs font-semibold text-gray-600 mb-1">TELEFONE</label>
-                            <input type="text" value={form.telefone}
-                                onChange={e => set('telefone', e.target.value)}
-                                className={inputBase('telefone')} />
-                        </div>
                     </div>
 
                     {/* Nível de Acesso */}
@@ -241,7 +187,9 @@ export default function ModalEditarUsuario({ open, onClose, onSalvar, usuario, e
                         </label>
                         <div className="flex gap-2">
                             {niveisConfig.map(n => (
-                                <NivelCard key={n.valor} {...n}
+                                <NivelCard
+                                    key={n.valor}
+                                    {...n}
                                     selecionado={form.nivelAcesso === n.valor}
                                     onClick={() => set('nivelAcesso', n.valor)}
                                 />
@@ -250,15 +198,18 @@ export default function ModalEditarUsuario({ open, onClose, onSalvar, usuario, e
                         {erros.nivelAcesso && <p className="text-red-akaer text-xs mt-0.5">{erros.nivelAcesso}</p>}
                     </div>
 
-                    {/* Nova Senha + Confirmar (opcionais na edição) */}
+                    {/* Nova Senha + Confirmar */}
                     <div className="flex gap-3">
                         <div className="flex-1">
                             <label className="block text-xs font-semibold text-gray-600 mb-1">NOVA SENHA</label>
                             <div className="relative">
-                                <input type={mostrarSenha ? 'text' : 'password'}
+                                <input
+                                    type={mostrarSenha ? 'text' : 'password'}
                                     placeholder="Mínimo de 8 caracteres"
-                                    value={form.novaSenha} onChange={e => set('novaSenha', e.target.value)}
-                                    className={`${inputBase('novaSenha')} pr-9`} />
+                                    value={form.novaSenha}
+                                    onChange={e => set('novaSenha', e.target.value)}
+                                    className={`${inputBase('novaSenha')} pr-9`}
+                                />
                                 <button type="button" onClick={() => setMostrarSenha(v => !v)}
                                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                                     {mostrarSenha ? <EyeOff size={14} /> : <Eye size={14} />}
@@ -269,10 +220,13 @@ export default function ModalEditarUsuario({ open, onClose, onSalvar, usuario, e
                         <div className="flex-1">
                             <label className="block text-xs font-semibold text-gray-600 mb-1">CONFIRMAR NOVA SENHA</label>
                             <div className="relative">
-                                <input type={mostrarConfirmar ? 'text' : 'password'}
+                                <input
+                                    type={mostrarConfirmar ? 'text' : 'password'}
                                     placeholder="Repita a senha"
-                                    value={form.confirmarNovaSenha} onChange={e => set('confirmarNovaSenha', e.target.value)}
-                                    className={`${inputBase('confirmarNovaSenha')} pr-9`} />
+                                    value={form.confirmarNovaSenha}
+                                    onChange={e => set('confirmarNovaSenha', e.target.value)}
+                                    className={`${inputBase('confirmarNovaSenha')} pr-9`}
+                                />
                                 <button type="button" onClick={() => setMostrarConfirmar(v => !v)}
                                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                                     {mostrarConfirmar ? <EyeOff size={14} /> : <Eye size={14} />}

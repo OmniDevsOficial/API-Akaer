@@ -31,10 +31,11 @@ const mapearUsuario = (usuario: UsuarioGerenciado) => ({
 });
 
 export const listarUsuarios = async () => {
-  return prisma.user.findMany({
+  const usuarios = await prisma.user.findMany({
     select: selecionarUsuario,
     orderBy: { criado_em: "desc" },
   });
+  return usuarios.map(mapearUsuario);
 };
 
 export const buscarUsuarioPorId = async (id: number) => {
@@ -43,7 +44,7 @@ export const buscarUsuarioPorId = async (id: number) => {
     select: selecionarUsuario,
   });
   if (!usuario) throw new Error("Usuário não encontrado");
-  return usuario;
+  return mapearUsuario(usuario);
 };
 
 export const criarUsuario = async (dados: {
@@ -77,7 +78,6 @@ export const criarUsuario = async (dados: {
   });
 
   return mapearUsuario(usuario);
-
 };
 
 export const atualizarUsuario = async (
@@ -107,7 +107,10 @@ export const atualizarUsuario = async (
   return mapearUsuario(usuarioAtualizado);
 };
 
-export const alternarStatusUsuario = async (id: number, usuarioLogadoId: number) => {
+export const alternarStatusUsuario = async (
+  id: number,
+  usuarioLogadoId: number
+) => {
   const usuario = await prisma.user.findUnique({
     where: { id },
     select: selecionarUsuario,
