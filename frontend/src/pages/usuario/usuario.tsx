@@ -40,10 +40,10 @@ const mapNivelParaRole = (nivel: NivelAcesso): UsuarioAPI['role'] => {
 
 function StatusBadge({ ativo }: { ativo: boolean }) {
     return (
-        <span className={`flex items-center gap-1 text-xs font-medium ${ativo ? 'text-green-600' : 'text-red-500'}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${ativo ? 'bg-green-500' : 'bg-red-400'}`} />
-            {ativo ? 'Ativo' : 'Inativo'}
-        </span>
+        <>
+            <span className={`inline-block w-2 h-2 rounded-full ${ativo ? 'bg-green-500' : 'bg-red-400'}`} />
+            <span className="text-sm leading-none text-gray-700">{ativo ? 'Ativo' : 'Inativo'}</span>
+        </>
     );
 }
 
@@ -242,22 +242,22 @@ export default function Usuario() {
                         </div>
                     </div>
 
-                    <div className="bg-white border border-font-border rounded-xl overflow-hidden shadow-sm">
-                        <table className="w-full text-sm">
+                    <div className="border border-font-border rounded-lg overflow-hidden">
+                        <table className="w-full">
                             <thead>
                                 <tr className="border-b border-font-border">
-                                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-medium w-10">#</th>
-                                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-medium">NOME</th>
-                                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-medium">EMAIL</th>
-                                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-medium">NÍVEL DE ACESSO</th>
-                                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-medium">STATUS</th>
-                                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-medium">AÇÕES</th>
+                                    <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3 w-10">#</th>
+                                    <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">NOME</th>
+                                    <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">EMAIL</th>
+                                    <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">NÍVEL DE ACESSO</th>
+                                    <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">STATUS</th>
+                                    <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">AÇÕES</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {loading ? (
                                     <tr>
-                                        <td colSpan={6} className="px-4 py-10 text-center text-gray-medium">
+                                        <td colSpan={6} className="px-6 py-10 text-center text-gray-medium">
                                             <div className="flex items-center justify-center gap-2">
                                                 <Loader2 size={16} className="animate-spin" />
                                                 <span>Carregando usuários...</span>
@@ -266,37 +266,37 @@ export default function Usuario() {
                                     </tr>
                                 ) : filtrados.length === 0 ? (
                                     <tr>
-                                        <td colSpan={6} className="px-4 py-8 text-center text-gray-medium">
+                                        <td colSpan={6} className="px-6 py-8 text-center text-gray-medium">
                                             Nenhum usuário encontrado.
                                         </td>
                                     </tr>
                                 ) : (
                                     filtrados.map(u => (
-                                        <tr key={u.id} className="border-b border-font-border hover:bg-gray-50/60 transition-colors">
-                                            <td className="px-4 py-3 font-semibold text-red-akaer">{u.id}</td>
-                                            <td className="px-4 py-3 font-semibold text-dark-title">{u.nome}</td>
-                                            <td className="px-4 py-3 text-gray-medium">{u.email}</td>
-                                            <td className="px-4 py-3 text-dark-title">{mapRoleParaNivel(u.role)}</td>
-                                            <td className="px-4 py-3">
-                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100/40 text-gray-500 border border-gray-200">
+                                        <tr key={u.id} className="border-b border-font-border last:border-none hover:bg-red-50/60 transition-colors bg-white">
+                                            <td className="px-6 py-4 text-sm text-red-akaer font-semibold">{u.id}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-900 font-medium">{u.nome}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-700">{u.email}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-700">{mapRoleParaNivel(u.role)}</td>
+                                            <td className="px-6 py-4">
+                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200">
                                                     <StatusBadge ativo={u.ativo} />
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-3">
-                                                <div className="flex flex-col gap-1">
+                                            <td className="px-6 py-4">
+                                                <div className="flex flex-col gap-1.5">
                                                     <button
                                                         onClick={() => abrirEditar(u)}
-                                                        className="flex items-center gap-1 text-xs text-gray-medium hover:text-[#73203A] transition-colors"
+                                                        className="flex items-center gap-1 text-sm text-gray-700 hover:text-red-akaer transition-colors cursor-pointer"
                                                     >
-                                                        <Pencil size={11} /> Editar
+                                                        <Pencil size={14} /> Editar
                                                     </button>
                                                     <button
                                                         onClick={() => toggleStatus(u.id, u.ativo)}
-                                                        className={`flex items-center gap-1 text-xs transition-colors ${u.ativo ? 'text-gray-medium hover:text-red-500' : 'text-gray-medium hover:text-green-600'}`}
+                                                        className={`flex items-center gap-1 text-sm transition-colors cursor-pointer ${u.ativo ? 'text-gray-700 hover:text-red-akaer' : 'text-gray-700 hover:text-green-600'}`}
                                                     >
                                                         {u.ativo
-                                                            ? <><PowerOff size={11} /> Desativar</>
-                                                            : <><RefreshCw size={11} /> Reativar</>
+                                                            ? <><PowerOff size={14} /> Desativar</>
+                                                            : <><RefreshCw size={14} /> Reativar</>
                                                         }
                                                     </button>
                                                 </div>
@@ -306,7 +306,7 @@ export default function Usuario() {
                                 )}
                             </tbody>
                         </table>
-                        <div className="px-4 py-3 text-xs text-gray-medium">
+                        <div className="px-6 py-3 text-xs text-gray-medium border-t border-font-border">
                             Exibindo {filtrados.length} de {usuarios.length} Usuários
                         </div>
                     </div>

@@ -45,7 +45,7 @@ export default function Barra_pesquisa({ busca, onBuscaChange, onOpenFilters, fi
     return (
         <div className="flex items-center gap-4 my-6">
             {/* Barra de Pesquisa */}
-            <div className="flex flex-1 gap-4 items-center border border-font-border rounded-lg py-1.5 px-4">
+            <div className="flex flex-1 gap-4 items-center border border-font-border rounded-lg py-1.5 px-4 bg-white">
                 <IoMdSearch className='text-lg text-gray-medium' />
                 <input type="text" className='focus:outline-none focus:ring-0 w-full' placeholder="Buscar Normas, códigos ou palavra-chave..."
                     value={busca} onChange={(evento) => onBuscaChange(evento.target.value)} />
@@ -55,7 +55,7 @@ export default function Barra_pesquisa({ busca, onBuscaChange, onOpenFilters, fi
             <div>
                 <button
                     onClick={onOpenFilters}
-                    className={`flex gap-2 items-center text-sm border rounded-md py-2 px-3 cursor-pointer transition-colors ${filtrosAtivos
+                    className={`flex gap-2 items-center text-sm border rounded-md py-2 px-3 cursor-pointer transition-colors bg-white ${filtrosAtivos
                         ? "bg-[#F5D5D0] text-red-akaer/85 border-red-akaer/85"
                         : "text-gray-medium border-font-border hover:bg-red-50/60"
                         }`}
@@ -71,9 +71,9 @@ export default function Barra_pesquisa({ busca, onBuscaChange, onOpenFilters, fi
 
                 <button
                     onClick={() => setMenuAberto(!menuAberto)}
-                    className={`flex gap-2 items-center text-sm border rounded-md py-2 px-3 cursor-pointer transition-colors focus:outline-none ${ordenacaoAtiva
+                    className={`flex gap-2 items-center text-sm border rounded-md py-2 px-3 cursor-pointer transition-colors focus:outline-none bg-white ${ordenacaoAtiva
                         ? "bg-[#F5D5D0] text-red-akaer/90 border-red-akaer/70"
-                        : "text-gray-medium border-font-border hover:bg-red-50/60 bg-white"
+                        : "text-gray-medium border-font-border hover:bg-red-50/60"
                         }`}
                 >
                     <BiSortAlt2 className="text-lg" />
