@@ -76,6 +76,7 @@ export default function TabelaSolicitar({
     const isAdmin = role?.toLowerCase() === 'admin';
     const isChecker = role?.toLowerCase() === 'checker';
     const isViewer = role?.toLowerCase() === 'visualizador';
+    const totalColunas = isViewer ? 6 : 7;
 
     const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([]);
     const [carregando, setCarregando] = useState(true);
@@ -140,7 +141,7 @@ export default function TabelaSolicitar({
 
     const handleConcluirSolicitacao = (id: number) => {
         setSolicitacoes(prev =>
-            prev.map(s => s.id === id ? { ...s, status: 'Concluida' } : s)
+            prev.map(s => s.id === id ? { ...s, status: 'Concluída' } : s)
         );
     };
 
@@ -192,11 +193,15 @@ export default function TabelaSolicitar({
                 <tbody>
                     {carregando ? (
                         <tr>
-                            <td className="px-6 py-6 text-sm text-gray-medium text-center">Carregando solicitações...</td>
+                            <td colSpan={totalColunas} className="px-6 py-6 text-sm text-gray-medium text-center">Carregando solicitações...</td>
                         </tr>
                     ) : solicitacoesFiltradas.length === 0 ? (
                         <tr>
-                            <td className="px-6 py-6 text-sm text-gray-medium text-center">Nenhuma solicitação encontrada.</td>
+                            <td colSpan={totalColunas} className="px-6 py-6 text-sm text-gray-medium text-center">
+                                <div className="w-full flex justify-center">
+                                    <span>Nenhuma solicitação encontrada.</span>
+                                </div>
+                            </td>
                         </tr>
                     ) : (
                         solicitacoesFiltradas.map((s) => {
@@ -208,7 +213,7 @@ export default function TabelaSolicitar({
                             return (
                                 <tr
                                     key={s.id}
-                                    className="border-b border-font-border last:border-none hover:bg-red-50/60 transition-colors"
+                                    className="border-b border-font-border last:border-none hover:bg-red-50/60 transition-colors bg-white"
                                 >
                                     <td className="px-6 py-4 text-sm text-red-akaer font-semibold">{s.id}</td>
                                     <td className="px-6 py-4 text-sm text-gray-900">{s.tipo}</td>
@@ -216,8 +221,11 @@ export default function TabelaSolicitar({
                                     <td className="px-6 py-4 text-sm text-gray-700">{s.cargo}</td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-1.5">
-                                            <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${statusColorClass(s.status)}`} />
-                                            <span className="text-sm leading-none text-gray-700">{s.status}</span>
+                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200">
+
+                                                <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${statusColorClass(s.status)}`} />
+                                                <span className="text-sm leading-none text-gray-700">{s.status}</span>
+                                            </span>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-700">

@@ -28,19 +28,19 @@ async function main() {
     await prisma.user.upsert({
       where: { email: 'admin1@gmail.com' },
       update: {},
-      create: { nome: 'Administrador', email: 'admin1@gmail.com', password: hashedPassword1, role: 'ADMIN' },
+      create: { nome: 'Administrador', email: 'admin1@gmail.com', password: hashedPassword1, role: 'ADMIN', cargo: "Engenheiro" },
     });
     
     await prisma.user.upsert({
       where: { email: 'viewer1@gmail.com' },
       update: {},
-      create: { nome: 'Visualizador', email: 'viewer1@gmail.com', password: hashedPassword2, role: 'VISUALIZADOR' },
+      create: { nome: 'Visualizador', email: 'viewer1@gmail.com', password: hashedPassword2, role: 'VISUALIZADOR', cargo: "Engenheiro" },
     });
 
     await prisma.user.upsert({
       where: { email: 'checker1@gmail.com' },
       update: {},
-      create: { nome: 'Verificador', email: 'checker1@gmail.com', password: hashedPassword3, role: 'CHECKER' },
+      create: { nome: 'Verificador', email: 'checker1@gmail.com', password: hashedPassword3, role: 'CHECKER', cargo: "Engenheiro" },
     });
 
     // 1. Criar Categorias

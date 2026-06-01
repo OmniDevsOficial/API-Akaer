@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createNormaService, searchNormasService, updateNormaService, getNormaDocumentoService, getNormaByCodeService } from "../services/norma.service";
+import { createNormaService, searchNormasService, updateNormaService, getNormaDocumentoService, getNormaByCodeService, createNormaRevisaoService } from "../services/norma.service";
 import { getNormasRelacionadasIdsService, addNormaRelacionadaService, removeNormaRelacionadaService } from "../services/norma-relacionada.service";
 import fs from "fs";
 
@@ -16,7 +16,8 @@ export const createNorma = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Arquivo é obrigatório" });
     }
 
-    const norma = await createNormaService(req.body, filePath);
+    const criador_id = (req as any).user?.id;
+    const norma = await createNormaService({ ...req.body, criador_id }, filePath);
 
     return res.status(201).json(norma);
   } catch (error: any) {
@@ -198,5 +199,32 @@ export const removeNormaRelacionada = async (req: Request, res: Response) => {
     return res.status(200).json(relacionadas);
   } catch (error: any) {
     return res.status(400).json({ error: error.message });
+  }
+};
+
+export const createNormaRevisao = async (req: Request, res: Response) => {
+  try {
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({ error: "Arquivo PDF é obrigatório para nova revisão" });
+    }
+
+    const codigoParam = req.params.codigo;
+    if (typeof codigoParam !== "string") {
+      return res.status(400).json({ error: "Código da norma inválido" });
+    }
+
+    const criador_id = (req as any).user?.id;
+    const novaNorma = await createNormaRevisaoService(codigoParam, { ...req.body, criador_id }, file.path);
+
+    return res.status(201).json(novaNorma);
+  } catch (error: any) {
+    if (req.file?.path && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+
+    const status = error?.message?.includes("O PDF enviado é idêntico") ? 409 : 400;
+    return res.status(status).json({ error: error.message });
   }
 };

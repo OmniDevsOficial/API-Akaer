@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import Header from '../../components/header';
 import Sidebar from '../../components/sidebar';
 import Barra_pesquisa from '../../components/barra_pes';
 import TabelaNormas from '../../components/tabela';
@@ -30,6 +29,8 @@ export default function Home() {
     const filtrosAtivos = Object.values(filtrosSelecionados).some(
         (v) => Array.isArray(v) && v.length > 0
     );
+
+    const [ordem, setOrdem] = useState<'recentes' | 'antigas' | 'az' | 'za'>('recentes');
 
     const handleCadastroSucesso = () => {
         setRecarregarTabela((anterior) => anterior + 1);
@@ -62,9 +63,8 @@ export default function Home() {
                 <Sidebar />
 
                 <div className="flex flex-col flex-1 h-full overflow-hidden">
-                    <Header />
 
-                    <main className="flex-1 p-8">
+                    <main className="flex-1 min-h-0 overflow-y-auto p-8">
                         <h2 className="text-red-akaer font-bold text-sm tracking-widest mb-2">GERENCIAMENTO</h2>
 
                         <div className='flex justify-between items-center'>
@@ -119,6 +119,8 @@ export default function Home() {
                             onBuscaChange={setBuscaNorma}
                             onOpenFilters={() => setFiltroModalOpen(true)}
                             filtrosAtivos={filtrosAtivos}
+                            onOrdenar={(novaOrdem) => setOrdem(novaOrdem)}
+                            ordemAtual={ordem}
                         />
 
                         <FilterAside
@@ -131,6 +133,7 @@ export default function Home() {
                             refreshTrigger={recarregarTabela}
                             searchText={buscaNorma}
                             filtros={filtrosSelecionados}
+                            ordem={ordem}
                         />
                     </main>
                 </div>

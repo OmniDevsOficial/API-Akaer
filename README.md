@@ -14,14 +14,15 @@
   <a href="#definition-of-done"> DoD </a> | 
   <a href="#sprint"> Cronograma de Sprints </a> | 
   <a href="#como-executar-o-projeto">Como Executar o Projeto</a> |
+  <a href="#fluxo-de-trabalho">Fluxo de trabalho</a> |
   <a href="#equipe"> Equipe </a> |
 </p>
 
 ## 📌 Status do Projeto
 | Item                  | Situação |
 |-----------------------|---------------|
-| 🚧 Projeto            | 🔛 Em andamento  |
-| 📂 Documentação       | 🔛 Em andamento  |
+| 🚧 Projeto            | ✅ Concluido |
+| 📂 Documentação       | ✅ Concluido |
 
 ## Objetivo <a id="objetivo"></a>
 O desafio consiste em desenvolver uma plataforma web estruturada para centralizar, organizar e correlacionar requisitos normativos. O sistema visa transformar o processo atual, que é manual e descentralizado, em uma fonte de dados organizada que reduza o tempo de busca e o risco de inconsistências no uso de versões obsoletas, apoiando a equipe de administradores e visualizadores.
@@ -103,7 +104,7 @@ O desafio consiste em desenvolver uma plataforma web estruturada para centraliza
 | :--- | :---: | :--- | :--- | :--- |
 | **SPRINT 1** | 16/03 - 05/04 | [Sprint 1 docs](docs/sprint1.md) | ✅ Concluido | [🎥 Assistir](https://youtu.be/VLJHqNIcwLM) |
 | **SPRINT 2** | 13/04 - 03/05 | [Sprint 2 docs](docs/sprint2.md) | ✅ Concluido | [🎥 Assistir](https://youtu.be/2Lhtf82oko4) |
-| **SPRINT 3** | 11/05 - 31/05 | Sprint 3 docs| 💤 Não iniciado | |
+| **SPRINT 3** | 11/05 - 31/05 | [Sprint 3 docs](docs/sprint3.md) | ✅ Concluido | [🎥 Assistir](https://drive.google.com/file/d/1KzgRg4Q9vMDHf4eLcKoe9DWc_EV6ZneT/view) |
 
 
 ## 📜 Como Executar o Projeto <a id="como-executar-o-projeto"></a>
@@ -165,6 +166,29 @@ npm run dev
 # Copie e cole a URL em seu navegador para acessar o projeto em localhost.
 http://localhost:5173/
 ```
+
+## 🔀 Fluxo de Trabalho <a id="fluxo-de-trabalho"></a>
+
+```text
+┌──────────────────────────────────────────────┐   📋 PASSO A PASSO
+│               main — produção                │   
+└──────────────────────────────────────────────┘   1️ - Criar branch Sempre da dev (feature/, fix/)
+                       ↑                        
+                       │ 4 PR dev → main           
+                       │                           2️ - Desenvolver commits claros (feat:, fix:, docs:)
+┌──────────────────────────────────────────────┐   
+│              dev — integração                |
+└──────────────────────────────────────────────┘   3️ - Abrir PR para a dev revisão da equipe obrigatória.
+         ↑                             │           (Apagar branch remota após merge)
+         │ 3 abrir PR          1 criar │           
+         │ para dev             da dev │           
+         │                             ↓           4️ - PR dev para main quando a US/Sprint acabar.
+   ┌────────────────────────────────────────┐      
+   │        feature/ fix/ docs/ ...         │      
+   └────────────────────────────────────────┘      
+                       ↑                           
+          2 desenvolva e faça commits
+````
 
 ## 🎓 Conheça a equipe talentosa por trás do projeto <a id="equipe"></a>
 | Foto | Nome | Função | GitHub | LinkedIn |
