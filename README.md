@@ -21,8 +21,8 @@
 ## 📌 Status do Projeto
 | Item                  | Situação |
 |-----------------------|---------------|
-| 🚧 Projeto            | 🔛 Em andamento  |
-| 📂 Documentação       | 🔛 Em andamento  |
+| 🚧 Projeto            | ✅ Concluido |
+| 📂 Documentação       | ✅ Concluido |
 
 ## Objetivo <a id="objetivo"></a>
 O desafio consiste em desenvolver uma plataforma web estruturada para centralizar, organizar e correlacionar requisitos normativos. O sistema visa transformar o processo atual, que é manual e descentralizado, em uma fonte de dados organizada que reduza o tempo de busca e o risco de inconsistências no uso de versões obsoletas, apoiando a equipe de administradores e visualizadores.
@@ -104,7 +104,7 @@ O desafio consiste em desenvolver uma plataforma web estruturada para centraliza
 | :--- | :---: | :--- | :--- | :--- |
 | **SPRINT 1** | 16/03 - 05/04 | [Sprint 1 docs](docs/sprint1.md) | ✅ Concluido | [🎥 Assistir](https://youtu.be/VLJHqNIcwLM) |
 | **SPRINT 2** | 13/04 - 03/05 | [Sprint 2 docs](docs/sprint2.md) | ✅ Concluido | [🎥 Assistir](https://youtu.be/2Lhtf82oko4) |
-| **SPRINT 3** | 11/05 - 31/05 | [Sprint 3 docs](docs/sprint3.md) | 🔛 Em andamento | |
+| **SPRINT 3** | 11/05 - 31/05 | [Sprint 3 docs](docs/sprint3.md) | ✅ Concluido | [🎥 Assistir](https://drive.google.com/file/d/1KzgRg4Q9vMDHf4eLcKoe9DWc_EV6ZneT/view) |
 
 
 ## 📜 Como Executar o Projeto <a id="como-executar-o-projeto"></a>
