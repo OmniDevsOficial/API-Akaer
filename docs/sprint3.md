@@ -23,7 +23,7 @@
 
 | Período | Status |
 | :---------: | :---------: | 
-| 11/05 - 31/05 | 🔛 Em andamento |
+| 11/05 - 31/05 | ✅ Concluido |
 
 
 ### 🎯 Metas da Sprint 3 <a id="sprint-3-meta"></a>
@@ -74,7 +74,7 @@
 
 ## 🎥 Link do Vídeo <a id="Link-do-Video"></a>
 
-<a href="https://youtu.be/VLJHqNIcwLM"><img src="https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white"/></a> 
+<a href="https://drive.google.com/file/d/1KzgRg4Q9vMDHf4eLcKoe9DWc_EV6ZneT/view"><img src="https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white"/></a> 
 
 
 ## 🔀 Fluxo de Trabalho <a id="fluxo-de-trabalho"></a>
