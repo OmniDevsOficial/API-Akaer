@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Search, Pencil, RefreshCw, PowerOff, Loader2 } from 'lucide-react';
 import { getUserRole } from '../../utils/auth';
-import Sidebar from '../../components/sidebar';
 import ModalNovoUsuario, { type NovoUsuarioDados, type NivelAcesso } from '../../components/ModalNovoUsuario';
 import ModalEditarUsuario, { type UsuarioEditar } from '../../components/ModalEditarUsuario';
+import ModalFeedback from './components/modalFeedback';
+import Sidebar from '../../components/sidebar';
 import api from '../../services/api';
 
 // Interface alinhada com o Prisma schema (sem cargo/telefone)
@@ -11,6 +12,8 @@ interface UsuarioAPI {
     id: number;
     nome: string;
     email: string;
+    cargo: string;      // ← remover o comentário "sem cargo/telefone"
+    telefone: string | null;
     role: 'ADMIN' | 'CHECKER' | 'VISUALIZADOR';
     ativo: boolean;
     criado_em: string;
@@ -53,6 +56,18 @@ export default function Usuario() {
     const [loading, setLoading] = useState(true);
     const [modalNovoOpen, setModalNovoOpen] = useState(false);
     const [usuarioEditando, setUsuarioEditando] = useState<UsuarioEditar | null>(null);
+
+    const [feedback, setFeedback] = useState<{
+        aberto: boolean;
+        titulo: string;
+        mensagem: string;
+        descricao?: string;
+        tipo?: 'sucesso' | 'erro';
+    }>({ aberto: false, titulo: '', mensagem: '' });
+
+    const abrirFeedback = (titulo: string, mensagem: string, descricao?: string, tipo: 'sucesso' | 'erro' = 'sucesso') => {
+        setFeedback({ aberto: true, titulo, mensagem, descricao, tipo });
+    };
 
     // Listagem (GET /api/usuarios)
     useEffect(() => {
@@ -99,31 +114,32 @@ export default function Usuario() {
                 email: dados.email,
                 role: mapNivelParaRole(dados.nivelAcesso),
                 senha: dados.senha,
-                cargo: dados.nivelAcesso,
+                cargo: dados.cargo,      // ← campo cargo real, não nivelAcesso
+                telefone: dados.telefone ?? "", // ← telefone que faltava
             };
             const response = await api.post('/api/usuarios', payload);
             setUsuarios(prev => [...prev, response.data.usuario]);
             setModalNovoOpen(false);
-            alert('Usuário cadastrado com sucesso!');
+            abrirFeedback('Novo Usuário', 'Usuário cadastrado com sucesso!', 'O novo acesso já está disponível na plataforma.');
         } catch (error: any) {
-            alert(error.response?.data?.error || 'Erro ao cadastrar usuário.');
+            abrirFeedback('Novo Usuário', 'Erro ao cadastrar usuário.', error.response?.data?.error, 'erro');
         }
     };
 
-    // Edição (PUT /api/usuarios/:id)
+    // handleEditar — adicionar telefone, senha e corrigir cargo
     const handleEditar = async (dados: UsuarioEditar) => {
         try {
             const payload = {
                 nome: dados.nome,
                 role: mapNivelParaRole(dados.nivelAcesso),
-                cargo: dados.nivelAcesso,
-
+                cargo: dados.cargo,
+                telefone: dados.telefone ?? "",
+                ...(dados.senha ? { senha: dados.senha } : {}),
             };
 
             const response = await api.put(`/api/usuarios/${dados.id}`, payload);
             const usuarioAtualizado: UsuarioAPI = response.data.usuario;
 
-            // Reflete a alteração na interface
             setUsuarios(prev =>
                 prev.map(u =>
                     u.id === dados.id
@@ -132,11 +148,12 @@ export default function Usuario() {
                 )
             );
             setUsuarioEditando(null);
-            alert(response.data.message || 'Usuário atualizado com sucesso!');
+            abrirFeedback('Editar Usuário', response.data.message || 'Usuário atualizado com sucesso!', 'As informações foram salvas no banco de dados.');
         } catch (error: any) {
-            alert(error.response?.data?.error || 'Erro ao atualizar usuário.');
+            abrirFeedback('Editar Usuário', 'Erro ao atualizar usuário.', error.response?.data?.error, 'erro');
         }
     };
+
 
     // Status (PATCH /api/usuarios/:id/status)
     const toggleStatus = async (id: number, ativoAtual: boolean) => {
@@ -153,9 +170,13 @@ export default function Usuario() {
                     u.id === id ? { ...u, ativo: usuarioAtualizado.ativo } : u
                 )
             );
-            alert(response.data.message || `Usuário ${acao}do com sucesso!`);
+            abrirFeedback(
+                'Status do Usuário',
+                `Usuário ${acao === 'desativar' ? 'desativado' : 'reativado'} com sucesso!`,
+                response.data.message
+            );
         } catch (error: any) {
-            alert(error.response?.data?.error || `Erro ao ${acao} usuário.`);
+            abrirFeedback('Status do Usuário', `Erro ao ${acao} usuário.`, error.response?.data?.error, 'erro');
         }
     };
 
@@ -165,6 +186,8 @@ export default function Usuario() {
             nome: u.nome,
             email: u.email,
             nivelAcesso: mapRoleParaNivel(u.role),
+            cargo: u.cargo,
+            telefone: u.telefone ?? '',
         });
     };
 
@@ -303,6 +326,15 @@ export default function Usuario() {
                 onSalvar={handleEditar}
                 usuario={usuarioEditando}
                 emailsExistentes={emailsExistentes}
+            />
+
+            <ModalFeedback
+                open={feedback.aberto}
+                onClose={() => setFeedback(prev => ({ ...prev, aberto: false }))}
+                titulo={feedback.titulo}
+                mensagem={feedback.mensagem}
+                descricao={feedback.descricao}
+                tipo={feedback.tipo}
             />
         </div>
     );

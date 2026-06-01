@@ -82,16 +82,19 @@ export const criarUsuario = async (dados: {
 
 export const atualizarUsuario = async (
   id: number,
-  dados: { nome: string; role: Role; cargo: string; telefone: string }
+  dados: { nome: string; role: Role; cargo: string; telefone: string; senha?: string }
 ) => {
   const usuario = await prisma.user.findUnique({
     where: { id },
     select: selecionarUsuario,
   });
 
-  if (!usuario) {
-    throw new Error("Usuário não encontrado");
-  }
+  if (!usuario) throw new Error("Usuário não encontrado");
+
+  // Só faz hash e atualiza a senha se ela foi enviada
+  const senhaAtualizada = dados.senha
+    ? await bcrypt.hash(dados.senha, 10)
+    : undefined;
 
   const usuarioAtualizado = await prisma.user.update({
     where: { id },
@@ -100,6 +103,7 @@ export const atualizarUsuario = async (
       role: dados.role,
       cargo: dados.cargo,
       telefone: dados.telefone,
+      ...(senhaAtualizada && { password: senhaAtualizada }),
     },
     select: selecionarUsuario,
   });
