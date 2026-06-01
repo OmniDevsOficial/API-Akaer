@@ -8,12 +8,16 @@ export interface NovoUsuarioDados {
     email: string;
     nivelAcesso: NivelAcesso;
     senha: string;
+    cargo: string;
+    telefone: string;
 }
 
 interface Form {
     nome: string;
     email: string;
     nivelAcesso: NivelAcesso | '';
+    cargo: string;
+    telefone: string;
     senha: string;
     confirmarSenha: string;
 }
@@ -58,7 +62,7 @@ function NivelCard({ label, descricao, icone, selecionado, onClick }: {
 }
 
 export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExistentes }: Props) {
-    const inicial: Form = { nome: '', email: '', nivelAcesso: '', senha: '', confirmarSenha: '' };
+    const inicial: Form = { nome: '', email: '', nivelAcesso: '', senha: '', confirmarSenha: '', cargo: '', telefone: '' };
     const [form, setForm] = useState<Form>(inicial);
     const [erros, setErros] = useState<Partial<Record<keyof Form, string>>>({});
     const [mostrarSenha, setMostrarSenha] = useState(false);
@@ -106,6 +110,8 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
             email: form.email.trim().toLowerCase(),
             nivelAcesso: form.nivelAcesso as NivelAcesso,
             senha: form.senha,
+            cargo: form.cargo.trim(),
+            telefone: form.telefone.trim(),
         });
         setForm(inicial);
         setErros({});
@@ -173,6 +179,30 @@ export default function ModalNovoUsuario({ open, onClose, onSalvar, emailsExiste
                             className={inputBase('email')}
                         />
                         {erros.email && <p className="text-red-akaer text-xs mt-0.5">{erros.email}</p>}
+                    </div>
+
+                    {/* Cargo + Telefone */}
+                    <div className="flex gap-3">
+                        <div className="flex-1">
+                            <label className="block text-xs font-semibold text-gray-600 mb-1">CARGO</label>
+                            <input
+                                type="text"
+                                placeholder="Ex: Engenheiro"
+                                value={form.cargo}
+                                onChange={e => set('cargo', e.target.value)}
+                                className={inputBase('cargo')}
+                            />
+                        </div>
+                        <div className="flex-1">
+                            <label className="block text-xs font-semibold text-gray-600 mb-1">TELEFONE</label>
+                            <input
+                                type="text"
+                                placeholder="Ex: (11) 99999-9999"
+                                value={form.telefone}
+                                onChange={e => set('telefone', e.target.value)}
+                                className={inputBase('telefone')}
+                            />
+                        </div>
                     </div>
 
                     {/* Nível de Acesso */}

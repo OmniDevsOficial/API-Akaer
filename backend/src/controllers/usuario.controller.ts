@@ -45,7 +45,7 @@ export const criarUsuarioController = async (req: Request, res: Response): Promi
 export const atualizarUsuarioController = async (req: Request, res: Response): Promise<void> => {
   try {
     const id = Number(req.params.id);
-    const { nome, role, cargo, telefone } = req.body;
+    const { nome, role, cargo, telefone, senha } = req.body;
 
     if (!Number.isInteger(id)) {
       res.status(400).json({ error: "ID inválido." });
@@ -70,14 +70,12 @@ export const atualizarUsuarioController = async (req: Request, res: Response): P
     const usuario = await atualizarUsuario(id, {
       nome: nome.trim(),
       role,
-      cargo,
-      telefone,
+      cargo: cargo.trim(),
+      telefone: telefone?.trim() ?? "",
+      senha: senha?.trim() || undefined,
     });
 
-    res.status(200).json({
-      message: "Usuário atualizado com sucesso.",
-      usuario,
-    });
+    res.status(200).json({ message: "Usuário atualizado com sucesso.", usuario });
   } catch (error: any) {
     const status = error.message === "Usuário não encontrado" ? 404 : 400;
     res.status(status).json({ error: error.message });

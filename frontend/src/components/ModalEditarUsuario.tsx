@@ -7,12 +7,17 @@ export interface UsuarioEditar {
     nome: string;
     email: string;
     nivelAcesso: NivelAcesso;
+    cargo: string;
+    telefone: string;
+    senha?: string;
 }
 
 interface Form {
     nome: string;
     email: string;
     nivelAcesso: NivelAcesso | '';
+    cargo: string;
+    telefone: string;
     novaSenha: string;
     confirmarNovaSenha: string;
 }
@@ -56,7 +61,7 @@ function NivelCard({ label, descricao, icone, selecionado, onClick }: {
 
 export default function ModalEditarUsuario({ open, onClose, onSalvar, usuario, emailsExistentes }: Props) {
     const [form, setForm] = useState<Form>({
-        nome: '', email: '', nivelAcesso: '', novaSenha: '', confirmarNovaSenha: ''
+        nome: '', email: '', nivelAcesso: '', telefone: '', cargo: '', novaSenha: '', confirmarNovaSenha: ''
     });
     const [erros, setErros] = useState<Partial<Record<keyof Form, string>>>({});
     const [mostrarSenha, setMostrarSenha] = useState(false);
@@ -69,6 +74,8 @@ export default function ModalEditarUsuario({ open, onClose, onSalvar, usuario, e
                 nome: usuario.nome,
                 email: usuario.email,
                 nivelAcesso: usuario.nivelAcesso,
+                cargo: usuario.cargo ?? '',
+                telefone: usuario.telefone ?? '',
                 novaSenha: '',
                 confirmarNovaSenha: '',
             });
@@ -117,6 +124,9 @@ export default function ModalEditarUsuario({ open, onClose, onSalvar, usuario, e
             nome: form.nome.trim(),
             email: form.email.trim().toLowerCase(),
             nivelAcesso: form.nivelAcesso as NivelAcesso,
+            cargo: form.cargo.trim(),
+            telefone: form.telefone.trim(),
+            senha: form.novaSenha || undefined,
         });
         onClose();
     };
@@ -178,6 +188,30 @@ export default function ModalEditarUsuario({ open, onClose, onSalvar, usuario, e
                             className={inputBase('email')}
                         />
                         {erros.email && <p className="text-red-akaer text-xs mt-0.5">{erros.email}</p>}
+                    </div>
+
+                    {/* Cargo + Telefone */}
+                    <div className="flex gap-3">
+                        <div className="flex-1">
+                            <label className="block text-xs font-semibold text-gray-600 mb-1">CARGO</label>
+                            <input
+                                type="text"
+                                placeholder="Ex: Engenheiro"
+                                value={form.cargo}
+                                onChange={e => set('cargo', e.target.value)}
+                                className={inputBase('cargo')}
+                            />
+                        </div>
+                        <div className="flex-1">
+                            <label className="block text-xs font-semibold text-gray-600 mb-1">TELEFONE</label>
+                            <input
+                                type="text"
+                                placeholder="Ex: (11) 99999-9999"
+                                value={form.telefone}
+                                onChange={e => set('telefone', e.target.value)}
+                                className={inputBase('telefone')}
+                            />
+                        </div>
                     </div>
 
                     {/* Nível de Acesso */}
