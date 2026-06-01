@@ -104,6 +104,10 @@ export default function Perfil() {
     if (!dados) return null;
 
     const iniciais = getIniciais(dados.nome);
+    const tituloCardSolicitacoes = dados.nivelAcesso === 'Administrador' ? 'Normas Cadastradas' : 'Solicitações Criadas';
+    const textoVazioSolicitacoes = dados.nivelAcesso === 'Administrador'
+        ? 'Nenhuma Norma Foi Cadastrada Por Você'
+        : 'Nenhuma Solicitação Foi Criada por Você';
 
     return (
         <div className="flex h-screen w-full overflow-hidden bg-[#fbfbfb] font-dm">
@@ -172,10 +176,10 @@ export default function Perfil() {
 
                         <div className="bg-white border border-font-border rounded-xl p-5">
                             <p className="text-xs font-bold text-gray-400 tracking-widest uppercase mb-4 flex items-center gap-1.5">
-                                <LuGitPullRequestArrow size={14} /> Solicitações Criadas
+                                <LuGitPullRequestArrow size={14} /> {tituloCardSolicitacoes}
                             </p>
                             <div className="flex items-center justify-center h-32">
-                                <p className="text-xs text-gray-medium text-center">Nenhuma Solicitação Foi Criada por Você</p>
+                                <p className="text-xs text-gray-medium text-center">{textoVazioSolicitacoes}</p>
                             </div>
                         </div>
                     </div>

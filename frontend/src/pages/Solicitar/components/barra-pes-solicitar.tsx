@@ -41,7 +41,7 @@ export default function BarraPesquisaSolicitar({
                 ))}
             </div>
 
-            <div className="flex flex-1 gap-4 items-center border border-font-border rounded-lg py-1.5 px-4">
+            <div className="flex flex-1 gap-4 items-center border border-font-border rounded-lg py-1.5 px-4 bg-white">
                 <IoMdSearch className="text-lg text-gray-medium" />
                 <input
                     type="text"

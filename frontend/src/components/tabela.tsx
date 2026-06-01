@@ -71,9 +71,10 @@ const statusColorClass = (status: string) => {
 interface AccordionRevisoesProps {
     revisoes: RevisaoNorma[];
     onAbrirPdfRevisao: (revisao: RevisaoNorma) => void;
+    isAdmin: boolean;
 }
 
-function AccordionRevisoes({ revisoes, onAbrirPdfRevisao }: AccordionRevisoesProps) {
+function AccordionRevisoes({ revisoes, onAbrirPdfRevisao, isAdmin }: AccordionRevisoesProps) {
     const navigate = useNavigate();
 
     if (revisoes.length === 0) return null;
@@ -133,8 +134,9 @@ function AccordionRevisoes({ revisoes, onAbrirPdfRevisao }: AccordionRevisoesPro
                         )}
                     </td>
 
-                    {/* AÇÕES — dash para obsoletas */}
-                    <td className="px-0 py-3 text-sm text-gray-400">-</td>
+                    {isAdmin && (
+                        <td className="px-0 py-3 text-sm text-gray-400">-</td>
+                    )}
 
                     {/* DETALHES */}
                     <td className="px-3 py-3">
@@ -180,7 +182,7 @@ function NormaRow({ norma, isAdmin, onAbrirPdf, onAbrirPdfRevisao, onEditar, onA
         <>
             <tr
                 onClick={toggleAccordion}
-                className={`border-b border-font-border last:border-none hover:bg-red-50/60 transition-colors ${
+                className={`border-b border-font-border last:border-none hover:bg-red-50/60 transition-colors bg-white ${
                     temRevisoes ? 'cursor-pointer' : ''
                 } ${accordionAberto ? 'bg-red-50/40' : ''}`}
             >
@@ -241,9 +243,8 @@ function NormaRow({ norma, isAdmin, onAbrirPdf, onAbrirPdfRevisao, onEditar, onA
                     </button>
                 </td>
 
-                {/* AÇÕES */}
-                <td className="px-0 py-4">
-                    {isAdmin && (<>
+                {isAdmin && (
+                    <td className="px-0 py-4">
                         <button className="mb-[0.16rem] flex items-center gap-1 text-sm text-gray-700 hover:text-red-akaer transition-colors whitespace-nowrap"
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -261,8 +262,8 @@ function NormaRow({ norma, isAdmin, onAbrirPdf, onAbrirPdfRevisao, onEditar, onA
                             <RefreshCw size={14} />
                             <span>Atualizar Revisão</span>
                         </button>
-                    </>)}
-                </td>
+                    </td>
+                )}
 
                 {/* DETALHES */}
                 <td className="px-3 py-3">
@@ -282,6 +283,7 @@ function NormaRow({ norma, isAdmin, onAbrirPdf, onAbrirPdfRevisao, onEditar, onA
                 <AccordionRevisoes
                     revisoes={revisoes}
                     onAbrirPdfRevisao={onAbrirPdfRevisao}
+                    isAdmin={isAdmin}
                 />
             )}
         </>
@@ -307,6 +309,7 @@ export default function TabelaNormas({
     const [normaSelecionadaPdf, setNormaSelecionadaPdf] = useState<NormaSelecionadaPdf | null>(null);
     const [updateModalAberto, setUpdateModalAberto] = useState(false);
     const [normaSelecionadaUpdate, setNormaSelecionadaUpdate] = useState<Norma | null>(null);
+    const totalColunas = isAdmin ? 9 : 8;
 
     // Função de fetch extraída para poder ser reutilizada no onSuccess
     const fetchNormas = useCallback(async () => {
@@ -456,7 +459,7 @@ export default function TabelaNormas({
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-3 py-3 whitespace-nowrap">CATEGORIA</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-3 py-3 whitespace-nowrap">STATUS</th>
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-3 py-3 whitespace-nowrap">DOCUMENTO</th>
-                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-0 py-3 whitespace-nowrap">AÇÕES</th>
+                        {isAdmin && <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-0 py-3 whitespace-nowrap">AÇÕES</th>}
                         <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-3 py-3 whitespace-nowrap">DETALHES</th>
                     </tr>
                 </thead>
@@ -464,13 +467,13 @@ export default function TabelaNormas({
                 <tbody>
                     {carregando ? (
                         <tr>
-                            <td colSpan={9} className="px-6 py-6 text-sm text-gray-medium text-center">
+                            <td colSpan={totalColunas} className="px-6 py-6 text-sm text-gray-medium text-center">
                                 Carregando normas...
                             </td>
                         </tr>
                     ) : normas.length === 0 ? (
                         <tr>
-                            <td colSpan={9} className="px-6 py-6 text-sm text-gray-medium text-center">
+                            <td colSpan={totalColunas} className="px-6 py-6 text-sm text-gray-medium text-center">
                                 Nenhuma norma encontrada.
                             </td>
                         </tr>
