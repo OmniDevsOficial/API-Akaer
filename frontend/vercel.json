@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "http://50.17.8.232:3333/:path*"
+      "destination": "http://api-akaer-omni.duckdns.org:3333/:path*"
     },
     {
       "source": "/(.*)",
