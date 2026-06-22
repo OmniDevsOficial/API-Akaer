@@ -148,22 +148,6 @@ export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters }
               </label>
             ))}
           </div>
-
-          {/* STATUS */}
-          <div className="filter-section">
-            <span className="section-label">STATUS</span>
-            {STATUS_OPCOES.map((item) => (
-              <label key={item} className="option">
-                <input
-                  type="checkbox"
-                  checked={statusSelecionados.includes(item)}
-                  onChange={() => toggleStatus(item)}
-                />
-                <span>{item}</span>
-              </label>
-            ))}
-          </div>
-
         </div>
 
         {/* FOOTER */}

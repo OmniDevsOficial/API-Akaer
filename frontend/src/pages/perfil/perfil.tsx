@@ -12,6 +12,8 @@ interface PerfilDados {
     nivelAcesso: string;
     status: string;
     cadastradoEm: string;
+    normas?: string;
+    solicitacoes?: string;
 }
 
 type RoleAPI = 'ADMIN' | 'CHECKER' | 'VISUALIZADOR';
@@ -105,6 +107,8 @@ export default function Perfil() {
 
     const iniciais = getIniciais(dados.nome);
     const tituloCardSolicitacoes = dados.nivelAcesso === 'Administrador' ? 'Normas Cadastradas' : 'Solicitações Criadas';
+    const cardNormas = dados.nivelAcesso === 'Administrador' && dados.normas;
+    const cardSolicitacoes = dados.nivelAcesso === 'Checker' && 'Visualizador' && dados.solicitacoes;
     const textoVazioSolicitacoes = dados.nivelAcesso === 'Administrador'
         ? 'Nenhuma Norma Foi Cadastrada Por Você'
         : 'Nenhuma Solicitação Foi Criada por Você';
@@ -178,6 +182,9 @@ export default function Perfil() {
                             <p className="text-xs font-bold text-gray-400 tracking-widest uppercase mb-4 flex items-center gap-1.5">
                                 <LuGitPullRequestArrow size={14} /> {tituloCardSolicitacoes}
                             </p>
+                            <div>
+                                <p>{cardNormas}</p>
+                            </div>
                             <div className="flex items-center justify-center h-32">
                                 <p className="text-xs text-gray-medium text-center">{textoVazioSolicitacoes}</p>
                             </div>
