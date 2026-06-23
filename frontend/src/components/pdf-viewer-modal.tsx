@@ -27,9 +27,13 @@ interface PdfViewerModalProps {
     } | null;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3333";
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://api-akaer-omni.duckdns.org:3333";
 
-const joinApiUrl = (pathname: string) => new URL(pathname, API_BASE_URL).toString();
+const joinApiUrl = (pathname: string) => {
+    const base = API_BASE_URL.replace(/\/$/, ""); // Remove barra no final da base, se houver
+    const path = pathname.startsWith("/") ? pathname : `/${pathname}`; // Garante que o caminho comece com barra
+    return `${base}${path}`;
+};
 
 
 export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerModalProps) {
