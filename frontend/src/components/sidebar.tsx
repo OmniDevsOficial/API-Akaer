@@ -73,7 +73,7 @@ export default function Sidebar() {
         <aside className={`z-20 flex flex-col h-full relative bg-white border-r border-font-border p-4 transition-all duration-300 ${recolher ? "w-16" : "w-60"}`}>
 
             <button onClick={() => alternar()}
-                className="absolute -right-3 top-7 bg-white border border-font-border rounded-full p-0.5 text-gray-400 hover:text-red-akaer transition-colors z-10">
+                className="absolute -right-3 top-7 bg-white border border-font-border rounded-full p-0.5 text-gray-400 hover:text-red-akaer hover:border-red-akaer hover:bg-red-akaer/'5 transition-colors z-10">
                 {recolher ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
             </button>
 

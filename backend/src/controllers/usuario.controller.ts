@@ -1,6 +1,15 @@
 import { Request, Response } from "express";
 import { Role } from "@prisma/client";
-import { atualizarUsuario, alternarStatusUsuario, criarUsuario, listarUsuarios, buscarUsuarioPorId } from "../services/usuario.service";
+import {
+  atualizarUsuario,
+  alternarStatusUsuario,
+  criarUsuario,
+  listarUsuarios,
+  buscarUsuarioPorId
+} from "../services/usuario.service";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 const isRoleValida = (role: unknown): role is Role => {
   return (
@@ -153,5 +162,47 @@ export const buscarPerfilController = async (req: Request, res: Response): Promi
       return;
     }
     res.status(500).json({ error: "Erro ao buscar usuário" });
+  }
+};
+
+/* Função de buscar normas por usuário */
+export const buscarNormasUsuarioController = async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id as string, 10);
+
+    if (isNaN(id)) {
+      return res.status(400).json({ error: "ID inválido." });
+    }
+
+    const normas = await prisma.norma.findMany({
+      where: { criador_id: id, is_vigente: true },
+      orderBy: { data_publicacao: "desc" },
+      select: { id: true, titulo: true, codigo: true, status: true, data_publicacao: true }
+    });
+
+    return res.json(normas);
+  } catch (error: any) {
+    return res.status(500).json({ error: "Erro ao buscar normas." });
+  }
+};
+
+/* Função de buscar solicitacoes por usuário */
+export const buscarSolicitacoesUsuarioController = async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id as string, 10);
+
+    if (isNaN(id)) {
+      return res.status(400).json({ error: "ID inválido." });
+    }
+
+    const solicitacoes = await prisma.solicitacaoNorma.findMany({
+      where: { usuario_id: id },
+      orderBy: { data_criacao: "desc" },
+      select: { id: true, tipo_solicitacao: true, status: true, norma_id: true, data_criacao: true }
+    });
+
+    return res.json(solicitacoes);
+  } catch (error: any) {
+    return res.status(500).json({ error: "Erro ao buscar solicitações." });
   }
 };

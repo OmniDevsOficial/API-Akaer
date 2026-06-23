@@ -1,8 +1,21 @@
 import { useState, useEffect } from 'react';
 import { Star, IdCard } from 'lucide-react';
 import { LuGitPullRequestArrow } from "react-icons/lu";
+import { Link } from "react-router-dom";
 import Sidebar from '../../components/sidebar';
 import api from '../../services/api';
+
+interface NormaOuSolicitacao {
+    id: number;
+    titulo?: string;
+    codigo?: string;
+    tipo_solicitacao?: string;
+    norma_id?: string;
+    status?: string;
+    data_publicacao?: string;
+    data_criacao?: string;
+    is_vigente?: boolean;
+}
 
 interface PerfilDados {
     nome: string;
@@ -12,6 +25,8 @@ interface PerfilDados {
     nivelAcesso: string;
     status: string;
     cadastradoEm: string;
+    normas?: NormaOuSolicitacao[];
+    solicitacoes?: NormaOuSolicitacao[];
 }
 
 type RoleAPI = 'ADMIN' | 'CHECKER' | 'VISUALIZADOR';
@@ -60,6 +75,7 @@ function NivelBadge({ nivel }: { nivel: string }) {
     );
 }
 
+/* Retorna os dados do perfil */
 export default function Perfil() {
     const [dados, setDados] = useState<PerfilDados | null>(null);
     const [loading, setLoading] = useState(true);
@@ -71,16 +87,30 @@ export default function Perfil() {
         try {
             const payload = JSON.parse(atob(token.split(".")[1]));
             api.get(`/api/usuarios/${payload.id}`)
-                .then(res => {
+                .then(async res => {
                     const u = res.data;
+                    const nivel = mapRoleParaNivel(u.role);
+
+                    // Buscar normas e solicitações do usuário
+                    let normas, solicitacoes;
+                    if (nivel === 'Administrador') {
+                        const resNormas = await api.get(`/api/usuarios/${u.id}/normas`);
+                        normas = resNormas.data;
+                    } else {
+                        const r = await api.get(`/api/usuarios/${payload.id}/solicitacoes`);
+                        solicitacoes = r.data;
+                    }
+
                     setDados({
                         nome: u.nome,
                         email: u.email,
                         cargo: u.cargo ?? '',
                         telefone: u.telefone ?? '',
-                        nivelAcesso: mapRoleParaNivel(u.role),
+                        nivelAcesso: nivel,
                         status: u.ativo ? 'Ativo' : 'Inativo',
                         cadastradoEm: u.criado_em,
+                        normas,
+                        solicitacoes,
                     });
                 })
                 .catch(() => alert('Erro ao carregar dados do perfil.'))
@@ -174,13 +204,54 @@ export default function Perfil() {
                             </div>
                         </div>
 
+                        {/* Card de Normas e Solicitações */}
                         <div className="bg-white border border-font-border rounded-xl p-5">
+                            {/* Título do Card */}
                             <p className="text-xs font-bold text-gray-400 tracking-widest uppercase mb-4 flex items-center gap-1.5">
                                 <LuGitPullRequestArrow size={14} /> {tituloCardSolicitacoes}
                             </p>
-                            <div className="flex items-center justify-center h-32">
-                                <p className="text-xs text-gray-medium text-center">{textoVazioSolicitacoes}</p>
-                            </div>
+
+                            {/* Lista de Normas e Solicitações */}
+                            {(dados.normas || dados.solicitacoes) ? (
+                                <ul className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
+                                    {(dados.normas ?? dados.solicitacoes ?? []).map((item: NormaOuSolicitacao, i: number) => (
+                                        <li key={i}
+                                            className="flex items-center justify-between gap-2 rounded-lg border border-font-border bg-[#fafafa] px-3 py-2.5 hover:bg-gray-50 transition-colors"
+                                        >
+                                            <div className="flex items-center gap-2 min-w-0">
+                                                {/* Número de ordenação da Norma */}
+                                                <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-md bg-[#73203A]/10 flex items-center justify-center">
+                                                    <span className="text-[9px] font-bold text-[#73203A]">{i + 1}</span>
+                                                </span>
+
+                                                {/* Permite navegar para a página de visualização da norma ou solicitação */}
+                                                <Link to={`/normas/ver/${item.codigo}`}
+                                                    className="text-xs font-medium text-dark-title leading-snug truncate hover:text-[#73203A] transition-colors"
+                                                >
+                                                    {item.titulo ?? item.tipo_solicitacao ?? `Item ${i + 1}`}
+                                                </Link>
+                                            </div>
+
+                                            {/* Código da Norma */}
+                                            {(item.codigo ?? item.norma_id) && (
+                                                <span className="flex-shrink-0 text-[10px] font-semibold text-[#73203A] bg-[#73203A]/10 px-2 py-0.5 rounded-full">
+                                                    {item.codigo ?? item.norma_id}
+                                                </span>
+                                            )}
+                                        </li>
+
+                                    ))}
+                                </ul>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center h-32 gap-2">
+                                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                                        <LuGitPullRequestArrow size={14} className="text-gray-400" />
+                                    </div>
+                                    <p className="text-xs text-gray-medium text-center leading-relaxed">
+                                        {textoVazioSolicitacoes}
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </main>

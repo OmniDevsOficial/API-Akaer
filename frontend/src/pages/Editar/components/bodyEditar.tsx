@@ -7,16 +7,17 @@ import {
 } from "react";
 import { useLocation } from "react-router-dom";
 import { BookOpenCheck, FileText, IdCard, StickyNote, Tag, X, Loader2 } from "lucide-react";
+import { LiaCodeBranchSolid } from "react-icons/lia";
 import { NormasRelatedSelector } from '@/components/normas-related-selector';
 import { atualizarNorma, getNormaDetalhes } from "@/services/normaService";
-import api from "@/services/api";
-import PdfViewerModal from "@/components/pdf-viewer-modal";
 import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
 } from "../../../components/ui/tooltip";
+import PdfViewerModal from "@/components/pdf-viewer-modal";
+import api from "@/services/api";
 
 export interface BodyEditarHandle {
     salvar: () => Promise<void>;
@@ -354,7 +355,7 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                                             {palavrasChave.map((palavra, index) => (
                                                 <span
                                                     key={`${palavra}-${index}`}
-                                                    className="flex items-center gap-1 bg-red-50 text-red-akaer px-2 py-1 rounded-full text-sm"
+                                                    className="flex items-center gap-1 bg-red-50 text-red-akaer border border-[#73203A]/20 px-2 py-1 rounded-full text-sm"
                                                 >
                                                     <Tag size={12} />
                                                     {palavra}
@@ -450,7 +451,7 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                                         </div>
                                     </button>
 
-                                    {/* Coluna Substituir — largura natural do botão */}
+                                    {/* Coluna Substituir */}
                                     <div className="flex items-center shrink-0">
                                         <input
                                             ref={ArquivoPdf}
@@ -474,7 +475,7 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                         {/* CORRELAÇÕES */}
                         <div className={sectionClass}>
                             <div className={sectionHeaderClass}>
-                                <FileText size={14} />
+                                <LiaCodeBranchSolid size={14} />
                                 CORRELAÇÕES
                             </div>
                             <div className={sectionBodyClass}>

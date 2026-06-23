@@ -20,8 +20,6 @@ type Opcao = {
   nome: string;
 };
 
-const STATUS_OPCOES = ["Ativa", "Obsoleta"];
-
 export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters }) => {
 
   const [orgaos, setOrgaos] = useState<Opcao[]>([]);
@@ -63,11 +61,11 @@ export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters }
     );
   };
 
-  const toggleStatus = (valor: string) => {
+  /* const toggleStatus = (valor: string) => {
     setStatusSelecionados(prev =>
       prev.includes(valor) ? prev.filter(v => v !== valor) : [...prev, valor]
     );
-  };
+  }; */
 
   const limparFiltros = () => {
     setOrgaosSelecionados([]);
@@ -148,22 +146,6 @@ export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters }
               </label>
             ))}
           </div>
-
-          {/* STATUS */}
-          <div className="filter-section">
-            <span className="section-label">STATUS</span>
-            {STATUS_OPCOES.map((item) => (
-              <label key={item} className="option">
-                <input
-                  type="checkbox"
-                  checked={statusSelecionados.includes(item)}
-                  onChange={() => toggleStatus(item)}
-                />
-                <span>{item}</span>
-              </label>
-            ))}
-          </div>
-
         </div>
 
         {/* FOOTER */}
