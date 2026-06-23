@@ -4,6 +4,11 @@ import { LuGitPullRequestArrow } from "react-icons/lu";
 import Sidebar from '../../components/sidebar';
 import api from '../../services/api';
 
+interface NormasSolicitacoes {
+    titulo?: string;
+    nome?: string;
+}
+
 interface PerfilDados {
     nome: string;
     email: string;
@@ -12,8 +17,8 @@ interface PerfilDados {
     nivelAcesso: string;
     status: string;
     cadastradoEm: string;
-    normas?: string;
-    solicitacoes?: string;
+    normas?: NormasSolicitacoes[];
+    solicitacoes?: NormasSolicitacoes[];
 }
 
 type RoleAPI = 'ADMIN' | 'CHECKER' | 'VISUALIZADOR';
@@ -62,6 +67,7 @@ function NivelBadge({ nivel }: { nivel: string }) {
     );
 }
 
+/* Retorna os dados do perfil */
 export default function Perfil() {
     const [dados, setDados] = useState<PerfilDados | null>(null);
     const [loading, setLoading] = useState(true);
@@ -73,16 +79,30 @@ export default function Perfil() {
         try {
             const payload = JSON.parse(atob(token.split(".")[1]));
             api.get(`/api/usuarios/${payload.id}`)
-                .then(res => {
+                .then(async res => {
                     const u = res.data;
+                    const nivel = mapRoleParaNivel(u.role);
+
+                    // Buscar normas e solicitações do usuário
+                    let normas, solicitacoes;
+                    if (nivel === 'Administrador') {
+                        const resNormas = await api.get(`/api/usuarios/${u.id}/normas`);
+                        normas = resNormas.data;
+                    } else {
+                        const r = await api.get(`/api/usuarios/${payload.id}/solicitacoes`);
+                        solicitacoes = r.data;
+                    }
+
                     setDados({
                         nome: u.nome,
                         email: u.email,
                         cargo: u.cargo ?? '',
                         telefone: u.telefone ?? '',
-                        nivelAcesso: mapRoleParaNivel(u.role),
+                        nivelAcesso: nivel,
                         status: u.ativo ? 'Ativo' : 'Inativo',
                         cadastradoEm: u.criado_em,
+                        normas,
+                        solicitacoes,
                     });
                 })
                 .catch(() => alert('Erro ao carregar dados do perfil.'))
@@ -108,7 +128,7 @@ export default function Perfil() {
     const iniciais = getIniciais(dados.nome);
     const tituloCardSolicitacoes = dados.nivelAcesso === 'Administrador' ? 'Normas Cadastradas' : 'Solicitações Criadas';
     const cardNormas = dados.nivelAcesso === 'Administrador' && dados.normas;
-    const cardSolicitacoes = dados.nivelAcesso === 'Checker' && 'Visualizador' && dados.solicitacoes;
+    const cardSolicitacoes = (dados.nivelAcesso === 'Checker' || dados.nivelAcesso === 'Visualizador') && dados.solicitacoes;
     const textoVazioSolicitacoes = dados.nivelAcesso === 'Administrador'
         ? 'Nenhuma Norma Foi Cadastrada Por Você'
         : 'Nenhuma Solicitação Foi Criada por Você';
@@ -178,16 +198,27 @@ export default function Perfil() {
                             </div>
                         </div>
 
+                        {/* Card de Normas e Solicitações */}
                         <div className="bg-white border border-font-border rounded-xl p-5">
+                            {/* Título do Card */}
                             <p className="text-xs font-bold text-gray-400 tracking-widest uppercase mb-4 flex items-center gap-1.5">
                                 <LuGitPullRequestArrow size={14} /> {tituloCardSolicitacoes}
                             </p>
-                            <div>
-                                <p>{cardNormas}</p>
-                            </div>
-                            <div className="flex items-center justify-center h-32">
-                                <p className="text-xs text-gray-medium text-center">{textoVazioSolicitacoes}</p>
-                            </div>
+
+                            {/* Lista de Normas e Solicitações */}
+                            {(dados.normas || dados.solicitacoes) ? (
+                                <ul className="space-y-2">
+                                    {(dados.normas ?? dados.solicitacoes ?? []).map((item: NormasSolicitacoes, i: number) => (
+                                        <li key={i} className="text-xs text-dark-title border border-font-border rounded px-3 py-2">
+                                            {item.titulo ?? item.nome ?? `Item ${i + 1}`}
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <div className="flex items-center justify-center h-32">
+                                    <p className="text-xs text-gray-medium text-center">{textoVazioSolicitacoes}</p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </main>
