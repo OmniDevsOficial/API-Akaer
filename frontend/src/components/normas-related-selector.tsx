@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Search } from "lucide-react";
+import { Link } from "react-router-dom";
 import api from "@/services/api";
 
 interface Norma {
@@ -128,20 +129,26 @@ export function NormasRelatedSelector({ selecionadas, onChange, codigoAtual, use
     return (
         <div className='flex flex-col text-start gap-1' ref={wrapperRef}>
 
-            {/* Normas selecionadas */}
+            {/* Normas Selecionadas */}
             {selecionadas.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mb-2">
+                <div className="grid grid-cols-1 gap-2 w-full mb-2">
                     {selecionadas.map(n => (
                         <div
                             key={n.codigo}
-                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#73203A]/8 border border-[#73203A]/20 text-[#73203A] text-xs font-medium"
+                            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg border border-font-border bg-white hover:border-[#73203A]/30 hover:bg-[#73203A]/5 transition-all group"
                         >
-                            <span className="font-bold">{n.codigo}</span>
-                            <span className="text-[#73203A]/70 max-w-[120px] truncate">{n.titulo}</span>
+                            <Link to={`/normas/ver/${n.codigo}`} className="flex flex-col min-w-0 flex-1">
+                                <span className="text-[11px] font-bold text-[#73203A] leading-tight">
+                                    {n.codigo}
+                                </span>
+                                <span className="text-xs text-gray-500 truncate group-hover:text-gray-700 transition-colors leading-snug mt-0.5">
+                                    {n.titulo || '—'}
+                                </span>
+                            </Link>
                             <button
                                 type="button"
                                 onClick={() => remover(n.codigo)}
-                                className="ml-0.5 w-3.5 h-3.5 rounded-full flex items-center justify-center bg-[#73203A]/15 hover:bg-[#73203A]/30 text-[#73203A] transition-colors text-[10px] font-bold"
+                                className="ml-auto flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center bg-gray-100 hover:bg-[#73203A]/15 text-gray-400 hover:text-[#73203A] transition-colors text-[11px] font-bold"
                             >
                                 ×
                             </button>

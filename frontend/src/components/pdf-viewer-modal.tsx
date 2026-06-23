@@ -295,7 +295,7 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
                         {/* Botão de recolher/expansão */}
                         <button
                             onClick={alternar}
-                            className="absolute -right-0 top-6.5 bg-white border border-gray-200 rounded-full p-0.5 mr-1.5 text-gray-400 hover:text-red-akaer transition-colors z-10 flex items-center justify-center"
+                            className="absolute -right-0 top-6.5 bg-white border border-gray-200 rounded-full p-0.5 mr-1.5 text-gray-400 hover:text-red-akaer hover:border-red-akaer hover:bg-red-akaer/5 transition-colors z-10 flex items-center justify-center"
                         >
                             {recolher ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
                         </button>
@@ -327,7 +327,7 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
                                                 </span>
                                             ))
                                         ) : (
-                                            <div className="flex items-center gap-2 text-xs text-gray-400">
+                                            <div className="flex items-center gap-2 text-sm text-gray-400">
                                                 <span className="w-1 h-1 rounded-full bg-gray-300" />
                                                 Não informadas
                                             </div>
@@ -342,7 +342,7 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
                                     </h3>
 
                                     {norma?.normaRelacionada?.length ? (
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
+                                        <div className="grid grid-cols-1 gap-2 w-full">
                                             {norma.normaRelacionada.map((n: any) => (
                                                 <Link
                                                     key={n.codigo}
