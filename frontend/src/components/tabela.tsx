@@ -21,6 +21,7 @@ export interface Norma {
     categoria_id?: { nome: string };
     status: string;
     revisoes?: RevisaoNorma[];
+    palavras_chave?: string[] | null;
 }
 
 export interface NormaSelecionadaPdf {
@@ -182,9 +183,8 @@ function NormaRow({ norma, isAdmin, onAbrirPdf, onAbrirPdfRevisao, onEditar, onA
         <>
             <tr
                 onClick={toggleAccordion}
-                className={`border-b border-font-border last:border-none hover:bg-red-50/60 transition-colors bg-white ${
-                    temRevisoes ? 'cursor-pointer' : ''
-                } ${accordionAberto ? 'bg-red-50/40' : ''}`}
+                className={`border-b border-font-border last:border-none hover:bg-red-50/60 transition-colors bg-white ${temRevisoes ? 'cursor-pointer' : ''
+                    } ${accordionAberto ? 'bg-red-50/40' : ''}`}
             >
                 {/* Chevron trigger — só aparece se tem revisões */}
                 <td className="pl-4 pr-0 py-3">
@@ -212,7 +212,7 @@ function NormaRow({ norma, isAdmin, onAbrirPdf, onAbrirPdfRevisao, onEditar, onA
                 {/* NORMA (título + revisão) */}
                 <td className="px-3 py-3">
                     <span className="block text-sm font-medium text-gray-900">{norma.titulo}</span>
-                    
+
                 </td>
 
                 {/* ÓRGÃO */}
@@ -350,11 +350,17 @@ export default function TabelaNormas({
         if (!searchText.trim()) return true;
 
         const textoBusca = searchText.toLowerCase();
-        // Garante que não vai quebrar se a norma vier sem título ou código
-        const titulo = norma.titulo ? norma.titulo.toLowerCase() : '';
-        const codigo = norma.codigo ? norma.codigo.toLowerCase() : '';
+        const titulo = (norma.titulo || '').toLowerCase();
+        const codigo = (norma.codigo || '').toLowerCase();
+        const palavras = Array.isArray(norma.palavras_chave)
+            ? norma.palavras_chave.join(' ').toLowerCase()
+            : '';
 
-        return titulo.includes(textoBusca) || codigo.includes(textoBusca);
+        return (
+            titulo.includes(textoBusca) ||
+            codigo.includes(textoBusca) ||
+            palavras.includes(textoBusca)
+        );
     });
 
     // ORDENAR OS DADOS FILTRADOS
