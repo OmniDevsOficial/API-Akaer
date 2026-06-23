@@ -4,9 +4,15 @@ import { LuGitPullRequestArrow } from "react-icons/lu";
 import Sidebar from '../../components/sidebar';
 import api from '../../services/api';
 
-interface NormasSolicitacoes {
+interface NormaOuSolicitacao {
+    id: number;
     titulo?: string;
-    nome?: string;
+    codigo?: string;
+    tipo_solicitacao?: string;
+    norma_id?: string;
+    status?: string;
+    data_publicacao?: string;
+    data_criacao?: string;
 }
 
 interface PerfilDados {
@@ -17,8 +23,8 @@ interface PerfilDados {
     nivelAcesso: string;
     status: string;
     cadastradoEm: string;
-    normas?: NormasSolicitacoes[];
-    solicitacoes?: NormasSolicitacoes[];
+    normas?: NormaOuSolicitacao[];
+    solicitacoes?: NormaOuSolicitacao[];
 }
 
 type RoleAPI = 'ADMIN' | 'CHECKER' | 'VISUALIZADOR';
@@ -127,8 +133,6 @@ export default function Perfil() {
 
     const iniciais = getIniciais(dados.nome);
     const tituloCardSolicitacoes = dados.nivelAcesso === 'Administrador' ? 'Normas Cadastradas' : 'Solicitações Criadas';
-    const cardNormas = dados.nivelAcesso === 'Administrador' && dados.normas;
-    const cardSolicitacoes = (dados.nivelAcesso === 'Checker' || dados.nivelAcesso === 'Visualizador') && dados.solicitacoes;
     const textoVazioSolicitacoes = dados.nivelAcesso === 'Administrador'
         ? 'Nenhuma Norma Foi Cadastrada Por Você'
         : 'Nenhuma Solicitação Foi Criada por Você';
@@ -207,16 +211,36 @@ export default function Perfil() {
 
                             {/* Lista de Normas e Solicitações */}
                             {(dados.normas || dados.solicitacoes) ? (
-                                <ul className="space-y-2">
-                                    {(dados.normas ?? dados.solicitacoes ?? []).map((item: NormasSolicitacoes, i: number) => (
-                                        <li key={i} className="text-xs text-dark-title border border-font-border rounded px-3 py-2">
-                                            {item.titulo ?? item.nome ?? `Item ${i + 1}`}
+                                <ul className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
+                                    {(dados.normas ?? dados.solicitacoes ?? []).map((item: NormaOuSolicitacao, i: number) => (
+                                        <li key={i}
+                                            className="flex items-center justify-between gap-2 rounded-lg border border-font-border bg-[#fafafa] px-3 py-2.5 hover:bg-gray-50 transition-colors"
+                                        >
+                                            <div className="flex items-center gap-2 min-w-0">
+                                                <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-md bg-[#73203A]/10 flex items-center justify-center">
+                                                    <span className="text-[9px] font-bold text-[#73203A]">{i + 1}</span>
+                                                </span>
+                                                <span className="text-xs font-medium text-dark-title leading-snug truncate">
+                                                    {item.titulo ?? item.tipo_solicitacao ?? `Item ${i + 1}`}
+                                                </span>
+                                            </div>
+
+                                            {(item.codigo ?? item.norma_id) && (
+                                                <span className="flex-shrink-0 text-[10px] font-semibold text-[#73203A] bg-[#73203A]/10 px-2 py-0.5 rounded-full">
+                                                    {item.codigo ?? item.norma_id}
+                                                </span>
+                                            )}
                                         </li>
                                     ))}
                                 </ul>
                             ) : (
-                                <div className="flex items-center justify-center h-32">
-                                    <p className="text-xs text-gray-medium text-center">{textoVazioSolicitacoes}</p>
+                                <div className="flex flex-col items-center justify-center h-32 gap-2">
+                                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                                        <LuGitPullRequestArrow size={14} className="text-gray-400" />
+                                    </div>
+                                    <p className="text-xs text-gray-medium text-center leading-relaxed">
+                                        {textoVazioSolicitacoes}
+                                    </p>
                                 </div>
                             )}
                         </div>
