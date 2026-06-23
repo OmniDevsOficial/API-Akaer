@@ -175,7 +175,7 @@ export const buscarNormasUsuarioController = async (req: Request, res: Response)
     }
 
     const normas = await prisma.norma.findMany({
-      where: { criador_id: id },
+      where: { criador_id: id, is_vigente: true },
       orderBy: { data_publicacao: "desc" },
       select: { id: true, titulo: true, codigo: true, status: true, data_publicacao: true }
     });

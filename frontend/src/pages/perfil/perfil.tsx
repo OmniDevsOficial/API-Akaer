@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Star, IdCard } from 'lucide-react';
 import { LuGitPullRequestArrow } from "react-icons/lu";
+import { Link } from "react-router-dom";
 import Sidebar from '../../components/sidebar';
 import api from '../../services/api';
 
@@ -13,6 +14,7 @@ interface NormaOuSolicitacao {
     status?: string;
     data_publicacao?: string;
     data_criacao?: string;
+    is_vigente?: boolean;
 }
 
 interface PerfilDados {
@@ -217,20 +219,27 @@ export default function Perfil() {
                                             className="flex items-center justify-between gap-2 rounded-lg border border-font-border bg-[#fafafa] px-3 py-2.5 hover:bg-gray-50 transition-colors"
                                         >
                                             <div className="flex items-center gap-2 min-w-0">
+                                                {/* Número de ordenação da Norma */}
                                                 <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-md bg-[#73203A]/10 flex items-center justify-center">
                                                     <span className="text-[9px] font-bold text-[#73203A]">{i + 1}</span>
                                                 </span>
-                                                <span className="text-xs font-medium text-dark-title leading-snug truncate">
+
+                                                {/* Permite navegar para a página de visualização da norma ou solicitação */}
+                                                <Link to={`/normas/ver/${item.codigo}`}
+                                                    className="text-xs font-medium text-dark-title leading-snug truncate hover:text-[#73203A] transition-colors"
+                                                >
                                                     {item.titulo ?? item.tipo_solicitacao ?? `Item ${i + 1}`}
-                                                </span>
+                                                </Link>
                                             </div>
 
+                                            {/* Código da Norma */}
                                             {(item.codigo ?? item.norma_id) && (
                                                 <span className="flex-shrink-0 text-[10px] font-semibold text-[#73203A] bg-[#73203A]/10 px-2 py-0.5 rounded-full">
                                                     {item.codigo ?? item.norma_id}
                                                 </span>
                                             )}
                                         </li>
+
                                     ))}
                                 </ul>
                             ) : (

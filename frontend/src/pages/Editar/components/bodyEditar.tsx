@@ -9,14 +9,14 @@ import { useLocation } from "react-router-dom";
 import { BookOpenCheck, FileText, IdCard, StickyNote, Tag, X, Loader2 } from "lucide-react";
 import { NormasRelatedSelector } from '@/components/normas-related-selector';
 import { atualizarNorma, getNormaDetalhes } from "@/services/normaService";
-import api from "@/services/api";
-import PdfViewerModal from "@/components/pdf-viewer-modal";
 import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
 } from "../../../components/ui/tooltip";
+import PdfViewerModal from "@/components/pdf-viewer-modal";
+import api from "@/services/api";
 
 export interface BodyEditarHandle {
     salvar: () => Promise<void>;
@@ -450,7 +450,7 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                                         </div>
                                     </button>
 
-                                    {/* Coluna Substituir — largura natural do botão */}
+                                    {/* Coluna Substituir */}
                                     <div className="flex items-center shrink-0">
                                         <input
                                             ref={ArquivoPdf}

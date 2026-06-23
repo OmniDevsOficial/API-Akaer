@@ -67,7 +67,7 @@ const statusColorClass = (status: string) => {
 };
 
 
-
+/* Aqui começa o Accordion de Revisões */
 interface AccordionRevisoesProps {
     revisoes: RevisaoNorma[];
     onAbrirPdfRevisao: (revisao: RevisaoNorma) => void;

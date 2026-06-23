@@ -312,38 +312,63 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
                                     </p>
                                 </div>
 
+                                {/* Palavras-chave */}
                                 <div>
                                     <h3 className="text-sm font-semibold text-gray-700 mb-2">Palavras-chave</h3>
-                                    <div className="flex flex-wrap gap-2 w-full max-w-full">
+                                    <div className="flex flex-wrap gap-1.5 w-full">
                                         {norma?.palavrasChave?.length ? (
                                             norma.palavrasChave.map((p, i) => (
-                                                <span key={i} className="px-3 py-1 text-sm rounded-xl bg-[#eef3ff]">{p}</span>
+                                                <span
+                                                    key={i}
+                                                    className="flex items-center gap-1 px-2.5 py-1 rounded-full border border-font-border bg-white text-xs text-gray-600 hover:border-[#73203A]/30 hover:text-[#73203A] hover:bg-[#73203A]/5 transition-all"
+                                                >
+                                                    <span className="w-1 h-1 rounded-full bg-gray-300 flex-shrink-0" />
+                                                    {p}
+                                                </span>
                                             ))
                                         ) : (
-                                            <span className="text-sm text-gray-500">Não informadas</span>
+                                            <div className="flex items-center gap-2 text-xs text-gray-400">
+                                                <span className="w-1 h-1 rounded-full bg-gray-300" />
+                                                Não informadas
+                                            </div>
                                         )}
                                     </div>
                                 </div>
+
+                                {/* Normas Relacionadas */}
                                 <div className="mt-8">
                                     <h3 className="text-sm font-semibold text-gray-700 mb-2">
                                         Normas Relacionadas
                                     </h3>
 
                                     {norma?.normaRelacionada?.length ? (
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-full overflow-hidden">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                             {norma.normaRelacionada.map((n: any) => (
-                                                <div
+                                                <Link
                                                     key={n.codigo}
-                                                    className="px-3 py-1 text-sm rounded-xl bg-[#eef3ff] cursor-pointer break-all w-full"
+                                                    to={`/normas/ver/${n.codigo}`}
+                                                    className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg border border-font-border bg-white hover:border-[#73203A]/30 hover:bg-[#73203A]/5 transition-all group"
                                                 >
-                                                    <Link to={`/normas/ver/${n.codigo}`}>{n.codigo} - {n.titulo || ''} </Link>
-                                                </div>
+                                                    <div className="flex flex-col min-w-0">
+                                                        <span className="text-[11px] font-bold text-[#73203A] leading-tight">
+                                                            {n.codigo}
+                                                        </span>
+                                                        <span className="text-xs text-gray-500 truncate group-hover:text-gray-700 transition-colors leading-snug mt-0.5">
+                                                            {n.titulo || '—'}
+                                                        </span>
+                                                    </div>
+                                                    <ChevronRight
+                                                        size={13}
+                                                        className="ml-auto flex-shrink-0 text-gray-300 group-hover:text-[#73203A]/40 transition-colors"
+                                                    />
+                                                </Link>
                                             ))}
                                         </div>
                                     ) : (
-                                        <span className="text-sm text-gray-500">
+                                        <div className="flex items-center gap-2 text-sm text-gray-400">
+                                            <span className="w-1 h-1 rounded-full bg-gray-300" />
                                             Nenhuma norma relacionada
-                                        </span>
+                                        </div>
                                     )}
                                 </div>
                             </div>
