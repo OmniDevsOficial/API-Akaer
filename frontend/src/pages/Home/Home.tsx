@@ -1,14 +1,14 @@
 import { useState } from 'react';
+import { getUserRole } from '../../utils/auth';
+import { type FiltrosLabels, FilterAside, type FiltrosSelecionados } from '../../components/FilterAside/FilterAside';
+import SelectRequestModal, { type TipoSolicitacao } from '../Solicitacoes/SelectRequestModal';
 import Sidebar from '../../components/sidebar';
 import Barra_pesquisa from '../../components/barra_pes';
 import TabelaNormas from '../../components/tabela';
 import AddStandardModal from '@/components/add-standard-modal';
 import ReportErrorModal from '../Solicitacoes/ReportErrorModal';
-import SelectRequestModal, { type TipoSolicitacao } from '../Solicitacoes/SelectRequestModal';
 import ModalSolicitacaoNota from '../Solicitacoes/ModalSolicitacaoNota';
 import IndicarNormaModal from '../Solicitacoes/IndicarNormaModal';
-import { getUserRole } from '../../utils/auth';
-import { FilterAside, type FiltrosSelecionados } from '../../components/FilterAside/FilterAside';
 
 export default function Home() {
 
@@ -21,35 +21,24 @@ export default function Home() {
     const [buscaNorma, setBuscaNorma] = useState('');
     const [filtrosSelecionados, setFiltrosSelecionados] = useState<FiltrosSelecionados>({});
     const [selectRequestOpen, setSelectRequestOpen] = useState(false);
-    const [/* modoSolicitacao */, setModoSolicitacao] = useState(false);
+    const [, setModoSolicitacao] = useState(false);
     const [erroModalOpen, setErroModalOpen] = useState(false);
     const [modalSolicitacaoNota, setNotaModalOpen] = useState(false);
     const [indicarNormaOpen, setIndicarNormaOpen] = useState(false);
+    const [ordem, setOrdem] = useState<'recentes' | 'antigas' | 'az' | 'za'>('recentes');
+    const [filtrosLabels, setFiltrosLabels] = useState<FiltrosLabels>({});
 
     const filtrosAtivos = Object.values(filtrosSelecionados).some(
         (v) => Array.isArray(v) && v.length > 0
     );
 
-    const [ordem, setOrdem] = useState<'recentes' | 'antigas' | 'az' | 'za'>('recentes');
-
-    const handleCadastroSucesso = () => {
-        setRecarregarTabela((anterior) => anterior + 1);
-    };
+    const handleCadastroSucesso = () => setRecarregarTabela((prev) => prev + 1);
 
     const handleSelectTipo = (tipo: TipoSolicitacao) => {
         setSelectRequestOpen(false);
-
-        switch (tipo) {
-            case 'indicar_norma':
-                setIndicarNormaOpen(true);
-                break;
-            case 'adicionar_nota':
-                setNotaModalOpen(true);
-                break;
-            case 'reportar_erro':
-                setErroModalOpen(true);
-                break;
-        }
+        if (tipo === 'indicar_norma') setIndicarNormaOpen(true);
+        if (tipo === 'adicionar_nota') setNotaModalOpen(true);
+        if (tipo === 'reportar_erro') setErroModalOpen(true);
     };
 
     const handleModalOpenChange = (open: boolean) => {
@@ -57,61 +46,57 @@ export default function Home() {
         if (!open) setModoSolicitacao(false);
     };
 
+    const botaoAcao = isAdmin ? (
+        <button
+            onClick={() => setModalAberto(true)}
+            className="flex items-center gap-1.5 font-semibold text-white text-sm bg-dark-title border border-font-border rounded-md py-2.5 px-5 cursor-pointer hover:opacity-90 transition-opacity"
+        >
+            <span className="text-base leading-none">+</span> Novo Cadastro
+        </button>
+    ) : (
+        <button
+            onClick={() => setSelectRequestOpen(true)}
+            className="flex items-center gap-1.5 font-semibold text-white text-sm bg-dark-title border border-font-border rounded-md py-2.5 px-5 cursor-pointer hover:opacity-90 transition-opacity"
+        >
+            <span className="text-base leading-none">+</span> Fazer Solicitação
+        </button>
+    );
+    const handleApplyFilters = (filtros: FiltrosSelecionados, labels: FiltrosLabels) => {
+        setFiltrosSelecionados(filtros);
+        setFiltrosLabels(labels);
+    };
+
+    const handleRemoverFiltro = (grupo: keyof FiltrosLabels, id: number | string) => {
+        // Remove a label
+        setFiltrosLabels(prev => ({
+            ...prev,
+            [grupo]: prev[grupo]?.filter(item => item.id !== id)
+        }));
+
+        // Remove o ID real do filtro
+        setFiltrosSelecionados(prev => ({
+            ...prev,
+            [grupo]: (prev[grupo] as any[])?.filter((v: any) => v !== id)
+        }));
+    };
+
     return (
-        <>
-            <div className="flex h-screen w-full overflow-hidden bg-[#fbfbfb] font-dm">
-                <Sidebar />
+        <div className="flex h-screen w-full overflow-hidden bg-[#fbfbfb] font-dm">
+            <Sidebar />
 
-                <div className="flex flex-col flex-1 h-full overflow-hidden">
+            <div className="flex flex-col flex-1 h-full overflow-hidden">
+                <main className="flex-1 min-h-0 overflow-y-auto">
 
-                    <main className="flex-1 min-h-0 overflow-y-auto p-8">
-                        <h2 className="text-red-akaer font-bold text-sm tracking-widest mb-2">GERENCIAMENTO</h2>
-
-                        <div className='flex justify-between items-center'>
+                    <div className="sticky top-0 z-10 bg-[#fbfbfb] border-b border-font-border px-4 md:px-8 py-4">
+                        <div className="flex items-center justify-between gap-4">
                             <div>
-                                <h1 className="text-2xl font-dm font-semibold text-dark-title">Normas Aeronáuticas</h1>
-                                <span className="text-sm text-gray-medium flex justify-between gap-3 ">Cadastre, edite e visualize todas as normas da empresa</span>
+                                <p className="text-red-akaer font-bold text-[10px] md:text-xs tracking-widest mb-0.5">GERENCIAMENTO</p>
+                                <h1 className="text-lg md:text-2xl font-semibold text-dark-title leading-tight">Normas Aeronáuticas</h1>
+                                <p className="hidden md:block text-xs text-gray-medium mt-0.5">Cadastre, edite e visualize todas as normas da empresa</p>
                             </div>
-
-                            {isAdmin ? (
-                                <button onClick={() => setModalAberto(true)}
-                                    className='font-semibold text-white text-sm bg-dark-title border border-font-border rounded-md py-3 px-6 cursor-pointer'>
-                                    <span className='mr-2'>+</span>Novo Cadastro
-                                </button>
-                            ) : (
-                                <button onClick={() => setSelectRequestOpen(true)}
-                                    className='font-semibold text-white text-sm bg-dark-title border border-font-border rounded-md py-3 px-6 cursor-pointer'>
-                                    <span className='mr-2'>+</span>Fazer Solicitação
-                                </button>
-                            )}
-
-                            <SelectRequestModal
-                                open={selectRequestOpen}
-                                onOpenChange={setSelectRequestOpen}
-                                onSelect={handleSelectTipo}
-                            />
-
-                            <AddStandardModal
-                                open={modalAberto}
-                                onOpenChange={handleModalOpenChange}
-                                onSuccess={handleCadastroSucesso}
-                            />
-
-                            <IndicarNormaModal
-                                open={indicarNormaOpen}
-                                onOpenChange={setIndicarNormaOpen}
-                            />
-
-                            <ReportErrorModal
-                                open={erroModalOpen}
-                                onOpenChange={setErroModalOpen}
-                            />
-
-                            <ModalSolicitacaoNota
-                                open={modalSolicitacaoNota}
-                                onOpenChange={() => setNotaModalOpen(false)}
-                                normas={[]}
-                            />
+                            <div className="hidden md:block shrink-0">
+                                {botaoAcao}
+                            </div>
                         </div>
 
                         <Barra_pesquisa
@@ -121,23 +106,39 @@ export default function Home() {
                             filtrosAtivos={filtrosAtivos}
                             onOrdenar={(novaOrdem) => setOrdem(novaOrdem)}
                             ordemAtual={ordem}
+                            filtrosLabels={filtrosLabels}
+                            onRemoverFiltro={handleRemoverFiltro}
                         />
+                    </div>
 
-                        <FilterAside
-                            isOpen={filtroModalOpen}
-                            onClose={() => setFiltroModalOpen(false)}
-                            onApplyFilters={setFiltrosSelecionados}
-                        />
-
+                    {/* Tabela — fora do sticky */}
+                    <div className="px-4 md:px-8 py-4 pb-24 md:pb-8">
                         <TabelaNormas
                             refreshTrigger={recarregarTabela}
                             searchText={buscaNorma}
                             filtros={filtrosSelecionados}
                             ordem={ordem}
                         />
-                    </main>
-                </div>
+                    </div>
+
+                    {/* FAB mobile */}
+                    <div className="md:hidden fixed bottom-20 right-4 z-40">
+                        {botaoAcao}
+                    </div>
+                </main>
             </div>
-        </>
+
+            <FilterAside
+                isOpen={filtroModalOpen}
+                onClose={() => setFiltroModalOpen(false)}
+                onApplyFilters={handleApplyFilters}
+                filtrosAtuais={filtrosSelecionados}
+            />
+            <SelectRequestModal open={selectRequestOpen} onOpenChange={setSelectRequestOpen} onSelect={handleSelectTipo} />
+            <AddStandardModal open={modalAberto} onOpenChange={handleModalOpenChange} onSuccess={handleCadastroSucesso} />
+            <IndicarNormaModal open={indicarNormaOpen} onOpenChange={setIndicarNormaOpen} />
+            <ReportErrorModal open={erroModalOpen} onOpenChange={setErroModalOpen} />
+            <ModalSolicitacaoNota open={modalSolicitacaoNota} onOpenChange={() => setNotaModalOpen(false)} normas={[]} />
+        </div>
     );
 }

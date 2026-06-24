@@ -108,13 +108,13 @@ const resolveArquivoUrl = (arquivo: string) => {
 function DadosNovaNotaOuErro({ dados, criacao, status, tipo }: { dados: DadosSolicitacao; criacao: string; status: string, tipo: string }) {
     return (
         <div className="flex flex-col gap-4">
-            <div className="grid grid-cols-2 gap-3 p-4 bg-gray-50 rounded-lg border border-font-border">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 bg-gray-50 rounded-lg border border-font-border">
                 <CampoLeitura label="Solicitante" valor={dados.solicitante} />
                 <CampoLeitura label="Tipo" valor={tipo} />
                 <CampoLeitura label="Data de criação" valor={new Date(criacao).toLocaleDateString('pt-BR')} />
                 <CampoLeitura label="Status atual" valor={status} />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <CampoLeitura label="Norma relacionada" valor={dados.norma_id} />
             </div>
             <div className="flex flex-col gap-0.5">
@@ -145,13 +145,13 @@ function DadosNovaNorma({ dados, criacao, status, listaOrgao, listaCategoria, li
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="grid grid-cols-2 gap-3 p-4 bg-gray-50 rounded-lg border border-font-border">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 bg-gray-50 rounded-lg border border-font-border">
                 <CampoLeitura label="Solicitante" valor={dados.solicitante} />
                 <CampoLeitura label="Tipo" valor="Nova Norma" />
                 <CampoLeitura label="Data de criação" valor={new Date(criacao).toLocaleDateString('pt-BR')} />
                 <CampoLeitura label="Status atual" valor={status} />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <CampoLeitura label="Referência externa" valor={dados.referencia} />
                 <CampoLeitura label="Utilidade" valor={dados.utilidade} />
             </div>
@@ -161,7 +161,7 @@ function DadosNovaNorma({ dados, criacao, status, listaOrgao, listaCategoria, li
                     <span className="text-xs font-semibold tracking-widest text-gray-400 uppercase whitespace-nowrap">Dados da Norma</span>
                     <div className="flex-1 h-px bg-font-border" />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <CampoLeitura label="Código" valor={dn.codigo} />
                     <CampoLeitura label="Título" valor={dn.titulo} />
                     <CampoLeitura label="Status" valor={dn.status} />
@@ -465,7 +465,7 @@ export default function ModalAvaliacaoChecker({
 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogContent className="!p-0 flex flex-col gap-0 sm:!max-w-[600px] bg-[#fbfbfb]">
+            <DialogContent className="!p-0 flex flex-col gap-0 w-[calc(100vw-2rem)] sm:!max-w-[600px] bg-[#fbfbfb]">
                 <div className="flex items-start mx-7 mt-5 mb-4">
                     <div>
                         <p className="text-xs font-semibold tracking-widest text-red-akaer uppercase">
@@ -530,7 +530,7 @@ export default function ModalAvaliacaoChecker({
                             )}
                         </div>
                         <hr className="border-font-border" />
-                        <div className="flex justify-between items-center mx-7 my-4 gap-2">
+                        <div className="flex flex-col-reverse sm:flex-row sm:justify-between items-stretch sm:items-center mx-4 sm:mx-7 my-4 gap-2">
                             {modo === "detalhes" ? (
                                 <div className="flex justify-end w-full">
                                     <Button size="lg" variant="outline" onClick={() => handleOpenChange(false)} className="border-gray-200 text-gray-600">
@@ -538,7 +538,7 @@ export default function ModalAvaliacaoChecker({
                                     </Button>
                                 </div>
                             ) : isAdminAprovadaNotaOuErro ? (
-                                <div className="flex justify-end w-full gap-2">
+                                <div className="flex flex-col-reverse sm:flex-row sm:justify-end w-full gap-2">
                                     <Button
                                         type="button"
                                         size="lg"
@@ -577,13 +577,13 @@ export default function ModalAvaliacaoChecker({
                                     <Button type="button" size="lg" variant="outline" onClick={() => handleOpenChange(false)} disabled={enviando} className="border-gray-200 text-gray-600 hover:text-dark-title">
                                         Cancelar
                                     </Button>
-                                    <div className="flex gap-2">
+                                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                                         {!isAdmin && (
-                                            <Button type="button" size="lg" variant="outline" onClick={() => setEtapa('rejeitando')} disabled={enviando || carregando} className="border-red-300 text-red-akaer hover:bg-red-50 hover:text-red-akaer">
+                                            <Button type="button" size="lg" variant="outline" onClick={() => setEtapa('rejeitando')} disabled={enviando || carregando} className="border-red-300 text-red-akaer hover:bg-red-50 hover:text-red-akaer w-full sm:w-auto">
                                                 <X className="w-4 h-4 mr-1" /> Rejeitar
                                             </Button>)
                                         }
-                                        <Button type="button" size="lg" onClick={handleAprovar} disabled={enviando || carregando} className="bg-green-700 hover:bg-green-800 text-white">
+                                        <Button type="button" size="lg" onClick={handleAprovar} disabled={enviando || carregando} className="bg-green-700 hover:bg-green-800 text-white w-full sm:w-auto">
                                             {enviando ? <Spinner className="mr-2" /> : <Check className="w-4 h-4 mr-1" />} Aprovar
                                         </Button>
                                     </div>

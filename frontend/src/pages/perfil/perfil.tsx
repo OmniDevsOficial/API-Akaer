@@ -135,7 +135,7 @@ export default function Perfil() {
 
     const iniciais = getIniciais(dados.nome);
     const tituloCardSolicitacoes = dados.nivelAcesso === 'Administrador' ? 'Normas Cadastradas' : 'Solicitações Criadas';
-    const textoVazioSolicitacoes = dados.nivelAcesso === 'Administrador'
+    const textoVazioSolicitacoes = dados.nivelAcesso === 'Administrador' || dados.nivelAcesso === 'Visualizador' || dados.nivelAcesso === 'Checker'
         ? 'Nenhuma Norma Foi Cadastrada Por Você'
         : 'Nenhuma Solicitação Foi Criada por Você';
 
@@ -212,8 +212,8 @@ export default function Perfil() {
                             </p>
 
                             {/* Lista de Normas e Solicitações */}
-                            {(dados.normas || dados.solicitacoes) ? (
-                                <ul className="space-y-2 pr-1">
+                            {((dados.normas?.length ?? 0) > 0 || (dados.solicitacoes?.length ?? 0) > 0) ? (
+                                <ul className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
                                     {(dados.normas ?? dados.solicitacoes ?? []).map((item: NormaOuSolicitacao, i: number) => (
                                         <li key={i}
                                             className="flex items-center justify-between gap-2 rounded-lg border border-font-border bg-[#fafafa] px-3 py-2.5 hover:bg-gray-50 transition-colors"
@@ -244,9 +244,6 @@ export default function Perfil() {
                                 </ul>
                             ) : (
                                 <div className="flex flex-col items-center justify-center h-32 gap-2">
-                                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                                        <LuGitPullRequestArrow size={14} className="text-gray-400" />
-                                    </div>
                                     <p className="text-xs text-gray-medium text-center leading-relaxed">
                                         {textoVazioSolicitacoes}
                                     </p>

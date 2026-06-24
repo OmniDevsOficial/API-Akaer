@@ -70,7 +70,8 @@ export default function Sidebar() {
     ];
 
     return (
-        <aside className={`z-20 flex flex-col h-full relative bg-white border-r border-font-border p-4 transition-all duration-300 ${recolher ? "w-16" : "w-60"}`}>
+        <>
+            <aside className={`z-20 hidden md:flex flex-col h-full relative bg-white border-r border-font-border p-4 transition-all duration-300 ${recolher ? "w-16" : "w-60"}`}>
 
             <button onClick={() => alternar()}
                 className="absolute -right-3 top-7 bg-white border border-font-border rounded-full p-0.5 text-gray-400 hover:text-red-akaer hover:border-red-akaer hover:bg-red-akaer/'5 transition-colors z-10">
@@ -157,5 +158,47 @@ export default function Sidebar() {
                 })()}
             </div>
         </aside>
+
+            {/* Bottom navigation mobile */}
+            <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-font-border flex items-center h-16 px-1">
+                {itemSidebar.map((item) => {
+                    const isAtivo = item.rotaAtiva.some(padrao =>
+                        matchPath({ path: padrao, end: false }, location.pathname)
+                    );
+                    return (
+                        <button
+                            key={item.id}
+                            onClick={() => navigate(item.rota)}
+                            className={`relative flex flex-col items-center justify-center gap-1 flex-1 h-full rounded-lg transition-colors
+                                ${isAtivo ? 'text-red-akaer' : 'text-gray-400 hover:text-gray-600'}`}
+                        >
+                            <span className={`text-xl transition-transform ${isAtivo ? 'scale-110' : ''}`}>{item.icone}</span>
+                            <span className={`text-[10px] font-medium ${isAtivo ? 'font-semibold' : ''}`}>{item.nome}</span>
+                            {isAtivo && <span className="absolute bottom-1 w-4 h-0.5 bg-red-akaer rounded-full" />}
+                        </button>
+                    );
+                })}
+                <button
+                    onClick={() => navigate('/perfil')}
+                    className={`flex flex-col items-center justify-center gap-1 flex-1 h-full rounded-lg transition-colors
+                        ${matchPath({ path: '/perfil', end: false }, location.pathname) ? 'text-red-akaer' : 'text-gray-400 hover:text-gray-600'}`}
+                >
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors
+                        ${matchPath({ path: '/perfil', end: false }, location.pathname)
+                            ? 'bg-[#73203A] text-white'
+                            : 'bg-[#73203A]/15 text-[#73203A]'}`}>
+                        <span className="text-[9px] font-bold">{iniciais || '?'}</span>
+                    </div>
+                    <span className="text-[10px] font-medium">Perfil</span>
+                </button>
+                <button
+                    onClick={handleSair}
+                    className="flex flex-col items-center justify-center gap-1 flex-1 h-full rounded-lg text-gray-400 hover:text-red-500 transition-colors"
+                >
+                    <LogOut size={18} />
+                    <span className="text-[10px] font-medium">Sair</span>
+                </button>
+            </nav>
+        </>
     );
 }
