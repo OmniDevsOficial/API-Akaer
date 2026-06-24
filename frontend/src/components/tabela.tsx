@@ -21,6 +21,7 @@ export interface Norma {
     categoria_id?: { nome: string };
     status: string;
     revisoes?: RevisaoNorma[];
+    palavras_chave?: string[] | null;
 }
 
 export interface NormaSelecionadaPdf {
@@ -324,9 +325,17 @@ export default function TabelaNormas({
     const normasFiltradas = normas.filter((norma) => {
         if (!searchText.trim()) return true;
         const textoBusca = searchText.toLowerCase();
-        const titulo = norma.titulo ? norma.titulo.toLowerCase() : '';
-        const codigo = norma.codigo ? norma.codigo.toLowerCase() : '';
-        return titulo.includes(textoBusca) || codigo.includes(textoBusca);
+        const titulo = (norma.titulo || '').toLowerCase();
+        const codigo = (norma.codigo || '').toLowerCase();
+        const palavras = Array.isArray(norma.palavras_chave)
+            ? norma.palavras_chave.join(' ').toLowerCase()
+            : '';
+
+        return (
+            titulo.includes(textoBusca) ||
+            codigo.includes(textoBusca) ||
+            palavras.includes(textoBusca)
+        );
     });
 
     const normasOrdenadas = [...normasFiltradas].sort((a, b) => {

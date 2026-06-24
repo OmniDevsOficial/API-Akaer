@@ -5,30 +5,38 @@ import api from "@/services/api";
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  onApplyFilters: (filtros: FiltrosSelecionados) => void;
+  onApplyFilters: (filtros: FiltrosSelecionados, labels: FiltrosLabels) => void;
+  filtrosAtuais?: FiltrosSelecionados;
 };
 
 export type FiltrosSelecionados = {
-  orgaos?: number[];
-  categorias?: number[];
-  etapas?: number[];
-  status?: string[];
+  orgaos?:     string[];
+  categorias?: string[];
+  etapas?:     string[];
+  status?:     string[];
+};
+
+export type FiltrosLabels = {
+  orgaos?:     { id: number | string; nome: string }[];
+  categorias?: { id: number | string; nome: string }[];
+  etapas?:     { id: number | string; nome: string }[];
+  status?:     { id: number | string; nome: string }[];
 };
 
 type Opcao = {
-  id: number;
+  id: string;
   nome: string;
 };
 
-export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters }) => {
+export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters, filtrosAtuais }) => {
 
   const [orgaos, setOrgaos] = useState<Opcao[]>([]);
   const [categorias, setCategorias] = useState<Opcao[]>([]);
   const [etapas, setEtapas] = useState<Opcao[]>([]);
 
-  const [orgaosSelecionados, setOrgaosSelecionados] = useState<number[]>([]);
-  const [categoriasSelecionadas, setCategoriasSelecionadas] = useState<number[]>([]);
-  const [etapasSelecionadas, setEtapasSelecionadas] = useState<number[]>([]);
+  const [orgaosSelecionados, setOrgaosSelecionados] = useState<string[]>([]);
+  const [categoriasSelecionadas, setCategoriasSelecionadas] = useState<string[]>([]);
+  const [etapasSelecionadas, setEtapasSelecionadas] = useState<string[]>([]);
   const [statusSelecionados, setStatusSelecionados] = useState<string[]>([]);
 
   useEffect(() => {
@@ -50,22 +58,21 @@ export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters }
     };
 
     carregarOpcoes();
-  }, [isOpen]);
+
+    setOrgaosSelecionados(filtrosAtuais?.orgaos ?? []);
+    setCategoriasSelecionadas(filtrosAtuais?.categorias ?? []);
+    setEtapasSelecionadas(filtrosAtuais?.etapas ?? []);
+    setStatusSelecionados(filtrosAtuais?.status ?? []);
+  }, [isOpen, filtrosAtuais]);
 
   const toggleNumerico = (
-    setLista: React.Dispatch<React.SetStateAction<number[]>>,
-    id: number
+    setLista: React.Dispatch<React.SetStateAction<string[]>>,
+    id: string
   ) => {
     setLista(prev =>
       prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id]
     );
   };
-
-  /* const toggleStatus = (valor: string) => {
-    setStatusSelecionados(prev =>
-      prev.includes(valor) ? prev.filter(v => v !== valor) : [...prev, valor]
-    );
-  }; */
 
   const limparFiltros = () => {
     setOrgaosSelecionados([]);
@@ -75,12 +82,20 @@ export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters }
   };
 
   const aplicarFiltros = () => {
-    onApplyFilters({
-      orgaos: orgaosSelecionados.length > 0 ? orgaosSelecionados : undefined,
-      categorias: categoriasSelecionadas.length > 0 ? categoriasSelecionadas : undefined,
-      etapas: etapasSelecionadas.length > 0 ? etapasSelecionadas : undefined,
-      status: statusSelecionados.length > 0 ? statusSelecionados : undefined,
-    });
+    onApplyFilters(
+      {
+        orgaos: orgaosSelecionados.length > 0 ? orgaosSelecionados : undefined,
+        categorias: categoriasSelecionadas.length > 0 ? categoriasSelecionadas : undefined,
+        etapas: etapasSelecionadas.length > 0 ? etapasSelecionadas : undefined,
+        status: statusSelecionados.length > 0 ? statusSelecionados : undefined,
+      },
+      {
+        orgaos: orgaosSelecionados.map(id => ({ id, nome: orgaos.find(o => o.id === id)?.nome ?? '' })),
+        categorias: categoriasSelecionadas.map(id => ({ id, nome: categorias.find(c => c.id === id)?.nome ?? '' })),
+        etapas: etapasSelecionadas.map(id => ({ id, nome: etapas.find(e => e.id === id)?.nome ?? '' })),
+        status: statusSelecionados.map(s => ({ id: s, nome: s })),
+      }
+    );
     onClose();
   };
 

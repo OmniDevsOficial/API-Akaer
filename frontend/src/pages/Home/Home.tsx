@@ -1,14 +1,14 @@
 import { useState } from 'react';
+import { getUserRole } from '../../utils/auth';
+import { type FiltrosLabels, FilterAside, type FiltrosSelecionados } from '../../components/FilterAside/FilterAside';
+import SelectRequestModal, { type TipoSolicitacao } from '../Solicitacoes/SelectRequestModal';
 import Sidebar from '../../components/sidebar';
 import Barra_pesquisa from '../../components/barra_pes';
 import TabelaNormas from '../../components/tabela';
 import AddStandardModal from '@/components/add-standard-modal';
 import ReportErrorModal from '../Solicitacoes/ReportErrorModal';
-import SelectRequestModal, { type TipoSolicitacao } from '../Solicitacoes/SelectRequestModal';
 import ModalSolicitacaoNota from '../Solicitacoes/ModalSolicitacaoNota';
 import IndicarNormaModal from '../Solicitacoes/IndicarNormaModal';
-import { getUserRole } from '../../utils/auth';
-import { FilterAside, type FiltrosSelecionados } from '../../components/FilterAside/FilterAside';
 
 export default function Home() {
 
@@ -26,6 +26,7 @@ export default function Home() {
     const [modalSolicitacaoNota, setNotaModalOpen] = useState(false);
     const [indicarNormaOpen, setIndicarNormaOpen] = useState(false);
     const [ordem, setOrdem] = useState<'recentes' | 'antigas' | 'az' | 'za'>('recentes');
+    const [filtrosLabels, setFiltrosLabels] = useState<FiltrosLabels>({});
 
     const filtrosAtivos = Object.values(filtrosSelecionados).some(
         (v) => Array.isArray(v) && v.length > 0
@@ -60,6 +61,24 @@ export default function Home() {
             <span className="text-base leading-none">+</span> Fazer Solicitação
         </button>
     );
+    const handleApplyFilters = (filtros: FiltrosSelecionados, labels: FiltrosLabels) => {
+        setFiltrosSelecionados(filtros);
+        setFiltrosLabels(labels);
+    };
+
+    const handleRemoverFiltro = (grupo: keyof FiltrosLabels, id: number | string) => {
+        // Remove a label
+        setFiltrosLabels(prev => ({
+            ...prev,
+            [grupo]: prev[grupo]?.filter(item => item.id !== id)
+        }));
+
+        // Remove o ID real do filtro
+        setFiltrosSelecionados(prev => ({
+            ...prev,
+            [grupo]: (prev[grupo] as any[])?.filter((v: any) => v !== id)
+        }));
+    };
 
     return (
         <div className="flex h-screen w-full overflow-hidden bg-[#fbfbfb] font-dm">
@@ -68,7 +87,6 @@ export default function Home() {
             <div className="flex flex-col flex-1 h-full overflow-hidden">
                 <main className="flex-1 min-h-0 overflow-y-auto">
 
-                    {/* Cabeçalho */}
                     <div className="sticky top-0 z-10 bg-[#fbfbfb] border-b border-font-border px-4 md:px-8 py-4">
                         <div className="flex items-center justify-between gap-4">
                             <div>
@@ -76,26 +94,24 @@ export default function Home() {
                                 <h1 className="text-lg md:text-2xl font-semibold text-dark-title leading-tight">Normas Aeronáuticas</h1>
                                 <p className="hidden md:block text-xs text-gray-medium mt-0.5">Cadastre, edite e visualize todas as normas da empresa</p>
                             </div>
-                            {/* Botão desktop */}
                             <div className="hidden md:block shrink-0">
                                 {botaoAcao}
                             </div>
                         </div>
 
-                        {/* Barra de busca */}
-                        <div className="mt-3">
-                            <Barra_pesquisa
-                                busca={buscaNorma}
-                                onBuscaChange={setBuscaNorma}
-                                onOpenFilters={() => setFiltroModalOpen(true)}
-                                filtrosAtivos={filtrosAtivos}
-                                onOrdenar={(novaOrdem) => setOrdem(novaOrdem)}
-                                ordemAtual={ordem}
-                            />
-                        </div>
+                        <Barra_pesquisa
+                            busca={buscaNorma}
+                            onBuscaChange={setBuscaNorma}
+                            onOpenFilters={() => setFiltroModalOpen(true)}
+                            filtrosAtivos={filtrosAtivos}
+                            onOrdenar={(novaOrdem) => setOrdem(novaOrdem)}
+                            ordemAtual={ordem}
+                            filtrosLabels={filtrosLabels}
+                            onRemoverFiltro={handleRemoverFiltro}
+                        />
                     </div>
 
-                    {/* Tabela */}
+                    {/* Tabela — fora do sticky */}
                     <div className="px-4 md:px-8 py-4 pb-24 md:pb-8">
                         <TabelaNormas
                             refreshTrigger={recarregarTabela}
@@ -112,11 +128,11 @@ export default function Home() {
                 </main>
             </div>
 
-            {/* Modais */}
             <FilterAside
                 isOpen={filtroModalOpen}
                 onClose={() => setFiltroModalOpen(false)}
-                onApplyFilters={setFiltrosSelecionados}
+                onApplyFilters={handleApplyFilters}
+                filtrosAtuais={filtrosSelecionados}
             />
             <SelectRequestModal open={selectRequestOpen} onOpenChange={setSelectRequestOpen} onSelect={handleSelectTipo} />
             <AddStandardModal open={modalAberto} onOpenChange={handleModalOpenChange} onSuccess={handleCadastroSucesso} />
