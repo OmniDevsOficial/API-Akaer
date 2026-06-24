@@ -8,7 +8,7 @@ import SelectRequestModal, { type TipoSolicitacao } from '../Solicitacoes/Select
 import ModalSolicitacaoNota from '../Solicitacoes/ModalSolicitacaoNota';
 import IndicarNormaModal from '../Solicitacoes/IndicarNormaModal';
 import { getUserRole } from '../../utils/auth';
-import { FilterAside, type FiltrosSelecionados } from '../../components/FilterAside/FilterAside';
+import { type FiltrosLabels, FilterAside, type FiltrosSelecionados } from '../../components/FilterAside/FilterAside';
 
 export default function Home() {
 
@@ -25,6 +25,7 @@ export default function Home() {
     const [erroModalOpen, setErroModalOpen] = useState(false);
     const [modalSolicitacaoNota, setNotaModalOpen] = useState(false);
     const [indicarNormaOpen, setIndicarNormaOpen] = useState(false);
+    const [filtrosLabels, setFiltrosLabels] = useState<FiltrosLabels>({});
 
     const filtrosAtivos = Object.values(filtrosSelecionados).some(
         (v) => Array.isArray(v) && v.length > 0
@@ -55,6 +56,19 @@ export default function Home() {
     const handleModalOpenChange = (open: boolean) => {
         setModalAberto(open);
         if (!open) setModoSolicitacao(false);
+    };
+
+    const handleApplyFilters = (filtros: FiltrosSelecionados, labels: FiltrosLabels) => {
+        setFiltrosSelecionados(filtros);
+        setFiltrosLabels(labels);
+    };
+
+    const handleRemoverFiltro = (grupo: keyof FiltrosLabels, nome: string) => {
+        setFiltrosLabels(prev => {
+            // Atualiza os filtros reais também (remove o ID correspondente)
+            const atualizado = { ...prev, [grupo]: prev[grupo]?.filter(n => n !== nome) };
+            return atualizado;
+        });
     };
 
     return (
@@ -121,12 +135,14 @@ export default function Home() {
                             filtrosAtivos={filtrosAtivos}
                             onOrdenar={(novaOrdem) => setOrdem(novaOrdem)}
                             ordemAtual={ordem}
+                            filtrosLabels={filtrosLabels}
+                            onRemoverFiltro={handleRemoverFiltro}
                         />
 
                         <FilterAside
                             isOpen={filtroModalOpen}
                             onClose={() => setFiltroModalOpen(false)}
-                            onApplyFilters={setFiltrosSelecionados}
+                            onApplyFilters={handleApplyFilters}
                         />
 
                         <TabelaNormas
