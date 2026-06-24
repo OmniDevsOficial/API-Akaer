@@ -119,7 +119,7 @@ export function NotasField({
   return (
     <div className="flex flex-col text-start gap-1">
       {/* Label */}
-      <label className="text-lg text-gray-600 mb-0 leading-none">
+      <label className="text-md text-gray-600 mb-0 leading-none">
         {label}
       </label>
 
