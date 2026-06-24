@@ -34,6 +34,11 @@ export function getUserNivelAcesso(): string | null {
   return getDecodedToken()?.nivelAcesso ?? null;
 }
 
+export function getUserId(): number | null {
+  const id = getDecodedToken()?.id;
+  return id ? Number(id) : null;
+}
+
 export function clearAuth(): void {
   localStorage.removeItem("token");
   sessionStorage.removeItem("token");
