@@ -12,10 +12,10 @@ interface BarraPesquisaProps {
     onBuscaChange: (value: string) => void;
     onOpenFilters: () => void;
     onOrdenar: (tipo: 'recentes' | 'antigas' | 'az' | 'za') => void;
-    onRemoverFiltro?: (grupo: keyof FiltrosLabels, nome: string) => void;
+    onRemoverFiltro?: (grupo: keyof FiltrosLabels, id: number | string) => void;
 }
 
-export default function Barra_pesquisa({ busca, titulo, ordemAtual, filtrosAtivos, filtrosLabels, onBuscaChange, onOpenFilters, onOrdenar, onRemoverFiltro }: BarraPesquisaProps) {
+export default function Barra_pesquisa({ busca, ordemAtual, filtrosAtivos, filtrosLabels, onBuscaChange, onOpenFilters, onOrdenar, onRemoverFiltro }: BarraPesquisaProps) {
     const [menuAberto, setMenuAberto] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -47,9 +47,9 @@ export default function Barra_pesquisa({ busca, titulo, ordemAtual, filtrosAtivo
 
     // Achata todos os filtros ativos em uma lista
     const filtrosAtivosAside = filtrosLabels
-        ? (Object.entries(filtrosLabels) as [keyof FiltrosLabels, string[] | undefined][])
-            .flatMap(([grupo, nomes]) =>
-                (nomes ?? []).map(nome => ({ grupo, nome }))
+        ? (Object.entries(filtrosLabels) as [keyof FiltrosLabels, { id: number | string; nome: string }[] | undefined][])
+            .flatMap(([grupo, itens]) =>
+                (itens ?? []).map(item => ({ grupo, ...item }))
             )
         : [];
 
@@ -129,15 +129,15 @@ export default function Barra_pesquisa({ busca, titulo, ordemAtual, filtrosAtivo
             </div>
             {filtrosAtivosAside.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mt-2">
-                    {filtrosAtivosAside.map(({ grupo, nome }) => (
+                    {filtrosAtivosAside.map(({ grupo, id, nome }) => (
                         <span
-                            key={`${grupo}-${nome}`}
+                            key={`${grupo}-${id}`}
                             className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-[#73203A]/20 bg-[#73203A]/5 text-[#73203A] text-xs font-medium"
                         >
                             {nome}
                             <button
                                 type="button"
-                                onClick={() => onRemoverFiltro?.(grupo, nome)}
+                                onClick={() => onRemoverFiltro?.(grupo, id)}
                                 className="w-3.5 h-3.5 rounded-full flex items-center justify-center bg-[#73203A]/15 hover:bg-[#73203A]/30 transition-colors font-bold"
                             >
                                 ×

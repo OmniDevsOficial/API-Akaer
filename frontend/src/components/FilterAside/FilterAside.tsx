@@ -6,20 +6,21 @@ type Props = {
   isOpen: boolean;
   onClose: () => void;
   onApplyFilters: (filtros: FiltrosSelecionados, labels: FiltrosLabels) => void;
+  filtrosAtuais?: FiltrosSelecionados;
 };
 
 export type FiltrosSelecionados = {
-  orgaos?: string[];
+  orgaos?:     string[];
   categorias?: string[];
-  etapas?: string[];
-  status?: string[];
+  etapas?:     string[];
+  status?:     string[];
 };
 
 export type FiltrosLabels = {
-  orgaos?: string[];
-  categorias?: string[];
-  etapas?: string[];
-  status?: string[];
+  orgaos?:     { id: number; nome: string }[];
+  categorias?: { id: number; nome: string }[];
+  etapas?:     { id: number; nome: string }[];
+  status?:     { id: number; nome: string }[];
 };
 
 type Opcao = {
@@ -27,7 +28,7 @@ type Opcao = {
   nome: string;
 };
 
-export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters }) => {
+export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters, filtrosAtuais }) => {
 
   const [orgaos, setOrgaos] = useState<Opcao[]>([]);
   const [categorias, setCategorias] = useState<Opcao[]>([]);
@@ -57,7 +58,12 @@ export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters }
     };
 
     carregarOpcoes();
-  }, [isOpen]);
+
+    setOrgaosSelecionados(filtrosAtuais?.orgaos ?? []);
+    setCategoriasSelecionadas(filtrosAtuais?.categorias ?? []);
+    setEtapasSelecionadas(filtrosAtuais?.etapas ?? []);
+    setStatusSelecionados(filtrosAtuais?.status ?? []);
+  }, [isOpen, filtrosAtuais]);
 
   const toggleNumerico = (
     setLista: React.Dispatch<React.SetStateAction<string[]>>,
@@ -84,10 +90,10 @@ export const FilterAside: React.FC<Props> = ({ isOpen, onClose, onApplyFilters }
         status: statusSelecionados.length > 0 ? statusSelecionados : undefined,
       },
       {
-        orgaos: orgaosSelecionados.map(id => orgaos.find(o => o.id === id)?.nome ?? ''),
-        categorias: categoriasSelecionadas.map(id => categorias.find(c => c.id === id)?.nome ?? ''),
-        etapas: etapasSelecionadas.map(id => etapas.find(e => e.id === id)?.nome ?? ''),
-        status: statusSelecionados,
+        orgaos: orgaosSelecionados.map(id => ({ id, nome: orgaos.find(o => o.id === id)?.nome ?? '' })),
+        categorias: categoriasSelecionadas.map(id => ({ id, nome: categorias.find(c => c.id === id)?.nome ?? '' })),
+        etapas: etapasSelecionadas.map(id => ({ id, nome: etapas.find(e => e.id === id)?.nome ?? '' })),
+        status: statusSelecionados.map(s => ({ id: s, nome: s })),
       }
     );
     onClose();

@@ -1,14 +1,14 @@
 import { useState } from 'react';
+import { getUserRole } from '../../utils/auth';
+import { type FiltrosLabels, FilterAside, type FiltrosSelecionados } from '../../components/FilterAside/FilterAside';
+import SelectRequestModal, { type TipoSolicitacao } from '../Solicitacoes/SelectRequestModal';
 import Sidebar from '../../components/sidebar';
 import Barra_pesquisa from '../../components/barra_pes';
 import TabelaNormas from '../../components/tabela';
 import AddStandardModal from '@/components/add-standard-modal';
 import ReportErrorModal from '../Solicitacoes/ReportErrorModal';
-import SelectRequestModal, { type TipoSolicitacao } from '../Solicitacoes/SelectRequestModal';
 import ModalSolicitacaoNota from '../Solicitacoes/ModalSolicitacaoNota';
 import IndicarNormaModal from '../Solicitacoes/IndicarNormaModal';
-import { getUserRole } from '../../utils/auth';
-import { type FiltrosLabels, FilterAside, type FiltrosSelecionados } from '../../components/FilterAside/FilterAside';
 
 export default function Home() {
 
@@ -63,12 +63,18 @@ export default function Home() {
         setFiltrosLabels(labels);
     };
 
-    const handleRemoverFiltro = (grupo: keyof FiltrosLabels, nome: string) => {
-        setFiltrosLabels(prev => {
-            // Atualiza os filtros reais também (remove o ID correspondente)
-            const atualizado = { ...prev, [grupo]: prev[grupo]?.filter(n => n !== nome) };
-            return atualizado;
-        });
+    const handleRemoverFiltro = (grupo: keyof FiltrosLabels, id: number | string) => {
+        // Remove a label
+        setFiltrosLabels(prev => ({
+            ...prev,
+            [grupo]: prev[grupo]?.filter(item => item.id !== id)
+        }));
+
+        // Remove o ID real do filtro
+        setFiltrosSelecionados(prev => ({
+            ...prev,
+            [grupo]: (prev[grupo] as any[])?.filter((v: any) => v !== id)
+        }));
     };
 
     return (
@@ -143,6 +149,7 @@ export default function Home() {
                             isOpen={filtroModalOpen}
                             onClose={() => setFiltroModalOpen(false)}
                             onApplyFilters={handleApplyFilters}
+                            filtrosAtuais={filtrosSelecionados}
                         />
 
                         <TabelaNormas
