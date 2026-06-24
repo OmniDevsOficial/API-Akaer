@@ -138,10 +138,6 @@ export const updateNormaService = async (codigo: string, data: any, newFilePath?
     throw new Error("Norma não encontrada");
   }
 
-  if (existingNorma.status === "Obsoleta") {
-    throw new Error("Normas obsoletas não podem ser editadas");
-  }
-
   const hasNotas = Object.prototype.hasOwnProperty.call(data, "notas");
   const notasNormalizadas = hasNotas ? parseNormaNotasInput(data.notas) : [];
   const hasPalavrasChave = Object.prototype.hasOwnProperty.call(data, "palavras_chave");
@@ -421,10 +417,6 @@ export const createNormaRevisaoService = async (codigo: string, data: any, newFi
     throw new Error("Norma não encontrada");
   }
 
-  if (existingNorma.status === "Obsoleta") {
-    throw new Error("A norma atual já está obsoleta");
-  }
-
   const oldFilePath = path.resolve(existingNorma.arquivo);
   if (fs.existsSync(oldFilePath) && fs.existsSync(newFilePath)) {
     const oldHash = getFileHash(oldFilePath);
@@ -434,7 +426,12 @@ export const createNormaRevisaoService = async (codigo: string, data: any, newFi
     }
   }
 
-  const novaRevisao = getNextRevision(existingNorma.revisao);
+  const normaAtiva = await prisma.norma.findFirst({
+    where: { codigo_base: existingNorma.codigo_base, is_vigente: true }
+  });
+
+  const baseRevisao = normaAtiva ? normaAtiva.revisao : existingNorma.revisao;
+  const novaRevisao = getNextRevision(baseRevisao);
 
   const novoCodigo = `${existingNorma.codigo_base}-${novaRevisao}`;
 
@@ -452,8 +449,8 @@ export const createNormaRevisaoService = async (codigo: string, data: any, newFi
   ]);
 
   const [_, novaNorma] = await prisma.$transaction([
-    prisma.norma.update({
-      where: { id: existingNorma.id },
+    prisma.norma.updateMany({
+      where: { codigo_base: existingNorma.codigo_base, is_vigente: true },
       data: { status: "Obsoleta", is_vigente: false }
     }),
     prisma.norma.create({
