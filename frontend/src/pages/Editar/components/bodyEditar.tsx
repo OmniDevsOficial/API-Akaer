@@ -219,6 +219,7 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                                 <IdCard size={14} />
                                 IDENTIFICAÇÃO
                             </div>
+
                             <div className={sectionBodyClass}>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 

@@ -105,9 +105,9 @@ const LoginPage: React.FC = () => {
               </label>
             </div>
 
-            <a href="/esqueci-senha" className={styles.forgotPassword}>
+            {/* <a href="/esqueci-senha" className={styles.forgotPassword}>
               Esqueci Senha
-            </a>
+            </a> */}
           </div>
 
           {/* Botão ENTRAR */}
