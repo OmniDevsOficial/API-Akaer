@@ -166,7 +166,7 @@ function AddStandardModal({ open, onOpenChange, onSuccess, solicitacaoId, onConc
                 await api.patch(`/solicitacoes/${solicitacaoId}/status`, { status: 'Concluida' });
                 onConcluir?.(solicitacaoId);
             }
-            
+
             setCadastroConcluido(true);
             onSuccess();
 
@@ -306,34 +306,36 @@ function AddStandardModal({ open, onOpenChange, onSuccess, solicitacaoId, onConc
     return (
         <>
             <Dialog open={open} onOpenChange={handleOpenChange}>
-                <DialogContent className='!p-0 flex flex-col text-center gap-4 sm:!max-w-[90vh]'>
-                    <div className='mx-7 mt-5'>
-                        <p className='text-start'><span className='text-red-akaer'>CADASTRO</span><br /><span className='text-lg'>Nova norma aeronáutica</span></p>
+                <DialogContent className='!p-0 flex flex-col text-center gap-4 w-[95vw] sm:w-auto sm:!max-w-[90vh] max-h-[95vh]'>
+                    <div className='mx-5 md:mx-7 mt-5'>
+                        <p className='text-start'>
+                            <span className='text-red-akaer text-xs tracking-widest'>CADASTRO</span>
+                            <br />
+                            <span className='text-base md:text-lg'>Nova norma aeronáutica</span>
+                        </p>
                     </div>
                     <hr className='!mt-0' />
 
                     {cadastroConcluido ? (
                         <>
-                            <div className='flex flex-col items-center justify-center py-24 gap-4'>
+                            <div className='flex flex-col items-center justify-center py-16 md:py-24 gap-4 px-4'>
                                 <div className='w-12 h-12 rounded-full border border-green-700/40 flex items-center justify-center'>
                                     <Check className='text-green-700 w-7 h-7' />
                                 </div>
-                                <h3 className='text-4 text-[#3f3f3f] font-semibold'>Norma cadastrada com sucesso!</h3>
-                                <p className='text-3 text-gray-500'>O arquivo e os metadados foram salvos no sistema.</p>
+                                <h3 className='text-sm md:text-base text-[#3f3f3f] font-semibold text-center'>Norma cadastrada com sucesso!</h3>
+                                <p className='text-xs md:text-sm text-gray-500 text-center'>O arquivo e os metadados foram salvos no sistema.</p>
                             </div>
-
                             <hr />
-
-                            <div className='flex justify-end mx-8 items-center mb-4'>
+                            <div className='flex justify-end mx-5 md:mx-8 items-center mb-4'>
                                 <Button size={'lg'} className='hover:bg-black/80' onClick={() => handleOpenChange(false)}>
                                     Fechar
                                 </Button>
                             </div>
                         </>
                     ) : (
-                        <form onSubmit={handleSubmit} className="flex flex-col h-full">
-                            <div className="overflow-y-auto max-h-[70vh] pr-2">
-                                <div className='mx-5'>
+                        <form onSubmit={handleSubmit} className="flex flex-col h-full overflow-hidden">
+                            <div className="overflow-y-auto flex-1 pr-1">
+                                <div className='mx-4 md:mx-5'>
                                     <FileUpload
                                         value={arquivoNorma}
                                         fileUrl={arquivoNormaUrl ?? undefined}
@@ -356,18 +358,21 @@ function AddStandardModal({ open, onOpenChange, onSuccess, solicitacaoId, onConc
                                     />
                                 </div>
 
-                                <div className='grid grid-cols-[1fr_auto_1fr] items-center gap-3 mx-8 mb-6'>
+                                <div className='grid grid-cols-[1fr_auto_1fr] items-center gap-3 mx-5 md:mx-8 mb-6'>
                                     <hr className='w-full border-gray-400' />
-                                    <span className='text-center text-[0.95rem] text-gray-400'>METADADOS</span>
+                                    <span className='text-center text-xs text-gray-400'>METADADOS</span>
                                     <hr className='w-full border-gray-400' />
                                 </div>
 
-                                <div className='grid grid-cols-2 mx-8 gap-4'>
-                                    <div className='grid gap-5'>
+                                {/* Grid de campos — 1 coluna no mobile, 2 no desktop */}
+                                <div className='grid grid-cols-1 md:grid-cols-2 mx-4 md:mx-8 gap-4'>
+
+                                    {/* Coluna 1 */}
+                                    <div className='grid gap-4'>
                                         <div className='flex flex-col text-start gap-1'>
-                                            <label className='text-lg text-gray-600 mb-0 leading-none'>TÍTULO <span className='text-red-akaer'>*</span></label>
+                                            <label className='text-sm text-gray-600 leading-none'>TÍTULO <span className='text-red-akaer'>*</span></label>
                                             <input
-                                                className="bg-gray-100/80 border rounded h-10 px-2"
+                                                className="bg-gray-100/80 border rounded h-10 px-2 text-sm"
                                                 placeholder="Ex: Certificação de Gestão"
                                                 value={titulo}
                                                 onChange={(e) => setTitulo(e.target.value)}
@@ -376,14 +381,14 @@ function AddStandardModal({ open, onOpenChange, onSuccess, solicitacaoId, onConc
                                         </div>
 
                                         <div className='flex flex-col text-start gap-1'>
-                                            <label className='text-lg text-gray-600 mb-0 leading-none'>ÓRGÃO EMISSOR <span className='text-red-akaer'>*</span></label>
+                                            <label className='text-sm text-gray-600 leading-none'>ÓRGÃO EMISSOR <span className='text-red-akaer'>*</span></label>
                                             <select
-                                                className={`bg-gray-100/80 border rounded h-10 px-2 ${orgaoEmissor == '' ? 'text-black/60' : ''}`}
+                                                className={`bg-gray-100/80 border rounded h-10 px-2 text-sm ${orgaoEmissor == '' ? 'text-black/60' : ''}`}
                                                 value={orgaoEmissor}
                                                 onChange={(e) => setOrgaoEmissor(e.target.value)}
                                                 required
                                             >
-                                                <option className="text-black/40" value="">Selecione...</option>
+                                                <option value="">Selecione...</option>
                                                 {listaOrgao.map(orgao => (
                                                     <option key={orgao.id} value={orgao.id}>{orgao.nome}</option>
                                                 ))}
@@ -391,37 +396,39 @@ function AddStandardModal({ open, onOpenChange, onSuccess, solicitacaoId, onConc
                                         </div>
 
                                         <div className='flex flex-col text-start gap-1'>
-                                            <label className='text-lg text-gray-600 mb-0 leading-none'>STATUS <span className='text-red-akaer'>*</span></label>
+                                            <label className='text-sm text-gray-600 leading-none'>STATUS <span className='text-red-akaer'>*</span></label>
                                             <select
-                                                className="bg-gray-100/80 border rounded h-10 px-2"
+                                                className="bg-gray-100/80 border rounded h-10 px-2 text-sm"
                                                 value={status}
                                                 onChange={(e) => setStatus(e.target.value)}
                                                 required
                                             >
-                                                <option className="text-black" value="Ativa">Ativa</option>
-                                                <option className="text-black" value="Obsoleta">Obsoleta</option>
+                                                <option value="Ativa">Ativa</option>
+                                                <option value="Obsoleta">Obsoleta</option>
                                             </select>
                                         </div>
 
                                         <div className='flex flex-col text-start gap-1'>
-                                            <label className='text-lg text-gray-600 mb-0 leading-none'>ETAPA DO PROJETO</label>
+                                            <label className='text-sm text-gray-600 leading-none'>ETAPA DO PROJETO</label>
                                             <select
-                                                className={`bg-gray-100/80 border rounded h-10 px-2 ${etapaProjeto == '' ? 'text-black/60' : ''}`}
+                                                className={`bg-gray-100/80 border rounded h-10 px-2 text-sm ${etapaProjeto == '' ? 'text-black/60' : ''}`}
                                                 value={etapaProjeto}
                                                 onChange={(e) => setEtapaProjeto(e.target.value)}
                                             >
-                                                <option className="text-black/40" value="">Selecione...</option>
+                                                <option value="">Selecione...</option>
                                                 {listaEtapaProjeto.map(etapa => (
                                                     <option key={etapa.id} value={etapa.id}>{etapa.nome}</option>
                                                 ))}
                                             </select>
                                         </div>
                                     </div>
-                                    <div className='grid gap-5'>
+
+                                    {/* Coluna 2 */}
+                                    <div className='grid gap-4'>
                                         <div className='flex flex-col text-start gap-1'>
-                                            <label className='text-lg text-gray-600 mb-0 leading-none'>CÓDIGO <span className='text-red-akaer'>*</span></label>
+                                            <label className='text-sm text-gray-600 leading-none'>CÓDIGO <span className='text-red-akaer'>*</span></label>
                                             <input
-                                                className="bg-gray-100/80 border rounded h-10 px-2"
+                                                className="bg-gray-100/80 border rounded h-10 px-2 text-sm"
                                                 placeholder="Ex: ISO 9001"
                                                 value={codigo}
                                                 onChange={(e) => setCodigo(e.target.value)}
@@ -430,14 +437,14 @@ function AddStandardModal({ open, onOpenChange, onSuccess, solicitacaoId, onConc
                                         </div>
 
                                         <div className='flex flex-col text-start gap-1'>
-                                            <label className='text-lg text-gray-600 mb-0 leading-none'>CATEGORIA <span className='text-red-akaer'>*</span></label>
+                                            <label className='text-sm text-gray-600 leading-none'>CATEGORIA <span className='text-red-akaer'>*</span></label>
                                             <select
-                                                className={`bg-gray-100/80 border rounded h-10 px-2 ${categoria == '' ? 'text-black/60' : ''}`}
+                                                className={`bg-gray-100/80 border rounded h-10 px-2 text-sm ${categoria == '' ? 'text-black/60' : ''}`}
                                                 value={categoria}
                                                 onChange={(e) => setCategoria(e.target.value)}
                                                 required
                                             >
-                                                <option className="text-black/40" value="">Selecione...</option>
+                                                <option value="">Selecione...</option>
                                                 {listaCategoria.map(cat => (
                                                     <option key={cat.id} value={cat.id}>{cat.nome}</option>
                                                 ))}
@@ -445,9 +452,9 @@ function AddStandardModal({ open, onOpenChange, onSuccess, solicitacaoId, onConc
                                         </div>
 
                                         <div className='flex flex-col text-start gap-1'>
-                                            <label className='text-lg text-gray-600 mb-0 leading-none'>DATA DE PUBLICAÇÃO <span className='text-red-akaer'>*</span></label>
+                                            <label className='text-sm text-gray-600 leading-none'>DATA DE PUBLICAÇÃO <span className='text-red-akaer'>*</span></label>
                                             <input
-                                                className="bg-gray-100/80 border rounded h-10 px-2"
+                                                className="bg-gray-100/80 border rounded h-10 px-2 text-sm"
                                                 placeholder="Ex: dd/mm/aaaa"
                                                 value={dataPublicacao}
                                                 onChange={(e) => setDataPublicacao(formatarDataBrasileira(e.target.value))}
@@ -458,9 +465,9 @@ function AddStandardModal({ open, onOpenChange, onSuccess, solicitacaoId, onConc
                                         </div>
 
                                         <div className='flex flex-col text-start gap-1'>
-                                            <label className='text-lg text-gray-600 mb-0 leading-none'>REVISÃO <span className='text-red-akaer'>*</span></label>
+                                            <label className='text-sm text-gray-600 leading-none'>REVISÃO <span className='text-red-akaer'>*</span></label>
                                             <input
-                                                className="bg-gray-100/80 border rounded h-10 px-2"
+                                                className="bg-gray-100/80 border rounded h-10 px-2 text-sm"
                                                 placeholder="Ex: A, B"
                                                 value={revisao}
                                                 onChange={(e) => setRevisao(formatarRevisao(e.target.value))}
@@ -472,17 +479,11 @@ function AddStandardModal({ open, onOpenChange, onSuccess, solicitacaoId, onConc
                                     </div>
                                 </div>
 
-
-                                <div className='mx-8 mt-6'>
-
-
+                                <div className='mx-4 md:mx-8 mt-6'>
                                     <div className='flex flex-col text-start gap-1 mb-5'>
-                                        <label className='text-lg text-gray-600'>
-                                            ESCOPO <span className='text-red-akaer'>*</span>
-                                        </label>
-
+                                        <label className='text-sm text-gray-600'>ESCOPO <span className='text-red-akaer'>*</span></label>
                                         <textarea
-                                            className="bg-gray-100/80 border rounded p-3 min-h-24"
+                                            className="bg-gray-100/80 border rounded p-3 min-h-24 text-sm"
                                             value={escopo}
                                             onChange={(e) => setEscopo(e.target.value)}
                                             placeholder="Resumo da norma"
@@ -490,46 +491,28 @@ function AddStandardModal({ open, onOpenChange, onSuccess, solicitacaoId, onConc
                                         />
                                     </div>
 
-
-
                                     <div className='flex flex-col text-start'>
-                                        <label className='text-lg text-gray-600'>
-                                            PALAVRAS-CHAVE
-                                        </label>
-
+                                        <label className='text-sm text-gray-600'>PALAVRAS-CHAVE</label>
                                         <div className="flex flex-wrap gap-2 border rounded p-3 bg-gray-100/60">
                                             {palavrasChave.map((item, index) => (
-                                                <div
-                                                    key={index}
-                                                    className="px-2 py-1 rounded bg-red-50 text-sm flex items-center gap-2"
-                                                >
+                                                <div key={index} className="px-2 py-1 rounded bg-red-50 text-sm flex items-center gap-2">
                                                     {item}
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => removerPalavra(index)}
-                                                    >
-                                                        x
-                                                    </button>
+                                                    <button type="button" onClick={() => removerPalavra(index)}>x</button>
                                                 </div>
                                             ))}
-
                                             <input
-                                                className="bg-transparent outline-none flex-1"
+                                                className="bg-transparent outline-none flex-1 text-sm min-w-[120px]"
                                                 value={palavraChave}
                                                 onChange={(e) => setPalavraChave(e.target.value)}
                                                 onKeyDown={(e) => {
-                                                    if (e.key === "Enter") {
-                                                        e.preventDefault();
-                                                        adicionarPalavraChave();
-                                                    }
+                                                    if (e.key === "Enter") { e.preventDefault(); adicionarPalavraChave(); }
                                                 }}
                                                 placeholder="Adicionar palavra-chave"
                                             />
                                         </div>
                                     </div>
 
-                                    {/* Notas */}
-                                    <div className='col-span-2 my-6'>
+                                    <div className='my-6'>
                                         <NotasField
                                             label="NOTAS"
                                             value={notas}
@@ -538,12 +521,8 @@ function AddStandardModal({ open, onOpenChange, onSuccess, solicitacaoId, onConc
                                         />
                                     </div>
 
-                                    {/* Normas Relacionadas */}
                                     <div className='flex flex-col text-start my-6'>
-                                        <label className='text-lg text-gray-600'>
-                                            NORMAS CORRELACIONADAS
-                                        </label>
-
+                                        <label className='text-sm text-gray-600'>NORMAS CORRELACIONADAS</label>
                                         <NormasRelatedSelector
                                             selecionadas={normasRelacionadas}
                                             onChange={setNormasRelacionadas}
@@ -552,17 +531,22 @@ function AddStandardModal({ open, onOpenChange, onSuccess, solicitacaoId, onConc
                                 </div>
                             </div>
 
-
-                            <div className='grid grid-cols-2 mx-8 items-center py-4 border-t'>
-                                <div className='text-start'>Campos com <span className='text-red-akaer'>*</span> são Obrigatórios</div>
-                                <div className='flex justify-end'>
-                                    <Button type='button' size={'lg'} className='ml-auto border border-gray-600/40 hover:bg-gray-200' variant={'secondary'} onClick={() => handleOpenChange(false)}>Cancelar</Button>
-                                    <Button size={'lg'} className='ml-2 hover:bg-black/80' type="submit"><Check />Cadastrar Norma</Button>
+                            {/* Footer */}
+                            <div className='flex flex-col md:grid md:grid-cols-2 mx-4 md:mx-8 items-center py-4 gap-3 border-t'>
+                                <div className='text-start text-xs text-gray-500 hidden md:block'>
+                                    Campos com <span className='text-red-akaer'>*</span> são Obrigatórios
+                                </div>
+                                <div className='flex justify-end gap-2 w-full'>
+                                    <Button type='button' size={'lg'} className='flex-1 md:flex-none border border-gray-600/40 hover:bg-gray-200' variant={'secondary'} onClick={() => handleOpenChange(false)}>
+                                        Cancelar
+                                    </Button>
+                                    <Button size={'lg'} className='flex-1 md:flex-none hover:bg-black/80' type="submit">
+                                        <Check className='mr-1' />Cadastrar
+                                    </Button>
                                 </div>
                             </div>
                         </form>
                     )}
-
                 </DialogContent>
             </Dialog>
         </>
