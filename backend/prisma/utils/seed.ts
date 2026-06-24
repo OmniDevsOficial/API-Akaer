@@ -43,13 +43,60 @@ async function main() {
       create: { nome: 'Verificador', email: 'checker1@gmail.com', password: hashedPassword3, role: 'CHECKER', cargo: "Engenheiro" },
     });
 
-    // 1. Criar Categorias
-    const categorias = ['Qualidade', 'Segurança', 'Manutenção'];
-    for (const nome of categorias) {
+    // 1. Criar Categorias Hierárquicas
+    const categoriasTaxonomia = [
+      // Nível 1 (raízes)
+      { id: 1, parent_id: null, nome: 'Peça', nivel: 1, ordem: 1 },
+      { id: 2, parent_id: null, nome: 'Conjunto', nivel: 1, ordem: 2 },
+      { id: 3, parent_id: null, nome: 'Instalação', nivel: 1, ordem: 3 },
+      { id: 4, parent_id: null, nome: 'Geral', nivel: 1, ordem: 4 },
+      // Nível 2 — Peça
+      { id: 5, parent_id: 1, nome: 'Metálica', nivel: 2, ordem: 1 },
+      { id: 6, parent_id: 1, nome: 'Não Metálica', nivel: 2, ordem: 2 },
+      // Nível 3 — Metálica
+      { id: 10, parent_id: 5, nome: 'Tubo', nivel: 3, ordem: 1 },
+      { id: 11, parent_id: 5, nome: 'Usinado', nivel: 3, ordem: 2 },
+      { id: 12, parent_id: 5, nome: 'Chapa', nivel: 3, ordem: 3 },
+      { id: 13, parent_id: 5, nome: 'Extrudado', nivel: 3, ordem: 4 },
+      { id: 14, parent_id: 5, nome: 'Fundido', nivel: 3, ordem: 5 },
+      { id: 15, parent_id: 5, nome: 'Tratamento Superficial', nivel: 3, ordem: 6 },
+      { id: 16, parent_id: 5, nome: 'Teste', nivel: 3, ordem: 7 },
+      // Nível 2 — Conjunto
+      { id: 7, parent_id: 2, nome: 'Instalação de Acessórios', nivel: 2, ordem: 1 },
+      { id: 8, parent_id: 2, nome: 'União de Peças', nivel: 2, ordem: 2 },
+      { id: 9, parent_id: 2, nome: 'Cablagem', nivel: 2, ordem: 3 },
+      // Nível 3 — Conjunto
+      { id: 20, parent_id: 7, nome: 'Tubo com Acessório', nivel: 3, ordem: 1 },
+      { id: 21, parent_id: 8, nome: 'Soldagem', nivel: 3, ordem: 1 },
+      { id: 22, parent_id: 9, nome: 'Proteção', nivel: 3, ordem: 1 },
+      { id: 23, parent_id: 9, nome: 'Bota', nivel: 3, ordem: 2 },
+      { id: 24, parent_id: 9, nome: 'Conector', nivel: 3, ordem: 3 },
+      // Nível 2 — Instalação
+      { id: 30, parent_id: 3, nome: 'Estrutura', nivel: 2, ordem: 1 },
+      { id: 31, parent_id: 3, nome: 'Hidromecânicos', nivel: 2, ordem: 2 },
+      { id: 32, parent_id: 3, nome: 'Elétrica', nivel: 2, ordem: 3 },
+      { id: 33, parent_id: 3, nome: 'Geral', nivel: 2, ordem: 4 },
+      { id: 34, parent_id: 3, nome: 'Teste', nivel: 2, ordem: 5 },
+      // Nível 3 — Instalação > Geral
+      { id: 40, parent_id: 33, nome: 'Selante', nivel: 3, ordem: 1 },
+      { id: 41, parent_id: 33, nome: 'Metalização', nivel: 3, ordem: 2 },
+      { id: 42, parent_id: 33, nome: 'Rebite', nivel: 3, ordem: 3 },
+      { id: 43, parent_id: 33, nome: 'Parafuso', nivel: 3, ordem: 4 },
+      { id: 44, parent_id: 33, nome: 'Arruela', nivel: 3, ordem: 5 },
+      { id: 45, parent_id: 33, nome: 'Inserto', nivel: 3, ordem: 6 },
+      { id: 46, parent_id: 33, nome: 'Frenagem', nivel: 3, ordem: 7 },
+      { id: 47, parent_id: 33, nome: 'Shim', nivel: 3, ordem: 8 },
+      { id: 48, parent_id: 33, nome: 'Primer', nivel: 3, ordem: 9 },
+      // Nível 2 — Geral
+      { id: 50, parent_id: 4, nome: 'Basic Notes', nivel: 2, ordem: 1 },
+      { id: 51, parent_id: 4, nome: 'Identificação', nivel: 2, ordem: 2 },
+    ];
+
+    for (const cat of categoriasTaxonomia) {
       await prisma.categoria.upsert({
-        where: { nome: nome },
-        update: {},
-        create: { nome: nome },
+        where: { id: cat.id },
+        update: cat,
+        create: cat,
       });
     }
 

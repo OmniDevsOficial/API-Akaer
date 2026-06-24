@@ -14,6 +14,7 @@ import {
   parseNormasRelacionadasInput,
   replaceNormasRelacionadasService,
 } from "./norma-relacionada.service";
+import { getDescendantIds } from "../utils/tree";
 
 const parseJsonInput = (input: unknown, fieldName: string): unknown => {
   if (input === undefined) return undefined;
@@ -251,7 +252,15 @@ export const searchNormasService = async (
   }
 
   if (categorias.length > 0) {
-    whereClause.categoria_id = { in: categorias };
+    const todasCategorias = await prisma.categoria.findMany({
+      select: { id: true, parent_id: true },
+    });
+    const expandedIds = new Set<number>();
+    for (const catId of categorias) {
+      const descendants = getDescendantIds(catId, todasCategorias);
+      descendants.forEach(id => expandedIds.add(id));
+    }
+    whereClause.categoria_id = { in: Array.from(expandedIds) };
   }
 
   if (etapas.length > 0) {

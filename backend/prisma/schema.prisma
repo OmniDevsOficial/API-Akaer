@@ -60,10 +60,19 @@ model OrgaoEmissor {
 }
 
 model Categoria {
-  id     Int     @id @default(autoincrement())
-  nome   String  @unique @db.VarChar(100)
-  normas Norma[]
+  id        Int         @id @default(autoincrement())
+  parent_id Int?
+  nome      String      @db.VarChar(100)
+  nivel     Int         @default(1) @db.TinyInt
+  ordem     Int         @default(0)
+  ativo     Boolean     @default(true)
 
+  parent    Categoria?  @relation("Hierarquia", fields: [parent_id], references: [id])
+  children  Categoria[] @relation("Hierarquia")
+
+  normas    Norma[]
+
+  @@index([parent_id])
   @@map("categoria")
 }
 

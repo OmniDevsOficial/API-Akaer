@@ -6,6 +6,7 @@ import normaRoutes from "./routes/norma.routes";
 import optionsRoutes from "./routes/options.routes";
 import solicitacaoRoutes from "./routes/solicitacao.routes";
 import usuarioRoutes from "./routes/usuario.routes";
+import categoriaRoutes from "./routes/categoria.routes";
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use("/solicitacoes", solicitacaoRoutes);
 app.use("/api/solicitacoes", solicitacaoRoutes);
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/normas", normaRoutes);
+app.use("/categorias", categoriaRoutes);
 app.use("/", optionsRoutes);
 
 export default app;
