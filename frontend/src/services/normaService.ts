@@ -55,6 +55,7 @@ export interface Norma {
     categoria_id?: { nome: string };
     status: string;
     revisoes?: RevisaoNorma[];
+    palavras_chave?: string[] | null;
 }
 
 // Representa uma revisão obsoleta de uma norma
@@ -129,4 +130,4 @@ export const criarRevisaoNorma = async (
     payload: FormData
 ): Promise<void> => {
     await api.post(`/normas/${encodeURIComponent(codigo)}/revisao`, payload);
-};
+};

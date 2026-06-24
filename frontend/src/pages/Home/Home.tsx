@@ -1,14 +1,14 @@
 import { useState } from 'react';
+import { getUserRole } from '../../utils/auth';
+import { type FiltrosLabels, FilterAside, type FiltrosSelecionados } from '../../components/FilterAside/FilterAside';
+import SelectRequestModal, { type TipoSolicitacao } from '../Solicitacoes/SelectRequestModal';
 import Sidebar from '../../components/sidebar';
 import Barra_pesquisa from '../../components/barra_pes';
 import TabelaNormas from '../../components/tabela';
 import AddStandardModal from '@/components/add-standard-modal';
 import ReportErrorModal from '../Solicitacoes/ReportErrorModal';
-import SelectRequestModal, { type TipoSolicitacao } from '../Solicitacoes/SelectRequestModal';
 import ModalSolicitacaoNota from '../Solicitacoes/ModalSolicitacaoNota';
 import IndicarNormaModal from '../Solicitacoes/IndicarNormaModal';
-import { getUserRole } from '../../utils/auth';
-import { FilterAside, type FiltrosSelecionados } from '../../components/FilterAside/FilterAside';
 
 export default function Home() {
 
@@ -25,6 +25,7 @@ export default function Home() {
     const [erroModalOpen, setErroModalOpen] = useState(false);
     const [modalSolicitacaoNota, setNotaModalOpen] = useState(false);
     const [indicarNormaOpen, setIndicarNormaOpen] = useState(false);
+    const [filtrosLabels, setFiltrosLabels] = useState<FiltrosLabels>({});
 
     const filtrosAtivos = Object.values(filtrosSelecionados).some(
         (v) => Array.isArray(v) && v.length > 0
@@ -55,6 +56,25 @@ export default function Home() {
     const handleModalOpenChange = (open: boolean) => {
         setModalAberto(open);
         if (!open) setModoSolicitacao(false);
+    };
+
+    const handleApplyFilters = (filtros: FiltrosSelecionados, labels: FiltrosLabels) => {
+        setFiltrosSelecionados(filtros);
+        setFiltrosLabels(labels);
+    };
+
+    const handleRemoverFiltro = (grupo: keyof FiltrosLabels, id: number | string) => {
+        // Remove a label
+        setFiltrosLabels(prev => ({
+            ...prev,
+            [grupo]: prev[grupo]?.filter(item => item.id !== id)
+        }));
+
+        // Remove o ID real do filtro
+        setFiltrosSelecionados(prev => ({
+            ...prev,
+            [grupo]: (prev[grupo] as any[])?.filter((v: any) => v !== id)
+        }));
     };
 
     return (
@@ -121,12 +141,15 @@ export default function Home() {
                             filtrosAtivos={filtrosAtivos}
                             onOrdenar={(novaOrdem) => setOrdem(novaOrdem)}
                             ordemAtual={ordem}
+                            filtrosLabels={filtrosLabels}
+                            onRemoverFiltro={handleRemoverFiltro}
                         />
 
                         <FilterAside
                             isOpen={filtroModalOpen}
                             onClose={() => setFiltroModalOpen(false)}
-                            onApplyFilters={setFiltrosSelecionados}
+                            onApplyFilters={handleApplyFilters}
+                            filtrosAtuais={filtrosSelecionados}
                         />
 
                         <TabelaNormas
