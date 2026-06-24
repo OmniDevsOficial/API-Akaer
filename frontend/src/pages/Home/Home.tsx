@@ -21,35 +21,23 @@ export default function Home() {
     const [buscaNorma, setBuscaNorma] = useState('');
     const [filtrosSelecionados, setFiltrosSelecionados] = useState<FiltrosSelecionados>({});
     const [selectRequestOpen, setSelectRequestOpen] = useState(false);
-    const [/* modoSolicitacao */, setModoSolicitacao] = useState(false);
+    const [, setModoSolicitacao] = useState(false);
     const [erroModalOpen, setErroModalOpen] = useState(false);
     const [modalSolicitacaoNota, setNotaModalOpen] = useState(false);
     const [indicarNormaOpen, setIndicarNormaOpen] = useState(false);
+    const [ordem, setOrdem] = useState<'recentes' | 'antigas' | 'az' | 'za'>('recentes');
 
     const filtrosAtivos = Object.values(filtrosSelecionados).some(
         (v) => Array.isArray(v) && v.length > 0
     );
 
-    const [ordem, setOrdem] = useState<'recentes' | 'antigas' | 'az' | 'za'>('recentes');
-
-    const handleCadastroSucesso = () => {
-        setRecarregarTabela((anterior) => anterior + 1);
-    };
+    const handleCadastroSucesso = () => setRecarregarTabela((prev) => prev + 1);
 
     const handleSelectTipo = (tipo: TipoSolicitacao) => {
         setSelectRequestOpen(false);
-
-        switch (tipo) {
-            case 'indicar_norma':
-                setIndicarNormaOpen(true);
-                break;
-            case 'adicionar_nota':
-                setNotaModalOpen(true);
-                break;
-            case 'reportar_erro':
-                setErroModalOpen(true);
-                break;
-        }
+        if (tipo === 'indicar_norma') setIndicarNormaOpen(true);
+        if (tipo === 'adicionar_nota') setNotaModalOpen(true);
+        if (tipo === 'reportar_erro') setErroModalOpen(true);
     };
 
     const handleModalOpenChange = (open: boolean) => {
@@ -57,39 +45,45 @@ export default function Home() {
         if (!open) setModoSolicitacao(false);
     };
 
+    const botaoAcao = isAdmin ? (
+        <button
+            onClick={() => setModalAberto(true)}
+            className="flex items-center gap-1.5 font-semibold text-white text-sm bg-dark-title border border-font-border rounded-md py-2.5 px-5 cursor-pointer hover:opacity-90 transition-opacity"
+        >
+            <span className="text-base leading-none">+</span> Novo Cadastro
+        </button>
+    ) : (
+        <button
+            onClick={() => setSelectRequestOpen(true)}
+            className="flex items-center gap-1.5 font-semibold text-white text-sm bg-dark-title border border-font-border rounded-md py-2.5 px-5 cursor-pointer hover:opacity-90 transition-opacity"
+        >
+            <span className="text-base leading-none">+</span> Fazer Solicitação
+        </button>
+    );
+
     return (
-        <>
-            <div className="flex h-screen w-full overflow-hidden bg-[#fbfbfb] font-dm">
-                <Sidebar />
+        <div className="flex h-screen w-full overflow-hidden bg-[#fbfbfb] font-dm">
+            <Sidebar />
 
-                <div className="flex flex-col flex-1 h-full overflow-hidden">
+            <div className="flex flex-col flex-1 h-full overflow-hidden">
+                <main className="flex-1 min-h-0 overflow-y-auto">
 
-                    <main className="flex-1 min-h-0 overflow-y-auto p-4 lg:p-8 pb-20 md:pb-8">
-                        {/* Cabeçalho da página */}
-                        <h2 className="text-red-akaer font-bold text-xs md:text-sm tracking-widest mb-2">GERENCIAMENTO</h2>
-                        <div className="flex items-start justify-between gap-4">
+                    {/* Cabeçalho */}
+                    <div className="sticky top-0 z-10 bg-[#fbfbfb] border-b border-font-border px-4 md:px-8 py-4">
+                        <div className="flex items-center justify-between gap-4">
                             <div>
-                                <h1 className="text-xl md:text-2xl font-dm font-semibold text-dark-title">Normas Aeronáuticas</h1>
-                                <span className="text-xs md:text-sm text-gray-medium">Cadastre, edite e visualize todas as normas da empresa</span>
+                                <p className="text-red-akaer font-bold text-[10px] md:text-xs tracking-widest mb-0.5">GERENCIAMENTO</p>
+                                <h1 className="text-lg md:text-2xl font-semibold text-dark-title leading-tight">Normas Aeronáuticas</h1>
+                                <p className="hidden md:block text-xs text-gray-medium mt-0.5">Cadastre, edite e visualize todas as normas da empresa</p>
                             </div>
-                            {/* Botão apenas no desktop */}
+                            {/* Botão desktop */}
                             <div className="hidden md:block shrink-0">
-                                {isAdmin ? (
-                                    <button onClick={() => setModalAberto(true)}
-                                        className='flex items-center gap-1.5 font-semibold text-white text-sm bg-dark-title border border-font-border rounded-md py-2.5 px-5 cursor-pointer hover:opacity-90 transition-opacity'>
-                                        <span className="text-base leading-none">+</span>Novo Cadastro
-                                    </button>
-                                ) : (
-                                    <button onClick={() => setSelectRequestOpen(true)}
-                                        className='flex items-center gap-1.5 font-semibold text-white text-sm bg-dark-title border border-font-border rounded-md py-2.5 px-5 cursor-pointer hover:opacity-90 transition-opacity'>
-                                        <span className="text-base leading-none">+</span>Fazer Solicitação
-                                    </button>
-                                )}
+                                {botaoAcao}
                             </div>
                         </div>
 
-                        {/* Barra de busca, filtros e ordenação */}
-                        <div className="mt-5 mb-1">
+                        {/* Barra de busca */}
+                        <div className="mt-3">
                             <Barra_pesquisa
                                 busca={buscaNorma}
                                 onBuscaChange={setBuscaNorma}
@@ -99,62 +93,36 @@ export default function Home() {
                                 ordemAtual={ordem}
                             />
                         </div>
+                    </div>
 
-                        {/* FAB mobile — fixo no canto inferior direito, acima da nav bottom */}
-                        <div className="md:hidden">
-                            {isAdmin ? (
-                                <button onClick={() => setModalAberto(true)}
-                                    className='fixed bottom-20 right-5 z-40 flex items-center gap-2 font-semibold text-white text-sm bg-dark-title rounded-full shadow-lg px-5 py-3 cursor-pointer hover:opacity-90 transition-opacity'>
-                                    <span className="text-lg leading-none">+</span>Novo Cadastro
-                                </button>
-                            ) : (
-                                <button onClick={() => setSelectRequestOpen(true)}
-                                    className='fixed bottom-20 right-5 z-40 flex items-center gap-2 font-semibold text-white text-sm bg-dark-title rounded-full shadow-lg px-5 py-3 cursor-pointer hover:opacity-90 transition-opacity'>
-                                    <span className="text-lg leading-none">+</span>Fazer Solicitação
-                                </button>
-                            )}
-                        </div>
-
-                        {/* Modais */}
-                        <SelectRequestModal
-                            open={selectRequestOpen}
-                            onOpenChange={setSelectRequestOpen}
-                            onSelect={handleSelectTipo}
-                        />
-                        <AddStandardModal
-                            open={modalAberto}
-                            onOpenChange={handleModalOpenChange}
-                            onSuccess={handleCadastroSucesso}
-                        />
-                        <IndicarNormaModal
-                            open={indicarNormaOpen}
-                            onOpenChange={setIndicarNormaOpen}
-                        />
-                        <ReportErrorModal
-                            open={erroModalOpen}
-                            onOpenChange={setErroModalOpen}
-                        />
-                        <ModalSolicitacaoNota
-                            open={modalSolicitacaoNota}
-                            onOpenChange={() => setNotaModalOpen(false)}
-                            normas={[]}
-                        />
-
-                        <FilterAside
-                            isOpen={filtroModalOpen}
-                            onClose={() => setFiltroModalOpen(false)}
-                            onApplyFilters={setFiltrosSelecionados}
-                        />
-
+                    {/* Tabela */}
+                    <div className="px-4 md:px-8 py-4 pb-24 md:pb-8">
                         <TabelaNormas
                             refreshTrigger={recarregarTabela}
                             searchText={buscaNorma}
                             filtros={filtrosSelecionados}
                             ordem={ordem}
                         />
-                    </main>
-                </div>
+                    </div>
+
+                    {/* FAB mobile */}
+                    <div className="md:hidden fixed bottom-20 right-4 z-40">
+                        {botaoAcao}
+                    </div>
+                </main>
             </div>
-        </>
+
+            {/* Modais */}
+            <FilterAside
+                isOpen={filtroModalOpen}
+                onClose={() => setFiltroModalOpen(false)}
+                onApplyFilters={setFiltrosSelecionados}
+            />
+            <SelectRequestModal open={selectRequestOpen} onOpenChange={setSelectRequestOpen} onSelect={handleSelectTipo} />
+            <AddStandardModal open={modalAberto} onOpenChange={handleModalOpenChange} onSuccess={handleCadastroSucesso} />
+            <IndicarNormaModal open={indicarNormaOpen} onOpenChange={setIndicarNormaOpen} />
+            <ReportErrorModal open={erroModalOpen} onOpenChange={setErroModalOpen} />
+            <ModalSolicitacaoNota open={modalSolicitacaoNota} onOpenChange={() => setNotaModalOpen(false)} normas={[]} />
+        </div>
     );
 }

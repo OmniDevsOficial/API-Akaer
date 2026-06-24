@@ -164,16 +164,18 @@ function NormaCard({ norma, isAdmin, onAbrirPdf, onEditar, onAtualizarRevisao }:
             </div>
 
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-3 border-t border-font-border">
-                {norma.arquivo && (
-                    <button onClick={() => onAbrirPdf(norma)}
-                        className="flex items-center gap-1.5 text-xs text-gray-600 hover:text-red-akaer transition-colors min-h-[36px] py-1">
-                        <FileText size={14} /><span>PDF</span>
-                    </button>
-                )}
+                {/* Botão PDF */}
+                <button onClick={() => onAbrirPdf(norma)}
+                    className="flex items-center gap-1.5 text-xs text-gray-600 hover:text-red-akaer transition-colors min-h-[36px] py-1">
+                    <FileText size={14} /><span>PDF</span>
+                </button>
+
+                {/* Botão de visualização */}
                 <button onClick={() => navigate(`/normas/ver/${encodeURIComponent(norma.codigo)}`)}
                     className="flex items-center gap-1.5 text-xs text-gray-600 hover:text-red-akaer transition-colors min-h-[36px] py-1">
                     <Eye size={14} /><span>Ver norma</span>
                 </button>
+                {/* Botões de ação para administradores */}
                 {isAdmin && (
                     <>
                         <button onClick={() => onEditar(norma)}
@@ -428,7 +430,7 @@ export default function TabelaNormas({
                 </div>
             </div>
 
-            {/* Tabela — desktop only */}
+            {/* Tabela — desktop */}
             <div className="hidden md:block border border-font-border rounded-lg overflow-x-auto">
                 <table className="w-full min-w-[920px]">
                     <thead>
