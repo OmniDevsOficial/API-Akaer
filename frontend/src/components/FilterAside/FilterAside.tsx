@@ -17,10 +17,10 @@ export type FiltrosSelecionados = {
 };
 
 export type FiltrosLabels = {
-  orgaos?:     { id: number; nome: string }[];
-  categorias?: { id: number; nome: string }[];
-  etapas?:     { id: number; nome: string }[];
-  status?:     { id: number; nome: string }[];
+  orgaos?:     { id: number | string; nome: string }[];
+  categorias?: { id: number | string; nome: string }[];
+  etapas?:     { id: number | string; nome: string }[];
+  status?:     { id: number | string; nome: string }[];
 };
 
 type Opcao = {
