@@ -143,229 +143,209 @@ export default function UpdateVersionModal({
     if (!norma) return null;
 
     return (
-        <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogContent className="!p-0 flex flex-col text-center gap-4 sm:!max-w-[90vh]">
-                {/* Header */}
-                <div className="mx-7 mt-5">
-                    <p className="text-start">
-                        <span className="text-red-akaer">NOVA REVISÃO</span>
-                        <br />
-                        <span className="text-lg">Atualizar norma aeronáutica</span>
-                    </p>
-                </div>
-                <hr className="!mt-0" />
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+        <DialogContent className="!p-0 flex flex-col text-center gap-4 w-[95vw] sm:w-auto sm:!max-w-[90vh] max-h-[95vh]">
 
-                {loadingDetalhe ? (
-                    <div className="flex items-center justify-center py-32">
-                        <Loader2 className="animate-spin w-8 h-8 text-gray-400" />
+            {/* Header */}
+            <div className="mx-5 md:mx-7 mt-5 shrink-0">
+                <p className="text-start">
+                    <span className="text-red-akaer text-xs tracking-widest">NOVA REVISÃO</span>
+                    <br />
+                    <span className="text-base md:text-lg">Atualizar norma aeronáutica</span>
+                </p>
+            </div>
+            <hr className="!mt-0 shrink-0" />
+
+            {loadingDetalhe ? (
+                <div className="flex items-center justify-center py-32">
+                    <Loader2 className="animate-spin w-8 h-8 text-gray-400" />
+                </div>
+            ) : concluido ? (
+                <>
+                    <div className="flex flex-col items-center justify-center py-16 md:py-24 gap-4 px-4">
+                        <div className="w-12 h-12 rounded-full border border-green-700/40 flex items-center justify-center">
+                            <Check className="text-green-700 w-7 h-7" />
+                        </div>
+                        <h3 className="text-sm md:text-base text-[#3f3f3f] font-semibold text-center">
+                            Revisão atualizada com sucesso!
+                        </h3>
+                        <p className="text-xs md:text-sm text-gray-500 text-center">
+                            A nova revisão <strong>{proximaRevisao}</strong> foi registrada no sistema.
+                        </p>
                     </div>
-                ) : concluido ? (
-                    <>
-                        {/* Tela de sucesso */}
-                        <div className="flex flex-col items-center justify-center py-24 gap-4">
-                            <div className="w-12 h-12 rounded-full border border-green-700/40 flex items-center justify-center">
-                                <Check className="text-green-700 w-7 h-7" />
-                            </div>
-                            <h3 className="text-4 text-[#3f3f3f] font-semibold">
-                                Revisão atualizada com sucesso!
-                            </h3>
-                            <p className="text-3 text-gray-500">
-                                A nova revisão <strong>{proximaRevisao}</strong> foi registrada no sistema.
-                            </p>
+                    <hr />
+                    <div className="flex justify-end mx-5 md:mx-8 items-center mb-4">
+                        <Button size="lg" className="hover:bg-black/80" onClick={() => handleOpenChange(false)}>
+                            Fechar
+                        </Button>
+                    </div>
+                </>
+            ) : (
+                <form onSubmit={handleSubmit} className="flex flex-col overflow-hidden flex-1">
+                    <div className="overflow-y-auto flex-1 pr-1">
+
+                        {/* Upload PDF */}
+                        <div className="mx-4 md:mx-5">
+                            <FileUpload onFileSelected={setArquivoNorma} />
                         </div>
 
-                        <hr />
+                        {/* Separador */}
+                        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 mx-5 md:mx-8 mb-6">
+                            <hr className="w-full border-gray-400" />
+                            <span className="text-center text-xs text-gray-400">METADADOS</span>
+                            <hr className="w-full border-gray-400" />
+                        </div>
 
-                        <div className="flex justify-end mx-8 items-center mb-4">
-                            <Button size="lg" className="hover:bg-black/80" onClick={() => handleOpenChange(false)}
-                            >
-                                Fechar
+                        {/* Grid de campos — 1 col mobile, 2 desktop */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 mx-4 md:mx-8 gap-4">
+
+                            {/* Coluna esquerda */}
+                            <div className="grid gap-4">
+                                <div className="flex flex-col text-start gap-1">
+                                    <label className="text-sm text-gray-600 leading-none">TÍTULO</label>
+                                    <input className={disabledInputClass} value={detalhe?.titulo ?? ''} disabled />
+                                </div>
+                                <div className="flex flex-col text-start gap-1">
+                                    <label className="text-sm text-gray-600 leading-none">ÓRGÃO EMISSOR</label>
+                                    <input className={disabledInputClass} value={detalhe?.orgao_emissor?.nome ?? ''} disabled />
+                                </div>
+                                <div className="flex flex-col text-start gap-1">
+                                    <label className="text-sm text-gray-600 leading-none">STATUS</label>
+                                    <input className={disabledInputClass} value={detalhe?.status ?? ''} disabled />
+                                </div>
+                                <div className="flex flex-col text-start gap-1">
+                                    <label className="text-sm text-gray-600 leading-none">ETAPA DO PROJETO</label>
+                                    <input className={disabledInputClass} value={detalhe?.etapa_projeto?.nome ?? ''} disabled />
+                                </div>
+                            </div>
+
+                            {/* Coluna direita */}
+                            <div className="grid gap-4">
+                                <div className="flex flex-col text-start gap-1">
+                                    <label className="text-sm text-gray-600 leading-none">CÓDIGO</label>
+                                    <input className={disabledInputClass} value={detalhe?.codigo ?? ''} disabled />
+                                </div>
+                                <div className="flex flex-col text-start gap-1">
+                                    <label className="text-sm text-gray-600 leading-none">CATEGORIA</label>
+                                    <input className={disabledInputClass} value={detalhe?.categoria?.nome ?? ''} disabled />
+                                </div>
+                                <div className="flex flex-col text-start gap-1">
+                                    <label className="text-sm text-gray-600 leading-none">
+                                        DATA DE PUBLICAÇÃO <span className="text-red-akaer">*</span>
+                                    </label>
+                                    <input
+                                        className="bg-gray-100/80 border rounded h-10 px-2 text-sm"
+                                        placeholder="Ex: dd/mm/aaaa"
+                                        value={dataPublicacao}
+                                        onChange={(e) => setDataPublicacao(formatarDataBrasileira(e.target.value))}
+                                        inputMode="numeric"
+                                        maxLength={10}
+                                        required
+                                    />
+                                </div>
+                                <div className="flex flex-col text-start gap-1">
+                                    <label className="text-sm text-gray-600 leading-none">
+                                        REVISÃO <span className="text-red-akaer">*</span>
+                                    </label>
+                                    <input className={disabledInputClass} value={proximaRevisao} disabled />
+                                    <span className="text-xs text-gray-400">
+                                        Revisão atual: {detalhe?.revisao ?? '—'} → Nova: {proximaRevisao}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Seções inferiores */}
+                        <div className="mx-4 md:mx-8 mt-6">
+
+                            {/* Escopo */}
+                            <div className="flex flex-col text-start gap-1 mb-5">
+                                <label className="text-sm text-gray-600">ESCOPO</label>
+                                <textarea className={disabledTextareaClass} value={detalhe?.escopo ?? ''} disabled />
+                            </div>
+
+                            {/* Palavras-chave */}
+                            <div className="flex flex-col text-start mb-5">
+                                <label className="text-sm text-gray-600">PALAVRAS-CHAVE</label>
+                                <div className="flex flex-wrap gap-2 border rounded p-3 min-h-[42px] bg-gray-200/60 cursor-not-allowed">
+                                    {(detalhe?.palavras_chave ?? []).length > 0 ? (
+                                        (detalhe?.palavras_chave ?? []).map((item: string, index: number) => (
+                                            <div key={index} className="px-2 py-1 rounded bg-red-50 text-sm flex items-center gap-2 text-gray-500">
+                                                {item}
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <span className="text-sm text-gray-400">Nenhuma palavra-chave cadastrada</span>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Notas */}
+                            <div className="flex flex-col text-start gap-1 mb-5">
+                                <label className="text-sm text-gray-600">NOTAS</label>
+                                <div className="rounded-md border border-gray-200 bg-gray-100/60 p-3 min-h-[42px] cursor-not-allowed">
+                                    {(detalhe?.notas ?? []).length > 0 ? (
+                                        <ul className="flex flex-col gap-1.5">
+                                            {(detalhe?.notas ?? []).map((nota, index) => (
+                                                <li key={nota.id} className="flex items-start gap-2.5 rounded-md border border-gray-200 bg-white px-3 py-2.5">
+                                                    <span className="mt-0.5 shrink-0 rounded bg-gray-200 px-1.5 py-0.5 text-[11px] text-black select-none">
+                                                        {index + 1}
+                                                    </span>
+                                                    <p className="text-sm text-gray-500 leading-relaxed whitespace-pre-wrap break-words">
+                                                        {nota.texto}
+                                                    </p>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <span className="text-sm text-gray-400">Nenhuma nota cadastrada</span>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Normas Correlacionadas */}
+                            <div className="flex flex-col text-start my-6">
+                                <label className="text-sm text-gray-600">NORMAS CORRELACIONADAS</label>
+                                <div className="flex flex-wrap gap-2 mt-1 border rounded p-3 min-h-[42px] bg-gray-200/60 cursor-not-allowed">
+                                    {(detalhe?.normas_relacionadas_ids ?? []).length > 0 ? (
+                                        (detalhe?.normas_relacionadas_ids ?? []).map((n) => (
+                                            <div key={n.codigo} className="flex items-center gap-2 px-2 py-1 rounded bg-[#FAF9F7] text-gray-500 text-sm border border-font-border">
+                                                {n.codigo}{n.titulo ? ` - ${n.titulo}` : ''}
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <span className="text-sm text-gray-400">Nenhuma norma correlacionada</span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Erro */}
+                    {erro && (
+                        <p className="mx-4 md:mx-8 text-sm text-red-500 text-start -mb-2">{erro}</p>
+                    )}
+
+                    {/* Footer */}
+                    <div className="flex flex-col md:grid md:grid-cols-2 mx-4 md:mx-8 items-center py-4 gap-3 border-t shrink-0">
+                        <div className="text-start text-xs text-gray-500 hidden md:block">
+                            Campos com <span className="text-red-akaer">*</span> são Obrigatórios
+                        </div>
+                        <div className="flex justify-end gap-2 w-full">
+                            <Button type="button" size="lg"
+                                className="flex-1 md:flex-none border border-gray-600/40 hover:bg-gray-200"
+                                variant="secondary" onClick={() => handleOpenChange(false)} disabled={isLoading}>
+                                Cancelar
+                            </Button>
+                            <Button size="lg" className="flex-1 md:flex-none hover:bg-black/80" type="submit" disabled={isLoading}>
+                                {isLoading ? <Loader2 className="animate-spin w-4 h-4" /> : <Check />}
+                                {isLoading ? 'Salvando...' : 'Confirmar Revisão'}
                             </Button>
                         </div>
-                    </>
-                ) : (
-                    <form onSubmit={handleSubmit} className="flex flex-col h-full">
-                        <div className="overflow-y-auto max-h-[70vh] pr-2">
-                            {/* Upload de PDF — editável */}
-                            <div className="mx-5">
-                                <FileUpload onFileSelected={setArquivoNorma} />
-                            </div>
-
-                            {/* Separador METADADOS */}
-                            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 mx-8 mb-6">
-                                <hr className="w-full border-gray-400" />
-                                <span className="text-center text-[0.95rem] text-gray-400">METADADOS</span>
-                                <hr className="w-full border-gray-400" />
-                            </div>
-
-                            {/* Grid 2 colunas */}
-                            <div className="grid grid-cols-2 mx-8 gap-4">
-                                {/* Coluna esquerda */}
-                                <div className="grid gap-5">
-                                    {/* Título — bloqueado */}
-                                    <div className="flex flex-col text-start gap-1">
-                                        <label className="text-lg text-gray-600 mb-0 leading-none">TÍTULO</label>
-                                        <input className={disabledInputClass} value={detalhe?.titulo ?? ''} disabled />
-                                    </div>
-
-                                    {/* Órgão Emissor — bloqueado */}
-                                    <div className="flex flex-col text-start gap-1">
-                                        <label className="text-lg text-gray-600 mb-0 leading-none">ÓRGÃO EMISSOR</label>
-                                        <input className={disabledInputClass} value={detalhe?.orgao_emissor?.nome ?? ''} disabled />
-                                    </div>
-
-                                    {/* Status — bloqueado */}
-                                    <div className="flex flex-col text-start gap-1">
-                                        <label className="text-lg text-gray-600 mb-0 leading-none">STATUS</label>
-                                        <input className={disabledInputClass} value={detalhe?.status ?? ''} disabled />
-                                    </div>
-
-                                    {/* Etapa do Projeto — bloqueado */}
-                                    <div className="flex flex-col text-start gap-1">
-                                        <label className="text-lg text-gray-600 mb-0 leading-none">ETAPA DO PROJETO</label>
-                                        <input className={disabledInputClass} value={detalhe?.etapa_projeto?.nome ?? ''} disabled />
-                                        <span className="text-xs text-gray-400 invisible" aria-hidden="true">Espaço reservado</span>
-                                    </div>
-                                </div>
-
-                                {/* Coluna direita */}
-                                <div className="grid gap-5">
-                                    {/* Código — bloqueado */}
-                                    <div className="flex flex-col text-start gap-1">
-                                        <label className="text-lg text-gray-600 mb-0 leading-none">CÓDIGO</label>
-                                        <input className={disabledInputClass} value={detalhe?.codigo ?? ''} disabled />
-                                    </div>
-
-                                    {/* Categoria — bloqueado */}
-                                    <div className="flex flex-col text-start gap-1">
-                                        <label className="text-lg text-gray-600 mb-0 leading-none">CATEGORIA</label>
-                                        <input className={disabledInputClass} value={detalhe?.categoria?.nome ?? ''} disabled />
-                                    </div>
-
-                                    {/* Data de Publicação — EDITÁVEL */}
-                                    <div className="flex flex-col text-start gap-1">
-                                        <label className="text-lg text-gray-600 mb-0 leading-none">
-                                            DATA DE PUBLICAÇÃO <span className="text-red-akaer">*</span>
-                                        </label>
-                                        <input
-                                            className="bg-gray-100/80 border rounded h-10 px-2"
-                                            placeholder="Ex: dd/mm/aaaa"
-                                            value={dataPublicacao}
-                                            onChange={(e) => setDataPublicacao(formatarDataBrasileira(e.target.value))}
-                                            inputMode="numeric"
-                                            maxLength={10}
-                                            required
-                                        />
-                                    </div>
-
-                                    {/* Revisão — bloqueado, auto-calculado */}
-                                    <div className="flex flex-col text-start gap-1">
-                                        <label className="text-lg text-gray-600 mb-0 leading-none">
-                                            REVISÃO <span className="text-red-akaer">*</span>
-                                        </label>
-                                        <input className={disabledInputClass} value={proximaRevisao} disabled />
-                                        <span className="text-xs text-gray-400">
-                                            Revisão atual: {detalhe?.revisao ?? '—'} → Nova: {proximaRevisao}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Escopo, palavras-chave, notas, normas correlacionadas */}
-                            <div className="mx-8 mt-6">
-                                <div className="flex flex-col text-start gap-1 mb-5">
-                                    <label className="text-lg text-gray-600">ESCOPO</label>
-                                    <textarea className={disabledTextareaClass} value={detalhe?.escopo ?? ''} disabled />
-                                </div>
-
-                                {/* Palavras-chave — bloqueado */}
-                                <div className="flex flex-col text-start mb-5">
-                                    <label className="text-lg text-gray-600">PALAVRAS-CHAVE</label>
-                                    <div className="flex flex-wrap gap-2 border rounded p-3 min-h-[42px] bg-gray-200/60 cursor-not-allowed">
-                                        {(detalhe?.palavras_chave ?? []).length > 0 ? (
-                                            (detalhe?.palavras_chave ?? []).map((item: string, index: number) => (
-                                                <div key={index} className="px-2 py-1 rounded bg-red-50 text-sm flex items-center gap-2 text-gray-500">
-                                                    {item}
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <span className="text-sm text-gray-400">Nenhuma palavra-chave cadastrada</span>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Notas — bloqueado (visualização estática) */}
-                                <div className="flex flex-col text-start gap-1 mb-5">
-                                    <label className="text-lg text-gray-600">NOTAS</label>
-                                    <div className="rounded-md border border-gray-200 bg-gray-100/60 p-3 min-h-[42px] cursor-not-allowed">
-                                        {(detalhe?.notas ?? []).length > 0 ? (
-                                            <ul className="flex flex-col gap-1.5">
-                                                {(detalhe?.notas ?? []).map((nota, index) => (
-                                                    <li key={nota.id} className="flex items-start gap-2.5 rounded-md border border-gray-200 bg-white px-3 py-2.5">
-                                                        <span className="mt-0.5 shrink-0 rounded bg-gray-200 px-1.5 py-0.5 text-[11px] text-black select-none">
-                                                            {index + 1}
-                                                        </span>
-                                                        <p className="text-sm text-gray-500 leading-relaxed whitespace-pre-wrap break-words">
-                                                            {nota.texto}
-                                                        </p>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        ) : (
-                                            <span className="text-sm text-gray-400">Nenhuma nota cadastrada</span>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Normas Correlacionadas — bloqueado (visualização estática) */}
-                                <div className="flex flex-col text-start my-6">
-                                    <label className="text-lg text-gray-600">NORMAS CORRELACIONADAS</label>
-                                    <div className="flex flex-wrap gap-2 mt-1 border rounded p-3 min-h-[42px] bg-gray-200/60 cursor-not-allowed">
-                                        {(detalhe?.normas_relacionadas_ids ?? []).length > 0 ? (
-                                            (detalhe?.normas_relacionadas_ids ?? []).map((n) => (
-                                                <div key={n.codigo} className="flex items-center gap-2 px-2 py-1 rounded bg-[#FAF9F7] text-gray-500 text-sm border border-font-border">
-                                                    {n.codigo}{n.titulo ? ` - ${n.titulo}` : ''}
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <span className="text-sm text-gray-400">Nenhuma norma correlacionada</span>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Mensagem de erro */}
-                        {erro && (
-                            <p className="mx-8 text-sm text-red-500 text-start -mb-2">{erro}</p>
-                        )}
-
-                        {/* Footer */}
-                        <div className="grid grid-cols-2 mx-8 items-center py-4 border-t">
-                            <div className="text-start">
-                                Campos com <span className="text-red-akaer">*</span> são Obrigatórios
-                            </div>
-                            <div className="flex justify-end">
-                                <Button type="button" size="lg" className="ml-auto border border-gray-600/40 hover:bg-gray-200"
-                                    variant="secondary" onClick={() => handleOpenChange(false)}
-                                    disabled={isLoading}
-                                >
-                                    Cancelar
-                                </Button>
-                                <Button size="lg" className="ml-2 hover:bg-black/80" type="submit" disabled={isLoading}>
-                                    {isLoading
-                                        ?
-                                        <Loader2 className="animate-spin w-4 h-4" />
-                                        :
-                                        <Check />
-                                    }
-                                    {isLoading ? 'Salvando...' : 'Confirmar Revisão'}
-                                </Button>
-                            </div>
-                        </div>
-                    </form>
-                )}
-            </DialogContent>
-        </Dialog>
-    );
+                    </div>
+                </form>
+            )}
+        </DialogContent>
+    </Dialog>
+);
 }
