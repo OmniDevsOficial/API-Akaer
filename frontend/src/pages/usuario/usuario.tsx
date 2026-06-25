@@ -208,20 +208,21 @@ export default function Usuario() {
                 <main className="flex-1 min-h-0 overflow-y-auto p-8">
                     <p className="text-[#73203A] font-bold text-xs tracking-widest mb-2">GERENCIAMENTO</p>
 
-                    <div className="flex justify-between items-start mb-6">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-6">
                         <div>
                             <h1 className="text-2xl font-semibold text-dark-title">Usuários</h1>
                             <span className="text-sm text-gray-medium">Gerencie os acessos e perfis da plataforma</span>
                         </div>
+                        {/* Botão no header — só desktop */}
                         <button
                             onClick={() => setModalNovoOpen(true)}
-                            className="flex items-center gap-1.5 font-semibold text-white text-sm bg-dark-title border border-font-border rounded-md py-2.5 px-5 cursor-pointer"
+                            className="hidden sm:flex items-center gap-1.5 font-semibold text-white text-sm bg-dark-title border border-font-border rounded-md py-2.5 px-5 cursor-pointer whitespace-nowrap hover:bg-[#73203A] transition-colors"
                         >
                             <span className="text-base leading-none">+</span> Novo Usuário
                         </button>
                     </div>
 
-                    <div className="grid grid-cols-[1fr_auto] gap-4 mb-4 items-center">
+                    <div className="flex flex-col gap-3 mb-4">
                         <div className="relative">
                             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                             <input
@@ -233,7 +234,7 @@ export default function Usuario() {
                             />
                         </div>
 
-                        <div className="flex items-center justify-end gap-4 text-xs text-gray-medium">
+                        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-gray-medium">
                             {(Object.entries(contadores) as [NivelAcesso, number][]).map(([nivel, qtd]) => (
                                 <span key={nivel}>
                                     <span className="text-dark-title font-semibold">+{qtd}</span>{' '}{nivel}
@@ -243,69 +244,135 @@ export default function Usuario() {
                     </div>
 
                     <div className="border border-font-border rounded-lg overflow-hidden">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="border-b border-font-border">
-                                    <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3 w-10">#</th>
-                                    <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">NOME</th>
-                                    <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">EMAIL</th>
-                                    <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">NÍVEL DE ACESSO</th>
-                                    <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">STATUS</th>
-                                    <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">AÇÕES</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {loading ? (
-                                    <tr>
-                                        <td colSpan={6} className="px-6 py-10 text-center text-gray-medium">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <Loader2 size={16} className="animate-spin" />
-                                                <span>Carregando usuários...</span>
-                                            </div>
-                                        </td>
+
+                        {/* ── TABELA — desktop ── */}
+                        <div className="hidden sm:block overflow-x-auto">
+                            <table className="w-full min-w-[600px]">
+                                <thead>
+                                    <tr className="border-b border-font-border">
+                                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3 w-10">#</th>
+                                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">NOME</th>
+                                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">EMAIL</th>
+                                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">NÍVEL DE ACESSO</th>
+                                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">STATUS</th>
+                                        <th className="text-left text-xs text-gray-medium font-semibold tracking-widest px-6 py-3">AÇÕES</th>
                                     </tr>
-                                ) : filtrados.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={6} className="px-6 py-8 text-center text-gray-medium">
-                                            Nenhum usuário encontrado.
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    filtrados.map(u => (
-                                        <tr key={u.id} className="border-b border-font-border last:border-none hover:bg-red-50/60 transition-colors bg-white">
-                                            <td className="px-6 py-4 text-sm text-red-akaer font-semibold">{u.id}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-900 font-medium">{u.nome}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-700">{u.email}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-700">{mapRoleParaNivel(u.role)}</td>
-                                            <td className="px-6 py-4">
-                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200">
-                                                    <StatusBadge ativo={u.ativo} />
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex flex-col gap-1.5">
-                                                    <button
-                                                        onClick={() => abrirEditar(u)}
-                                                        className="flex items-center gap-1 text-sm text-gray-700 hover:text-red-akaer transition-colors cursor-pointer"
-                                                    >
-                                                        <Pencil size={14} /> Editar
-                                                    </button>
-                                                    <button
-                                                        onClick={() => toggleStatus(u.id, u.ativo)}
-                                                        className={`flex items-center gap-1 text-sm transition-colors cursor-pointer ${u.ativo ? 'text-gray-700 hover:text-red-akaer' : 'text-gray-700 hover:text-green-600'}`}
-                                                    >
-                                                        {u.ativo
-                                                            ? <><PowerOff size={14} /> Desativar</>
-                                                            : <><RefreshCw size={14} /> Reativar</>
-                                                        }
-                                                    </button>
+                                </thead>
+                                <tbody>
+                                    {loading ? (
+                                        <tr>
+                                            <td colSpan={6} className="px-6 py-10 text-center text-gray-medium">
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <Loader2 size={16} className="animate-spin" />
+                                                    <span>Carregando usuários...</span>
                                                 </div>
                                             </td>
                                         </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+                                    ) : filtrados.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={6} className="px-6 py-8 text-center text-gray-medium">
+                                                Nenhum usuário encontrado.
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        filtrados.map(u => (
+                                            <tr key={u.id} className="border-b border-font-border last:border-none hover:bg-red-50/60 transition-colors bg-white">
+                                                <td className="px-6 py-4 text-sm text-red-akaer font-semibold">{u.id}</td>
+                                                <td className="px-6 py-4 text-sm text-gray-900 font-medium">{u.nome}</td>
+                                                <td className="px-6 py-4 text-sm text-gray-700">{u.email}</td>
+                                                <td className="px-6 py-4 text-sm text-gray-700">{mapRoleParaNivel(u.role)}</td>
+                                                <td className="px-6 py-4">
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200">
+                                                        <StatusBadge ativo={u.ativo} />
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex flex-col gap-1.5">
+                                                        <button
+                                                            onClick={() => abrirEditar(u)}
+                                                            className="flex items-center gap-1 text-sm text-gray-700 hover:text-red-akaer transition-colors cursor-pointer"
+                                                        >
+                                                            <Pencil size={14} /> Editar
+                                                        </button>
+                                                        <button
+                                                            onClick={() => toggleStatus(u.id, u.ativo)}
+                                                            className={`flex items-center gap-1 text-sm transition-colors cursor-pointer ${u.ativo ? 'text-gray-700 hover:text-red-akaer' : 'text-gray-700 hover:text-green-600'}`}
+                                                        >
+                                                            {u.ativo
+                                                                ? <><PowerOff size={14} /> Desativar</>
+                                                                : <><RefreshCw size={14} /> Reativar</>
+                                                            }
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* ── CARDS — mobile ── */}
+                        <div className="sm:hidden">
+                            {loading ? (
+                                <div className="px-4 py-10 flex items-center justify-center gap-2 text-sm text-gray-medium">
+                                    <Loader2 size={16} className="animate-spin" />
+                                    <span>Carregando usuários...</span>
+                                </div>
+                            ) : filtrados.length === 0 ? (
+                                <div className="px-4 py-8 text-center text-sm text-gray-medium">
+                                    Nenhum usuário encontrado.
+                                </div>
+                            ) : (
+                                <div className="flex flex-col divide-y divide-font-border">
+                                    {filtrados.map(u => (
+                                        <div key={u.id} className="bg-white px-4 py-4 flex flex-col gap-3 hover:bg-red-50/60 transition-colors">
+
+                                            {/* Cabeçalho: ID + status */}
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-sm font-semibold text-red-akaer">#{u.id}</span>
+                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 border border-gray-200">
+                                                    <StatusBadge ativo={u.ativo} />
+                                                </span>
+                                            </div>
+
+                                            {/* Nome + nível */}
+                                            <div className="flex flex-col gap-0.5">
+                                                <span className="text-sm font-medium text-gray-900">{u.nome}</span>
+                                                <span className="text-xs text-gray-medium">{mapRoleParaNivel(u.role)}</span>
+                                            </div>
+
+                                            {/* Email */}
+                                            <span className="text-xs text-gray-700 break-all">{u.email}</span>
+
+                                            {/* Ações */}
+                                            <div className="flex gap-2 pt-1">
+                                                <button
+                                                    onClick={() => abrirEditar(u)}
+                                                    className="flex-1 flex items-center justify-center gap-1.5 border border-font-border py-2 px-3 rounded-sm text-sm text-gray-700 hover:text-red-akaer hover:border-red-akaer/30 transition-colors cursor-pointer"
+                                                >
+                                                    <Pencil size={14} /> Editar
+                                                </button>
+                                                <button
+                                                    onClick={() => toggleStatus(u.id, u.ativo)}
+                                                    className={`flex-1 flex items-center justify-center gap-1.5 border py-2 px-3 rounded-sm text-sm transition-colors cursor-pointer
+                                                        ${u.ativo
+                                                            ? 'border-font-border text-gray-700 hover:text-red-akaer hover:border-red-akaer/30'
+                                                            : 'border-font-border text-gray-700 hover:text-green-600 hover:border-green-300'
+                                                        }`}
+                                                >
+                                                    {u.ativo
+                                                        ? <><PowerOff size={14} /> Desativar</>
+                                                        : <><RefreshCw size={14} /> Reativar</>
+                                                    }
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
                         <div className="px-6 py-3 text-xs text-gray-medium border-t border-font-border">
                             Exibindo {filtrados.length} de {usuarios.length} Usuários
                         </div>
@@ -336,6 +403,15 @@ export default function Usuario() {
                 descricao={feedback.descricao}
                 tipo={feedback.tipo}
             />
+
+            {/* FAB — só mobile, acima da navbar inferior */}
+            <button
+                onClick={() => setModalNovoOpen(true)}
+                className="sm:hidden fixed bottom-20 right-5 z-40 flex items-center gap-2 font-semibold text-white text-sm bg-dark-title rounded-full shadow-lg hover:bg-[#73203A] transition-colors cursor-pointer px-5 py-3"
+            >
+                <span className="text-lg leading-none">+</span>
+                <span>Novo Usuário</span>
+            </button>
         </div>
     );
 }

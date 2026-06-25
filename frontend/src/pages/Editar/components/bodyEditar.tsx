@@ -207,8 +207,8 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
 
     return (
         <>
-            <div className="min-h-screen w-full bg-[#fbfbfb] p-8 font-dm">
-                <div className="grid grid-cols-[1fr_400px] gap-6">
+            <div className="w-full bg-[#fbfbfb] p-4 md:p-8 pb-24 md:pb-28 font-dm">
+                <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6">
 
                     {/* COLUNA ESQUERDA */}
                     <div className="flex flex-col gap-6">
@@ -219,11 +219,12 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                                 <IdCard size={14} />
                                 IDENTIFICAÇÃO
                             </div>
+
                             <div className={sectionBodyClass}>
-                                <div className="grid grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
                                     {/* Linha 1 — Título */}
-                                    <div className="col-span-3">
+                                <div className="col-span-1 md:col-span-3">
                                         <label className={labelClass}>TÍTULO</label>
                                         <input
                                             type="text"
@@ -234,7 +235,7 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                                     </div>
 
                                     {/* Linha 2 — Código */}
-                                    <div className="col-span-3">
+                                    <div className="col-span-1 md:col-span-3">
                                         <label className={labelClass}>CÓDIGO DA NORMA</label>
                                         <input
                                             type="text"
@@ -391,7 +392,7 @@ const BodyEditar = forwardRef<BodyEditarHandle>((_, ref) => {
                                     <button
                                         type="button"
                                         onClick={adicionarPalavra}
-                                        className="bg-gray-800 text-white px-4 rounded-md text-sm cursor-pointer"
+                                        className="bg-gray-800 text-white px-4 rounded-md text-sm cursor-pointer shrink-0"
                                     >
                                         Adicionar
                                     </button>

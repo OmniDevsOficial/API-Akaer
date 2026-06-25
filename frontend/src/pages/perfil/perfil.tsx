@@ -122,7 +122,7 @@ export default function Perfil() {
 
     if (loading) {
         return (
-            <div className="flex h-screen w-full overflow-hidden bg-[#fbfbfb] font-dm">
+            <div className="flex h-screen h-[100dvh] w-full overflow-hidden bg-[#fbfbfb] font-dm">
                 <Sidebar />
                 <div className="flex flex-1 items-center justify-center">
                     <p className="text-sm text-gray-400">Carregando perfil...</p>
@@ -135,28 +135,28 @@ export default function Perfil() {
 
     const iniciais = getIniciais(dados.nome);
     const tituloCardSolicitacoes = dados.nivelAcesso === 'Administrador' ? 'Normas Cadastradas' : 'Solicitações Criadas';
-    const textoVazioSolicitacoes = dados.nivelAcesso === 'Administrador'
+    const textoVazioSolicitacoes = dados.nivelAcesso === 'Administrador' || dados.nivelAcesso === 'Visualizador' || dados.nivelAcesso === 'Checker'
         ? 'Nenhuma Norma Foi Cadastrada Por Você'
         : 'Nenhuma Solicitação Foi Criada por Você';
 
     return (
-        <div className="flex h-screen w-full overflow-hidden bg-[#fbfbfb] font-dm">
+        <div className="flex h-screen h-[100dvh] w-full overflow-hidden bg-[#fbfbfb] font-dm">
             <Sidebar />
             <div className="flex flex-col flex-1 h-full overflow-hidden">
-                <main className="flex-1 min-h-0 overflow-y-auto p-8">
+                <main className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-28 sm:pb-10">
                     <p className="text-[#73203A] font-bold text-xs tracking-widest mb-1">CONTA</p>
                     <div className="flex items-center justify-between mb-6">
-                        <h1 className="text-2xl font-semibold text-dark-title">Meu Perfil</h1>
+                        <h1 className="text-xl sm:text-2xl font-semibold text-dark-title">Meu Perfil</h1>
                     </div>
 
-                    <div className="bg-white border border-font-border rounded-xl p-5 mb-4 flex items-center gap-5">
+                    <div className="bg-white border border-font-border rounded-xl p-4 sm:p-5 mb-4 flex flex-col sm:flex-row items-center gap-4 sm:gap-5 text-center sm:text-left">
                         <div className="w-14 h-14 rounded-xl bg-[#73203A] flex items-center justify-center flex-shrink-0">
                             <span className="text-white text-lg font-bold">{iniciais}</span>
                         </div>
-                        <div className="flex flex-col gap-2">
-                            <p className="text-base font-bold text-dark-title uppercase tracking-wide">{dados.nome}</p>
-                            <p className="text-xs text-gray-medium -mt-1">{dados.email}</p>
-                            <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex flex-col gap-2 items-center sm:items-start min-w-0 w-full sm:w-auto">
+                            <p className="text-base font-bold text-dark-title uppercase tracking-wide break-words">{dados.nome}</p>
+                            <p className="text-xs text-gray-medium -mt-1 break-all">{dados.email}</p>
+                            <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
                                 <NivelBadge nivel={dados.nivelAcesso} />
                                 <div className="flex items-center gap-1 text-xs text-gray-medium border border-font-border rounded-full px-2.5 py-0.5">
                                     <Star size={10} className="text-yellow-400 fill-yellow-400" />
@@ -170,13 +170,13 @@ export default function Perfil() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-4">
-                        <div className="col-span-2 bg-white border border-font-border rounded-xl p-5">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div className="lg:col-span-2 bg-white border border-font-border rounded-xl p-4 sm:p-5">
                             <p className="text-xs font-bold text-gray-400 tracking-widest uppercase mb-4 flex items-center gap-1.5">
                                 <IdCard size={14} /> Informações Pessoais
                             </p>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="col-span-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="col-span-1 sm:col-span-2">
                                     <Campo label="Nome Completo" valor={dados.nome} />
                                 </div>
                                 <Campo label="E-mail" valor={dados.email} />
@@ -205,14 +205,14 @@ export default function Perfil() {
                         </div>
 
                         {/* Card de Normas e Solicitações */}
-                        <div className="bg-white border border-font-border rounded-xl p-5">
+                        <div className="bg-white border border-font-border rounded-xl p-4 sm:p-5">
                             {/* Título do Card */}
                             <p className="text-xs font-bold text-gray-400 tracking-widest uppercase mb-4 flex items-center gap-1.5">
                                 <LuGitPullRequestArrow size={14} /> {tituloCardSolicitacoes}
                             </p>
 
                             {/* Lista de Normas e Solicitações */}
-                            {(dados.normas || dados.solicitacoes) ? (
+                            {((dados.normas?.length ?? 0) > 0 || (dados.solicitacoes?.length ?? 0) > 0) ? (
                                 <ul className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
                                     {(dados.normas ?? dados.solicitacoes ?? []).map((item: NormaOuSolicitacao, i: number) => (
                                         <li key={i}
@@ -244,9 +244,6 @@ export default function Perfil() {
                                 </ul>
                             ) : (
                                 <div className="flex flex-col items-center justify-center h-32 gap-2">
-                                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                                        <LuGitPullRequestArrow size={14} className="text-gray-400" />
-                                    </div>
                                     <p className="text-xs text-gray-medium text-center leading-relaxed">
                                         {textoVazioSolicitacoes}
                                     </p>
