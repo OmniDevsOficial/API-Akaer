@@ -1,4 +1,3 @@
-
 body {
   margin: 0;
   padding: 0;
@@ -6,29 +5,29 @@ body {
 }
 
 :root {
-  --primary-color: #A11F3C; 
+  --primary-color: #A11F3C;
   --text-dark: #333333;
   --text-light: #777777;
   --bg-input: #F9F9F9;
   --border-input: #E0E0E0;
-  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .loginContainer {
   display: flex;
-  min-height: 100vh; 
+  min-height: 100vh;
   width: 100%;
   font-family: var(--font-family);
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 /*Imagem */
 .leftColumn {
-  flex: 1.2; 
+  flex: 1.2;
   background-size: cover;
   background-position: center;
   position: relative;
-  border-right: 1px solid var(--primary-color); 
+  border-right: 1px solid var(--primary-color);
   width: 300px;
   height: auto;
 }
@@ -37,17 +36,17 @@ body {
 
 /* Formulário */
 .rightColumn {
-  flex: 1; 
+  flex: 1;
   display: flex;
   justify-content: center;
-  align-items: center; 
+  align-items: center;
   background-color: #FFFFFF;
   padding: 40px;
 }
 
 .loginForm {
   width: 100%;
-  max-width: 480px; /* Limita a largura do formulário para legibilidade */
+  max-width: 480px;
 }
 
 
@@ -89,19 +88,53 @@ body {
   text-transform: uppercase;
 }
 
-.inputField {
-  width: 100%;
-  padding: 12px 16px;
-  border: 1px solid var(--border-input);
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   background-color: var(--bg-input);
-  border-radius: 2px; 
-  font-size: 15px;
+  border: 1px solid var(--border-input);
+  border-radius: 2px;
+  padding: 0 16px;
   transition: border-color 0.2s;
 }
 
-.inputField:focus {
+.inputWrapper:focus-within {
+  border-color: var(--primary-color);
+}
+
+.inputIcon {
+  color: #AAAAAA;
+  font-size: 17px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.inputIconRight {
+  color: #CCCCCC;
+  font-size: 17px;
+  flex-shrink: 0;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.inputField {
+  flex: 1;
+  padding: 12px 4px;
+  border: 1px solid var(--border-input);
+  background-color: var(--bg-input);
+  border-radius: 2px;
+  font-size: 15px;
   outline: none;
-  border-color: var(--primary-color); 
+  font-family: var(--font-family);
+  color: var(--text-dark);
+  width: 100%;
 }
 
 .inputField::placeholder {
@@ -147,7 +180,7 @@ body {
 .submitButton {
   width: 100%;
   padding: 14px;
-  background-color: #2D2D2D; 
+  background-color: #2D2D2D;
   color: #FFFFFF;
   border: none;
   border-radius: 4px;
@@ -166,9 +199,10 @@ body {
 
 /* Texto Inferior */
 .infoTextWrapper {
-  margin-top: auto; 
+  margin-top: auto;
   padding-top: 20px;
   max-width: 400px;
+  border-top: 1px solid #F0F0F0;
 }
 
 .infoTitle {
@@ -201,4 +235,78 @@ body {
   line-height: 1.6;
   color: var(--text-light);
   margin: 0;
+}
+
+
+/* RESPONSIVIDADE */
+
+/* Tablet pequeno / celular grande (até 900px): esconde imagem */
+@media (max-width: 900px) {
+  .leftColumn {
+    display: none;
+  }
+
+  .rightColumn {
+    flex: 1;
+    padding: 32px 24px;
+  }
+}
+
+/* Celular (até 480px): ajustes de espaçamento e fonte */
+@media (max-width: 480px) {
+  .rightColumn {
+    padding: 52px 28px 40px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .loginForm {
+    max-width: 100%;
+  }
+
+  .accessLabel {
+    margin-bottom: 10px;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    margin-bottom: 28px;
+  }
+
+  .inputGroup {
+    margin-bottom: 16px;
+  }
+
+  .inputField {
+    font-size: 16px;
+    box-sizing: border-box;
+  }
+
+  .formFooter {
+    margin-bottom: 28px;
+  }
+
+  .submitButton {
+    padding: 15px;
+    font-size: 15px;
+    margin-bottom: 32px;
+    border-radius: 6px;
+  }
+
+  .infoTextWrapper {
+    max-width: 100%;
+  }
+
+  .infoTitle {
+    font-size: 15px;
+  }
+
+  .infoBody {
+    font-size: 13px;
+    line-height: 1.7;
+  }
 }

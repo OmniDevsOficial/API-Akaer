@@ -6,7 +6,9 @@ import {
   alternarStatusUsuarioController,
   atualizarUsuarioController,
   criarUsuarioController,
-  buscarPerfilController
+  buscarPerfilController,
+  buscarNormasUsuarioController,
+  buscarSolicitacoesUsuarioController
 } from "../controllers/usuario.controller";
 
 const usuarioRoutes = Router();
@@ -24,6 +26,20 @@ usuarioRoutes.get(
   "/:id", 
   authMiddleware, 
   buscarPerfilController as any
+);
+
+/* Buscar normas do usuário */
+usuarioRoutes.get(
+  "/:id/normas",
+  authMiddleware,
+  buscarNormasUsuarioController as any
+);
+
+/* Buscar solicitacoes do usuário */
+usuarioRoutes.get(
+  "/:id/solicitacoes",
+  authMiddleware,
+  buscarSolicitacoesUsuarioController as any
 );
 
 // Criar usuário

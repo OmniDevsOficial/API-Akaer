@@ -18,7 +18,7 @@ export default function ModalFeedback({ open, onClose, titulo, mensagem, descric
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
-            <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 font-dm">
+            <div className="relative bg-white rounded-xl shadow-2xl w-[calc(100vw-2rem)] max-w-md font-dm">
 
                 {/* Header */}
                 <div className="px-5 pt-5 pb-3 border-b border-gray-100 flex items-start justify-between">
