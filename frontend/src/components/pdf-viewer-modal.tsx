@@ -44,7 +44,7 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
     const nomeUsuario = getUserName() ?? "Usuário";
     const roleUsuario = getUserRole() ?? "";
     // Exibe marca d'água para usuários com role VISUALIZADOR
-    const isVisualizador = roleUsuario === "VISUALIZADOR";
+    const isVisualizador = ["VISUALIZADOR", "ADMIN", "CHECKER"].includes(roleUsuario);
 
     const pdfFile = useMemo(() => {
         const codigo = norma?.codigo?.trim();
