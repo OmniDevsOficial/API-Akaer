@@ -224,6 +224,9 @@ const revisoesDaNorma = async (codigoBase: string, codigoVigente: string) => {
   return revisoes;
 };
 
+// ==========================================
+// FUNÇÃO DE BUSCA AJUSTADA
+// ==========================================
 export const searchNormasService = async (
   texto: string,
   pagina: number,
@@ -233,62 +236,52 @@ export const searchNormasService = async (
   status: string[]   = []
 ) => {
   const LIMITE_POR_PAGINA = 8;
-  const termo = texto.trim();
+  const termo = texto.trim().toLowerCase();
 
   const whereClause: any = {
     is_vigente: true,
   };
 
-  if (termo) {
-    whereClause.OR = [
-      { codigo: { contains: termo } },
-      { titulo: { contains: termo } },
-    ];
-  }
+  if (orgaos.length > 0) whereClause.orgao_emissor_id = { in: orgaos };
+  if (categorias.length > 0) whereClause.categoria_id = { in: categorias };
+  if (etapas.length > 0) whereClause.etapa_projeto_id = { in: etapas };
+  if (status.length > 0) whereClause.status = { in: status };
 
-  if (orgaos.length > 0) {
-    whereClause.orgao_emissor_id = { in: orgaos };
-  }
+  const todasNormas = await prisma.norma.findMany({
+    where: whereClause,
+    orderBy: { titulo: "asc" },
+    select: {
+      id: true,
+      codigo: true,
+      codigo_base: true,
+      titulo: true,
+      status: true,
+      revisao: true,
+      data_publicacao: true,
+      etapa_projeto_id: true,
+      orgao_emissor: true,
+      categoria: true,
+      etapa_projeto: true,
+      palavras_chave: true,
+    },
+  });
 
-  if (categorias.length > 0) {
-    whereClause.categoria_id = { in: categorias };
-  }
+  const normasFiltradasPorTexto = termo ? todasNormas.filter(n => {
+    const titulo = n.titulo.toLowerCase();
+    const codigo = n.codigo.toLowerCase();
+    const palavras = Array.isArray(n.palavras_chave) ? n.palavras_chave.join(' ').toLowerCase() : '';
 
-  if (etapas.length > 0) {
-    whereClause.etapa_projeto_id = { in: etapas };
-  }
+    return titulo.includes(termo) || codigo.includes(termo) || palavras.includes(termo);
+  }) : todasNormas;
 
-  if (status.length > 0) {
-    whereClause.status = { in: status };
-  }
-
+  const total = normasFiltradasPorTexto.length;
+  const totalPaginas = Math.max(1, Math.ceil(total / LIMITE_POR_PAGINA));
   const skip = (pagina - 1) * LIMITE_POR_PAGINA;
 
-  const [total, normas] = await Promise.all([
-    prisma.norma.count({ where: whereClause }),
-    prisma.norma.findMany({
-      where: whereClause,
-      orderBy: { titulo: "asc" },
-      skip,
-      take: LIMITE_POR_PAGINA,
-      select: {
-        id: true,
-        codigo: true,
-        codigo_base: true,
-        titulo: true,
-        status: true,
-        revisao: true,
-        data_publicacao: true,
-        etapa_projeto_id: true,
-        orgao_emissor: true,
-        categoria: true,
-        etapa_projeto: true,
-      },
-    }),
-  ]);
+  const normasPaginadas = normasFiltradasPorTexto.slice(skip, skip + LIMITE_POR_PAGINA);
 
   const itensComRevisoes = await Promise.all(
-    normas.map(async (norma) => {
+    normasPaginadas.map(async (norma) => {
       const revisoes = await revisoesDaNorma(norma.codigo_base, norma.codigo);
       return {
         ...norma,
@@ -297,17 +290,15 @@ export const searchNormasService = async (
     })
   );
 
-  const totalPaginas = Math.max(1, Math.ceil(total / LIMITE_POR_PAGINA));
-
   return {
     itens: itensComRevisoes,
     paginacao: {
       pagina,
-      limite:            LIMITE_POR_PAGINA,
+      limite: LIMITE_POR_PAGINA,
       total,
       totalPaginas,
       temPaginaAnterior: pagina > 1,
-      temProximaPagina:  pagina < totalPaginas,
+      temProximaPagina: pagina < totalPaginas,
     },
   };
 };

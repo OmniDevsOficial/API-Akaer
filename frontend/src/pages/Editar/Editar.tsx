@@ -14,7 +14,7 @@ export default function Editar() {
         <div className="flex h-screen w-full overflow-hidden bg-[#fbfbfb] font-dm">
             <Sidebar />
 
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col min-w-0">
                 <main className="flex flex-col flex-1 overflow-hidden">
                     <HeaderEditar onSalvar={handleSalvar} />
 

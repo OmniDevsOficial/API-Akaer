@@ -9,8 +9,9 @@ import {
     Loader2,
     StickyNote,
     Tag,
+    ChevronRight,
 } from "lucide-react";
-
+import { LiaCodeBranchSolid } from "react-icons/lia";
 import Sidebar from "../../components/sidebar";
 import PdfViewerModal from "../../components/pdf-viewer-modal";
 import {
@@ -151,12 +152,12 @@ export default function Visualizar() {
         : null;
 
     return (
-        <div className="flex h-screen w-full overflow-hidden bg-[#fbfbfb] font-dm">
+        <div className="flex h-screen w-full overflow-hidden bg-[#fbfbfb] font-dm pb-16 md:pb-0">
             <div className="flex flex-1">
                 <Sidebar />
 
                 <div className="flex-1 flex flex-col">
-                    
+
                     <div className="flex flex-wrap items-center gap-4 border-b border-font-border bg-white px-7 py-6">
                         <div className="flex items-center gap-4">
                             <Link
@@ -257,7 +258,7 @@ export default function Visualizar() {
                                                 norma.palavras_chave.map((item, index) => (
                                                     <span
                                                         key={`${item}-${index}`}
-                                                        className="px-2 py-1 rounded-full bg-red-50 text-sm text-red-akaer flex items-center gap-1"
+                                                        className="px-2 py-1 rounded-full bg-red-50 text-sm border border-[#73203A]/20 text-red-akaer flex items-center gap-1"
                                                     >
                                                         <Tag size={12} />
                                                         {item}
@@ -316,26 +317,36 @@ export default function Visualizar() {
                                         </button>
                                     </Section>
 
-                                    <Section icon={<FileText size={14} />} title="Correlações">
-                                        <div className="flex flex-wrap gap-2">
-                                            {normasRelacionada.length > 0 ? (
-                                                normasRelacionada.map((n: any) => (
-                                                    <span
+                                    <Section icon={<LiaCodeBranchSolid size={14} />} title="Correlações">
+                                        {normasRelacionada.length ? (
+                                            <div className="grid grid-cols-1 gap-2 w-full">
+                                                {normasRelacionada.map(n => (
+                                                    <Link
                                                         key={n.codigo}
-                                                        className="flex items-center gap-1 bg-[#FAF9F7] text-dark-title border border-font-border px-2 py-1 rounded text-sm"
+                                                        to={`/normas/ver/${n.codigo}`}
+                                                        className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg border border-font-border bg-white hover:border-[#73203A]/30 hover:bg-[#73203A]/5 transition-all group"
                                                     >
-                                                        <Link to={`/normas/ver/${n.codigo}`}>
-                                                            {n.codigo}
-                                                            {n.titulo ? ` — ${n.titulo}` : ""}
-                                                        </Link>
-                                                    </span>
-                                                ))
-                                            ) : (
-                                                <span className="text-sm text-gray-400">
-                                                    Nenhuma correlação cadastrada
-                                                </span>
-                                            )}
-                                        </div>
+                                                        <div className="flex flex-col min-w-0">
+                                                            <span className="text-[11px] font-bold text-[#73203A] leading-tight">
+                                                                {n.codigo}
+                                                            </span>
+                                                            <span className="text-xs text-gray-500 truncate group-hover:text-gray-700 transition-colors leading-snug mt-0.5">
+                                                                {n.titulo || '—'}
+                                                            </span>
+                                                        </div>
+                                                        <ChevronRight
+                                                            size={13}
+                                                            className="ml-auto flex-shrink-0 text-gray-300 group-hover:text-[#73203A]/40 transition-colors"
+                                                        />
+                                                    </Link>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-2 text-xs text-gray-400">
+                                                <span className="w-1 h-1 rounded-full bg-gray-300" />
+                                                Nenhuma correlação cadastrada
+                                            </div>
+                                        )}
                                     </Section>
 
                                     <Section icon={<StickyNote size={14} />} title="Notas">

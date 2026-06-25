@@ -142,153 +142,124 @@ export default function ModalEditarUsuario({ open, onClose, onSalvar, usuario, e
         ${erros[campo] ? 'border-red-400 focus:border-red-akaer' : 'border-gray-200 focus:border-[#73203A]'}`;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="absolute inset-0 bg-black/50" onClick={handleClose} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="absolute inset-0 bg-black/50" onClick={handleClose} />
 
-            <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 font-dm">
+        <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 font-dm max-h-[90vh] flex flex-col">
 
-                {/* Header */}
-                <div className="px-5 pt-5 pb-3 border-b border-gray-100 flex items-start justify-between">
-                    <div>
-                        <span className="text-xs font-medium text-red-akaer tracking-widest uppercase">EDIÇÃO</span>
-                        <br />
-                        <span className="text-md font-semibold text-gray-800">{usuario.nome}</span>
-                    </div>
-                    <button onClick={handleClose} className="text-gray-400 hover:text-gray-600 transition-colors mt-0.5">
-                        <X size={16} />
-                    </button>
+            {/* Header */}
+            <div className="px-5 pt-5 pb-3 border-b border-gray-100 flex items-start justify-between shrink-0">
+                <div>
+                    <span className="text-xs font-medium text-red-akaer tracking-widest uppercase">EDIÇÃO</span>
+                    <br />
+                    <span className="text-md font-semibold text-gray-800">{usuario.nome}</span>
+                </div>
+                <button onClick={handleClose} className="text-gray-400 hover:text-gray-600 transition-colors mt-0.5">
+                    <X size={16} />
+                </button>
+            </div>
+
+            {/* Body — scroll interno */}
+            <div className="px-5 py-4 flex flex-col gap-4 overflow-y-auto flex-1">
+
+                {/* Nome */}
+                <div>
+                    <label className="block text-xs font-semibold text-gray-600 mb-1">
+                        NOME COMPLETO <span className="text-red-akaer">*</span>
+                    </label>
+                    <input type="text" value={form.nome} onChange={e => set('nome', e.target.value)} className={inputBase('nome')} />
+                    {erros.nome && <p className="text-red-akaer text-xs mt-0.5">{erros.nome}</p>}
                 </div>
 
-                {/* Body */}
-                <div className="px-5 py-4 flex flex-col gap-4">
+                {/* E-mail */}
+                <div>
+                    <label className="block text-xs font-semibold text-gray-600 mb-1">
+                        E-MAIL <span className="text-red-akaer">*</span>
+                    </label>
+                    <input type="email" value={form.email} onChange={e => set('email', e.target.value)} className={inputBase('email')} />
+                    {erros.email && <p className="text-red-akaer text-xs mt-0.5">{erros.email}</p>}
+                </div>
 
-                    {/* Nome */}
-                    <div>
-                        <label className="block text-xs font-semibold text-gray-600 mb-1">
-                            NOME COMPLETO <span className="text-red-akaer">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            value={form.nome}
-                            onChange={e => set('nome', e.target.value)}
-                            className={inputBase('nome')}
-                        />
-                        {erros.nome && <p className="text-red-akaer text-xs mt-0.5">{erros.nome}</p>}
+                {/* Cargo + Telefone — empilha no mobile */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex-1">
+                        <label className="block text-xs font-semibold text-gray-600 mb-1">CARGO</label>
+                        <input type="text" placeholder="Ex: Engenheiro" value={form.cargo}
+                            onChange={e => set('cargo', e.target.value)} className={inputBase('cargo')} />
                     </div>
-
-                    {/* E-mail */}
-                    <div>
-                        <label className="block text-xs font-semibold text-gray-600 mb-1">
-                            E-MAIL <span className="text-red-akaer">*</span>
-                        </label>
-                        <input
-                            type="email"
-                            value={form.email}
-                            onChange={e => set('email', e.target.value)}
-                            className={inputBase('email')}
-                        />
-                        {erros.email && <p className="text-red-akaer text-xs mt-0.5">{erros.email}</p>}
-                    </div>
-
-                    {/* Cargo + Telefone */}
-                    <div className="flex gap-3">
-                        <div className="flex-1">
-                            <label className="block text-xs font-semibold text-gray-600 mb-1">CARGO</label>
-                            <input
-                                type="text"
-                                placeholder="Ex: Engenheiro"
-                                value={form.cargo}
-                                onChange={e => set('cargo', e.target.value)}
-                                className={inputBase('cargo')}
-                            />
-                        </div>
-                        <div className="flex-1">
-                            <label className="block text-xs font-semibold text-gray-600 mb-1">TELEFONE</label>
-                            <input
-                                type="text"
-                                placeholder="Ex: (11) 99999-9999"
-                                value={form.telefone}
-                                onChange={e => set('telefone', e.target.value)}
-                                className={inputBase('telefone')}
-                            />
-                        </div>
-                    </div>
-
-                    {/* Nível de Acesso */}
-                    <div>
-                        <label className="block text-xs font-semibold text-gray-600 mb-1">
-                            NÍVEL DE ACESSO <span className="text-red-akaer">*</span>
-                        </label>
-                        <div className="flex gap-2">
-                            {niveisConfig.map(n => (
-                                <NivelCard
-                                    key={n.valor}
-                                    {...n}
-                                    selecionado={form.nivelAcesso === n.valor}
-                                    onClick={() => set('nivelAcesso', n.valor)}
-                                />
-                            ))}
-                        </div>
-                        {erros.nivelAcesso && <p className="text-red-akaer text-xs mt-0.5">{erros.nivelAcesso}</p>}
-                    </div>
-
-                    {/* Nova Senha + Confirmar */}
-                    <div className="flex gap-3">
-                        <div className="flex-1">
-                            <label className="block text-xs font-semibold text-gray-600 mb-1">NOVA SENHA</label>
-                            <div className="relative">
-                                <input
-                                    type={mostrarSenha ? 'text' : 'password'}
-                                    placeholder="Mínimo de 8 caracteres"
-                                    value={form.novaSenha}
-                                    onChange={e => set('novaSenha', e.target.value)}
-                                    className={`${inputBase('novaSenha')} pr-9`}
-                                />
-                                <button type="button" onClick={() => setMostrarSenha(v => !v)}
-                                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                                    {mostrarSenha ? <EyeOff size={14} /> : <Eye size={14} />}
-                                </button>
-                            </div>
-                            {erros.novaSenha && <p className="text-red-akaer text-xs mt-0.5">{erros.novaSenha}</p>}
-                        </div>
-                        <div className="flex-1">
-                            <label className="block text-xs font-semibold text-gray-600 mb-1">CONFIRMAR NOVA SENHA</label>
-                            <div className="relative">
-                                <input
-                                    type={mostrarConfirmar ? 'text' : 'password'}
-                                    placeholder="Repita a senha"
-                                    value={form.confirmarNovaSenha}
-                                    onChange={e => set('confirmarNovaSenha', e.target.value)}
-                                    className={`${inputBase('confirmarNovaSenha')} pr-9`}
-                                />
-                                <button type="button" onClick={() => setMostrarConfirmar(v => !v)}
-                                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                                    {mostrarConfirmar ? <EyeOff size={14} /> : <Eye size={14} />}
-                                </button>
-                            </div>
-                            {erros.confirmarNovaSenha && <p className="text-red-akaer text-xs mt-0.5">{erros.confirmarNovaSenha}</p>}
-                        </div>
+                    <div className="flex-1">
+                        <label className="block text-xs font-semibold text-gray-600 mb-1">TELEFONE</label>
+                        <input type="text" placeholder="Ex: (11) 99999-9999" value={form.telefone}
+                            onChange={e => set('telefone', e.target.value)} className={inputBase('telefone')} />
                     </div>
                 </div>
 
-                {/* Footer */}
-                <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100">
-                    <p className="text-xs text-gray-400">Campos com <span className="text-red-akaer">*</span> são obrigatórios</p>
+                {/* Nível de Acesso */}
+                <div>
+                    <label className="block text-xs font-semibold text-gray-600 mb-1">
+                        NÍVEL DE ACESSO <span className="text-red-akaer">*</span>
+                    </label>
                     <div className="flex gap-2">
-                        <button onClick={handleClose}
-                            className="px-4 py-1.5 text-sm text-gray-600 border border-gray-200 rounded hover:bg-gray-50 transition-colors">
-                            Cancelar
-                        </button>
-                        <button onClick={handleSubmit}
-                            className="flex items-center gap-1.5 px-4 py-1.5 text-sm font-semibold text-white bg-[#1a1a1a] rounded hover:bg-[#73203A] transition-colors">
-                            <svg viewBox="0 0 16 16" className="w-3.5 h-3.5">
-                                <path d="M13.5 2.5l-8 8-3-3" stroke="white" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                            Salvar
-                        </button>
+                        {niveisConfig.map(n => (
+                            <NivelCard key={n.valor} {...n}
+                                selecionado={form.nivelAcesso === n.valor}
+                                onClick={() => set('nivelAcesso', n.valor)} />
+                        ))}
+                    </div>
+                    {erros.nivelAcesso && <p className="text-red-akaer text-xs mt-0.5">{erros.nivelAcesso}</p>}
+                </div>
+
+                {/* Nova Senha + Confirmar — empilha no mobile */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex-1">
+                        <label className="block text-xs font-semibold text-gray-600 mb-1">NOVA SENHA</label>
+                        <div className="relative">
+                            <input type={mostrarSenha ? 'text' : 'password'} placeholder="Mínimo de 8 caracteres"
+                                value={form.novaSenha} onChange={e => set('novaSenha', e.target.value)}
+                                className={`${inputBase('novaSenha')} pr-9`} />
+                            <button type="button" onClick={() => setMostrarSenha(v => !v)}
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                {mostrarSenha ? <EyeOff size={14} /> : <Eye size={14} />}
+                            </button>
+                        </div>
+                        {erros.novaSenha && <p className="text-red-akaer text-xs mt-0.5">{erros.novaSenha}</p>}
+                    </div>
+                    <div className="flex-1">
+                        <label className="block text-xs font-semibold text-gray-600 mb-1">CONFIRMAR NOVA SENHA</label>
+                        <div className="relative">
+                            <input type={mostrarConfirmar ? 'text' : 'password'} placeholder="Repita a senha"
+                                value={form.confirmarNovaSenha} onChange={e => set('confirmarNovaSenha', e.target.value)}
+                                className={`${inputBase('confirmarNovaSenha')} pr-9`} />
+                            <button type="button" onClick={() => setMostrarConfirmar(v => !v)}
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                {mostrarConfirmar ? <EyeOff size={14} /> : <Eye size={14} />}
+                            </button>
+                        </div>
+                        {erros.confirmarNovaSenha && <p className="text-red-akaer text-xs mt-0.5">{erros.confirmarNovaSenha}</p>}
                     </div>
                 </div>
             </div>
+
+            {/* Footer */}
+            <div className="flex flex-col sm:flex-row items-center justify-between px-5 py-3 border-t border-gray-100 gap-3 shrink-0">
+                <p className="text-xs text-gray-400 hidden sm:block">
+                    Campos com <span className="text-red-akaer">*</span> são obrigatórios
+                </p>
+                <div className="flex gap-2 w-full sm:w-auto">
+                    <button onClick={handleClose}
+                        className="flex-1 sm:flex-none px-4 py-1.5 text-sm text-gray-600 border border-gray-200 rounded hover:bg-gray-50 transition-colors">
+                        Cancelar
+                    </button>
+                    <button onClick={handleSubmit}
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-1.5 text-sm font-semibold text-white bg-[#1a1a1a] rounded hover:bg-[#73203A] transition-colors">
+                        <svg viewBox="0 0 16 16" className="w-3.5 h-3.5">
+                            <path d="M13.5 2.5l-8 8-3-3" stroke="white" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        Salvar
+                    </button>
+                </div>
+            </div>
         </div>
-    );
+    </div>
+);
 }
