@@ -83,12 +83,12 @@ model Norma {
   orgao_emissor_id Int
   categoria_id     Int
   etapa_projeto_id Int?
-  revisao          String       @db.VarChar(20)
+  revisao          String       @db.Char(1)
   is_vigente       Boolean      @default(false)
   status           norma_status @default(Ativa)
   data_publicacao  DateTime     @db.Date
   arquivo          String       @db.VarChar(500)
-  escopo           String?
+  escopo           String?      @db.Text
   palavras_chave   Json?
 
   // Chave estrangeira e relação com o usuário criador (Inclusão local)

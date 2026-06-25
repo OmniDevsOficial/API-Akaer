@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
-import { Dialog, DialogClose, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { FaRegFilePdf, FaLock } from "react-icons/fa6";
 import { ChevronLeft, ChevronRight, Minus, Plus, X } from "lucide-react";
 import { useRecolher } from "../utils/functions";
@@ -28,9 +28,13 @@ interface PdfViewerModalProps {
     } | null;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3333";
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://api-akaer-omni.duckdns.org:3333";
 
-const joinApiUrl = (pathname: string) => new URL(pathname, API_BASE_URL).toString();
+const joinApiUrl = (pathname: string) => {
+    const base = API_BASE_URL.replace(/\/$/, ""); // Remove barra no final da base, se houver
+    const path = pathname.startsWith("/") ? pathname : `/${pathname}`; // Garante que o caminho comece com barra
+    return `${base}${path}`;
+};
 
 
 export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerModalProps) {
@@ -45,6 +49,7 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
 
     const nomeUsuario = getUserName() ?? "Usuário";
     const roleUsuario = getUserRole() ?? "";
+    // Exibe marca d'água para todos os perfis autenticados
     const isVisualizador = ["VISUALIZADOR", "ADMIN", "CHECKER"].includes(roleUsuario);
 
     const pdfFile = useMemo(() => {
@@ -129,6 +134,7 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
         }
 
         const blockKeyboardShortcuts = (event: KeyboardEvent) => {
+            // Bloqueia atalhos de impressão/salvar para todos os usuários
             const isBlockedShortcut =
                 (event.ctrlKey || event.metaKey) && ["p", "s", "u"].includes(event.key.toLowerCase());
 
@@ -229,6 +235,8 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogContent className="!p-0 gap-0 sm:!max-w-6xl h-[90vh] flex flex-col overflow-hidden" showCloseButton={false}>
+                {/* Título oculto para acessibilidade (exigido pelo Radix UI) */}
+                <DialogTitle className="sr-only">Visualização de Documento PDF</DialogTitle>
                 <div className="px-4 py-2 border-b border-font-border bg-[#f5f4f2] flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3 min-w-0">
                         <FaRegFilePdf className="text-red-akaer text-base shrink-0 self-center" />
