@@ -206,7 +206,7 @@ export default function Usuario() {
             <div className="flex flex-col flex-1 h-full overflow-hidden">
 
                 <main className="flex-1 min-h-0 overflow-y-auto p-8">
-                    <p className="text-[#73203A] font-bold text-xs tracking-widest mb-2">GERENCIAMENTO</p>
+                    <p className="text-red-akaer font-bold text-[10px] md:text-xs tracking-widest mb-0.5">GERENCIAMENTO</p>
 
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-6">
                         <div>

@@ -5,29 +5,29 @@ body {
 }
 
 :root {
-  --primary-color: #A11F3C; 
+  --primary-color: #A11F3C;
   --text-dark: #333333;
   --text-light: #777777;
   --bg-input: #F9F9F9;
   --border-input: #E0E0E0;
-  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .loginContainer {
   display: flex;
-  min-height: 100vh; 
+  min-height: 100vh;
   width: 100%;
   font-family: var(--font-family);
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 /*Imagem */
 .leftColumn {
-  flex: 1.2; 
+  flex: 1.2;
   background-size: cover;
   background-position: center;
   position: relative;
-  border-right: 1px solid var(--primary-color); 
+  border-right: 1px solid var(--primary-color);
   width: 300px;
   height: auto;
 }
@@ -36,17 +36,17 @@ body {
 
 /* Formulário */
 .rightColumn {
-  flex: 1; 
+  flex: 1;
   display: flex;
   justify-content: center;
-  align-items: center; 
+  align-items: center;
   background-color: #FFFFFF;
   padding: 40px;
 }
 
 .loginForm {
   width: 100%;
-  max-width: 480px; 
+  max-width: 480px;
 }
 
 
@@ -127,8 +127,8 @@ body {
 .inputField {
   flex: 1;
   padding: 12px 4px;
-  border: none;
-  background-color: transparent;
+  border: 1px solid var(--border-input);
+  background-color: var(--bg-input);
   border-radius: 2px;
   font-size: 15px;
   outline: none;
@@ -180,7 +180,7 @@ body {
 .submitButton {
   width: 100%;
   padding: 14px;
-  background-color: #2D2D2D; 
+  background-color: #2D2D2D;
   color: #FFFFFF;
   border: none;
   border-radius: 4px;
@@ -199,7 +199,7 @@ body {
 
 /* Texto Inferior */
 .infoTextWrapper {
-  margin-top: auto; 
+  margin-top: auto;
   padding-top: 20px;
   max-width: 400px;
   border-top: 1px solid #F0F0F0;
@@ -238,7 +238,7 @@ body {
 }
 
 
-   /* RESPONSIVIDADE */
+/* RESPONSIVIDADE */
 
 /* Tablet pequeno / celular grande (até 900px): esconde imagem */
 @media (max-width: 900px) {
@@ -282,7 +282,7 @@ body {
   }
 
   .inputField {
-    font-size: 16px; 
+    font-size: 16px;
     box-sizing: border-box;
   }
 

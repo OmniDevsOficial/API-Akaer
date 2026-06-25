@@ -24,12 +24,16 @@ export default function Barra_pesquisa({ busca, ordemAtual, filtrosAtivos, filtr
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (menuAberto && dropdownRef.current && dropdownRef.current.contains(event.target as Node)) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
                 setMenuAberto(false);
             }
-            document.addEventListener('mousedown', handleClickOutside);
-            return () => document.removeEventListener('mousedown', handleClickOutside);
         };
+
+        if (menuAberto) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [menuAberto]);
 
     const handleEscolherOrdem = (tipo: 'recentes' | 'antigas' | 'az' | 'za') => {

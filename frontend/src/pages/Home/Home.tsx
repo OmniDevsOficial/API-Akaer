@@ -85,14 +85,13 @@ export default function Home() {
             <Sidebar />
 
             <div className="flex flex-col flex-1 h-full overflow-hidden">
-                <main className="flex-1 min-h-0 overflow-y-auto">
-
-                    <div className="sticky top-0 z-10 bg-[#fbfbfb] border-b border-font-border px-4 md:px-8 py-4">
+                <main className="flex-1 p-8 overflow-y-auto">
+                    <div className="sticky top-0 z-10 bg-[#fbfbfb] px-4 md:px-0 py-4 md:py-0">
                         <div className="flex items-center justify-between gap-4">
                             <div>
                                 <p className="text-red-akaer font-bold text-[10px] md:text-xs tracking-widest mb-0.5">GERENCIAMENTO</p>
                                 <h1 className="text-lg md:text-2xl font-semibold text-dark-title leading-tight">Normas Aeronáuticas</h1>
-                                <p className="hidden md:block text-xs text-gray-medium mt-0.5">Cadastre, edite e visualize todas as normas da empresa</p>
+                                <p className="hidden md:block text-sm text-gray-medium mt-0.5">Cadastre, edite e visualize todas as normas da empresa</p>
                             </div>
                             <div className="hidden md:block shrink-0">
                                 {botaoAcao}
@@ -112,7 +111,7 @@ export default function Home() {
                     </div>
 
                     {/* Tabela — fora do sticky */}
-                    <div className="px-4 md:px-8 py-4 pb-24 md:pb-8">
+                    <div className="px-4 md:px-0 py-4 pb-24 md:pb-8">
                         <TabelaNormas
                             refreshTrigger={recarregarTabela}
                             searchText={buscaNorma}

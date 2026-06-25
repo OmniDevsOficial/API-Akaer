@@ -152,7 +152,7 @@ export default function Visualizar() {
         : null;
 
     return (
-        <div className="flex h-screen w-full overflow-hidden bg-[#fbfbfb] font-dm pb-16 md:pb-16">
+        <div className="flex h-screen w-full overflow-hidden bg-[#fbfbfb] font-dm pb-16 md:pb-0">
             <div className="flex flex-1">
                 <Sidebar />
 
