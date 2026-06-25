@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
-import { Dialog, DialogClose, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { FaRegFilePdf, FaLock } from "react-icons/fa6";
 import { ChevronLeft, ChevronRight, Minus, Plus, X } from "lucide-react";
 import { useRecolher } from "../utils/functions";
 import { Link } from "react-router-dom";
+import { getUserName, getUserRole } from "../utils/auth";
 
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -43,6 +44,11 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
     const [zoom, setZoom] = useState(1);
     const [containerWidth, setContainerWidth] = useState(0);
     const areaRef = useRef<HTMLDivElement | null>(null);
+
+    const nomeUsuario = getUserName() ?? "Usuário";
+    const roleUsuario = getUserRole() ?? "";
+    // Exibe marca d'água para todos os perfis autenticados
+    const exibirMarcaDagua = ["VISUALIZADOR", "ADMIN", "CHECKER"].includes(roleUsuario);
 
     const pdfFile = useMemo(() => {
         const codigo = norma?.codigo?.trim();
@@ -125,10 +131,14 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
         }
 
         const blockKeyboardShortcuts = (event: KeyboardEvent) => {
+            // Bloqueia atalhos de impressão/salvar para todos os usuários
             const isBlockedShortcut =
                 (event.ctrlKey || event.metaKey) && ["p", "s", "u"].includes(event.key.toLowerCase());
 
-            if (!isBlockedShortcut) {
+            // Bloqueia PrintScreen para visualizadores
+            const isPrintScreen = roleUsuario === "VISUALIZADOR" && event.key === "PrintScreen";
+
+            if (!isBlockedShortcut && !isPrintScreen) {
                 return;
             }
 
@@ -141,7 +151,7 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
         return () => {
             window.removeEventListener("keydown", blockKeyboardShortcuts, true);
         };
-    }, [open]);
+    }, [open, roleUsuario]);
 
     const irParaPaginaAnterior = () => {
         if (podeVoltar) {
@@ -180,6 +190,8 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogContent className="!p-0 gap-0 sm:!max-w-6xl h-[90vh] flex flex-col overflow-hidden" showCloseButton={false}>
+                {/* Título oculto para acessibilidade (exigido pelo Radix UI) */}
+                <DialogTitle className="sr-only">Visualização de Documento PDF</DialogTitle>
                 <div className="px-4 py-2 border-b border-font-border bg-[#f5f4f2] flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3 min-w-0">
                         <FaRegFilePdf className="text-red-akaer text-base shrink-0 self-center" />
@@ -287,6 +299,47 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
                                             renderTextLayer
                                         />
                                     </Document>
+
+                                    {/* Marca d'água — exibida para todos os perfis autenticados */}
+                                    {exibirMarcaDagua && (
+                                        <div
+                                            aria-hidden="true"
+                                            style={{
+                                                position: "absolute",
+                                                top: 0,
+                                                left: 0,
+                                                right: 0,
+                                                bottom: 0,
+                                                pointerEvents: "none",
+                                                zIndex: 10,
+                                                display: "flex",
+                                                flexWrap: "wrap",
+                                                alignContent: "space-around",
+                                                justifyContent: "space-around",
+                                                overflow: "hidden",
+                                                padding: "20px",
+                                                gap: "30px",
+                                            }}
+                                        >
+                                            {Array.from({ length: 30 }).map((_, i) => (
+                                                <span
+                                                    key={i}
+                                                    style={{
+                                                        color: "rgba(122, 46, 68, 0.13)",
+                                                        fontSize: "18px",
+                                                        fontWeight: 900,
+                                                        letterSpacing: "4px",
+                                                        transform: "rotate(-35deg)",
+                                                        whiteSpace: "nowrap",
+                                                        userSelect: "none",
+                                                        fontFamily: "Arial, sans-serif",
+                                                    }}
+                                                >
+                                                    {nomeUsuario}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}

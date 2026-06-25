@@ -350,11 +350,13 @@ export default function TabelaNormas({
         if (!searchText.trim()) return true;
 
         const textoBusca = searchText.toLowerCase();
-        // Garante que não vai quebrar se a norma vier sem título ou código
         const titulo = norma.titulo ? norma.titulo.toLowerCase() : '';
         const codigo = norma.codigo ? norma.codigo.toLowerCase() : '';
+        const palavrasChave = Array.isArray((norma as any).palavras_chave)
+            ? (norma as any).palavras_chave.join(' ').toLowerCase()
+            : '';
 
-        return titulo.includes(textoBusca) || codigo.includes(textoBusca);
+        return titulo.includes(textoBusca) || codigo.includes(textoBusca) || palavrasChave.includes(textoBusca);
     });
 
     // ORDENAR OS DADOS FILTRADOS
