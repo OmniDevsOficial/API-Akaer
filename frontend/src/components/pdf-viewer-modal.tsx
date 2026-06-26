@@ -431,20 +431,17 @@ export default function PdfViewerModal({ open, onOpenChange, norma }: PdfViewerM
                 </div>
 
                 {/* ===== RODAPÉ ===== */}
-                <div className="px-3 py-2 border-t border-font-border bg-[#f5f4f2] flex flex-col xs:flex-row items-start xs:items-center justify-between gap-1.5 shrink-0">
-                    <div className="flex items-center gap-2 text-[0.65rem] text-gray-400">
-                        <FaLock className="text-gray-400 shrink-0" />
-                        <span>Visualização protegida - download não disponível</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-[0.65rem] text-gray-500">
-                        <span className="h-1.5 w-1.5 rounded-full bg-green-500 shrink-0" />
-                        {/* Em mobile, mostra só status e categoria para não quebrar linha */}
-                        <span className="sm:hidden">
-                            {[norma?.status || "Sem status", norma?.categoria || "Sem categoria"].join(" · ")}
-                        </span>
-                        <span className="hidden sm:inline">{metadadosRodape}</span>
-                    </div>
-                </div>
+                <div className="px-4 py-2.5 border-t border-font-border bg-[#f5f4f2] flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+    <div className="flex items-center gap-2 text-[0.7rem] text-gray-400">
+        <FaLock className="text-gray-400" />
+        <span>Visualização protegida - download não disponível</span>
+    </div>
+
+    <div className="flex items-center gap-1.5 text-xs text-gray-500">
+        <span className="h-1.5 w-1.5 rounded-full bg-green-500 shrink-0" />
+        <span className="text-right">{metadadosRodape}</span>
+    </div>
+</div>
 
             </DialogContent>
         </Dialog>
